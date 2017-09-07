@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <canard.h>
-#include <libopencm3/stm32/desig.h>
+#include <board.h>
 
 #define UNUSED(x) ((void)x)
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
@@ -102,7 +102,7 @@ static void allocation_start_followup_timer(void);
 
 void uavcan_init(void)
 {
-    desig_get_unique_id((uint32_t*)&node_unique_id[0]);
+    board_get_unique_id((uint32_t*)&node_unique_id[0]);
     canardInit(&canard, canard_memory_pool, sizeof(canard_memory_pool), onTransferReceived, shouldAcceptTransfer, NULL);
     allocation_init();
     canard_initialized = true;
@@ -571,7 +571,7 @@ static float getRandomFloat(void)
     if (!initialized)
     {
         initialized = true;
-        desig_get_unique_id((uint32_t*)&node_unique_id[0]);
+        board_get_unique_id((uint32_t*)&node_unique_id[0]);
 
         const uint32_t* unique_32 = (uint32_t*)&node_unique_id[0];
 

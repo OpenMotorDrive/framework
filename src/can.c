@@ -13,12 +13,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <libopencm3/stm32/can.h>
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
 #include <common/can.h>
 #include <common/timing.h>
-
+#include <hal.h>
 
 static const uint32_t valid_baudrates[] = {
     125000,
