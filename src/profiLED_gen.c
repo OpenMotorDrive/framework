@@ -13,11 +13,6 @@ void profiLED_gen_make_brg_color_hex(uint32_t color, struct profiLED_gen_color_s
     profiLED_gen_make_brg_color_rgb((uint8_t)(color>>16), (uint8_t)(color>>8), (uint8_t)color, ret);
 }
 
-uint32_t profiLED_gen_get_buf_size(uint32_t num_leds) {
-    uint32_t min_bits = num_leds*25+50;
-    return (min_bits+7)/8;
-}
-
 static uint32_t _profiLED_gen_write(uint32_t num_leds, struct profiLED_gen_color_s* profiLED_gen_colors, profiLED_gen_write_byte_func_internal_t write_byte, void* context) {
     const uint32_t min_bits = num_leds*25+50;
     const uint8_t num_leading_zeros = 8-min_bits%8 + 50;
@@ -63,6 +58,9 @@ static uint32_t _profiLED_gen_write(uint32_t num_leds, struct profiLED_gen_color
     }
 
     write_byte(output_idx, profiLED_gen_color_byte_array[profiLED_gen_data_bit_offset/8], context);
+    output_idx++;
+
+    write_byte(output_idx, 0, context);
     output_idx++;
 
     return output_idx;

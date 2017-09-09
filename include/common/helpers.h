@@ -28,6 +28,8 @@
 
 #define SIGN(x) ( x>=0 ? 1 : -1 )
 
+#define LEN(x) (sizeof(x)/sizeof(x[0]))
+
 #define UNUSED(x) ((void)x)
 
 float sinf_fast(float x);

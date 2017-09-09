@@ -37,45 +37,7 @@ void canbus_init(uint32_t baud, bool silent) {
     baudrate = baud;
     successful_recv = false;
 
-    // Enable peripheral clock
-    rcc_periph_clock_enable(RCC_CAN);
-
-    rcc_periph_clock_enable(BOARD_CONFIG_CAN_RX_GPIO_PORT_RCC);
-    gpio_mode_setup(BOARD_CONFIG_CAN_RX_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, BOARD_CONFIG_CAN_RX_GPIO_PIN);
-    gpio_set_af(BOARD_CONFIG_CAN_RX_GPIO_PORT, BOARD_CONFIG_CAN_RX_GPIO_ALTERNATE_FUNCTION, BOARD_CONFIG_CAN_RX_GPIO_PIN);
-
-
-    rcc_periph_clock_enable(BOARD_CONFIG_CAN_TX_GPIO_PORT_RCC);
-    gpio_mode_setup(BOARD_CONFIG_CAN_TX_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, BOARD_CONFIG_CAN_TX_GPIO_PIN);
-    gpio_set_af(BOARD_CONFIG_CAN_TX_GPIO_PORT, BOARD_CONFIG_CAN_TX_GPIO_ALTERNATE_FUNCTION, BOARD_CONFIG_CAN_TX_GPIO_PIN);
-
-    uint8_t brp = 2000000/baudrate;
-
-    can_reset(CAN1);
-    can_init(
-        CAN1,             /* CAN register base address */
-        false,            /* TTCM: Time triggered comm mode? */
-        true,             /* ABOM: Automatic bus-off management? */
-        false,            /* AWUM: Automatic wakeup mode? */
-        false,            /* NART: No automatic retransmission? */
-        false,            /* RFLM: Receive FIFO locked mode? */
-        true,             /* TXFP: Transmit FIFO priority? */
-        CAN_BTR_SJW_1TQ,  /* Resynchronization time quanta jump width.*/
-        CAN_BTR_TS1_15TQ, /* Time segment 1 time quanta width. */
-        CAN_BTR_TS2_2TQ,  /* Time segment 2 time quanta width. */
-        brp,                /* Baud rate prescaler. */
-        false,            /* Loopback */
-        silent             /* Silent */
-    );
-
-    can_filter_id_mask_32bit_init(
-        CAN1,  /* CAN register base address */
-        0,     /* Filter ID */
-        0,     /* CAN ID */
-        0,     /* CAN ID mask */
-        0,     /* FIFO assignment (here: FIFO0) */
-        true
-    );
+    // canStart ...
 }
 
 uint32_t canbus_get_confirmed_baudrate(void) {
@@ -139,33 +101,9 @@ uint32_t canbus_autobaud_update(struct canbus_autobaud_state_s* state) {
 }
 
 bool canbus_send_message(struct canbus_msg* msg) {
-    return can_transmit(
-        CAN1,
-        msg->id,  /* (EX/ST)ID: CAN ID */
-        msg->ide, /* IDE: CAN ID extended? */
-        msg->rtr, /* RTR: Request transmit? */
-        msg->dlc, /* DLC: Data length */
-        msg->data
-    ) != -1;
+    // canSend
 }
 
 bool canbus_recv_message(struct canbus_msg* msg) {
-    if ((CAN_RF0R(CAN1)&0b11) == 0) {
-        return false;
-    }
-    uint32_t fmi;
-    can_receive(
-        CAN1,
-        0,
-        true,
-        &(msg->id),
-        &(msg->ide),
-        &(msg->rtr),
-        &fmi,
-        &(msg->dlc),
-        msg->data);
-
-    successful_recv = true;
-
-    return true;
+    // canReceive
 }

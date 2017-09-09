@@ -102,7 +102,7 @@ static void allocation_start_followup_timer(void);
 
 void uavcan_init(void)
 {
-    board_get_unique_id((uint32_t*)&node_unique_id[0]);
+    board_get_unique_id(node_unique_id, sizeof(node_unique_id));
     canardInit(&canard, canard_memory_pool, sizeof(canard_memory_pool), onTransferReceived, shouldAcceptTransfer, NULL);
     allocation_init();
     canard_initialized = true;
@@ -571,7 +571,7 @@ static float getRandomFloat(void)
     if (!initialized)
     {
         initialized = true;
-        board_get_unique_id((uint32_t*)&node_unique_id[0]);
+        board_get_unique_id(node_unique_id, sizeof(node_unique_id));
 
         const uint32_t* unique_32 = (uint32_t*)&node_unique_id[0];
 
