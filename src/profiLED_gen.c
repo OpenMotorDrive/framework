@@ -81,7 +81,7 @@ static void _profiLED_gen_write_buf_cb(uint32_t index, uint8_t byte, void* conte
 }
 
 uint32_t profiLED_gen_write_buf(uint32_t num_leds, struct profiLED_gen_color_s* profiLED_gen_colors, uint8_t* buf, uint32_t buf_size) {
-    if (buf_size < profiLED_gen_get_buf_size(num_leds)) {
+    if (buf_size < PROFILED_GEN_BUF_SIZE(num_leds)) {
         return 0;
     }
 

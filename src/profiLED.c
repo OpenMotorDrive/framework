@@ -1,65 +1,63 @@
-#include "ch.h"
-#include "hal.h"
+#include <ch.h>
 #include <string.h>
 #include <common/profiLED.h>
 #include <common/helpers.h>
+#include <common/spi.h>
 
 #define MAX_NUM_PROFILEDS 64
 #define PROFILED_OUTPUT_BUFFER_SIZE PROFILED_GEN_BUF_SIZE(MAX_NUM_PROFILEDS)
-#define PROFILED_WORKER_THREAD_STACK_SIZE (180+PROFILED_OUTPUT_BUFFER_SIZE)
+#define PROFILED_WORKER_THREAD_STACK_SIZE 256
 #define PROFILED_WORKER_MAILBOX_DEPTH 2
 
-static void profiLED_assert_chip_select(struct profiLED_instance_s* instance);
-static void profiLED_deassert_chip_select(struct profiLED_instance_s* instance);
-
-static const SPIConfig ledSPIConfig = {
-    NULL,
-    0,
-    0,
-    0,
-    SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0
-};
-
-MAILBOX_DECL(worker_mailbox, worker_mailbox_buf, PROFILED_WORKER_MAILBOX_DEPTH);
+#ifndef PROFILED_BLOCKING
 static struct profiLED_instance_s* worker_mailbox_buf[PROFILED_WORKER_MAILBOX_DEPTH];
-
-
+MAILBOX_DECL(worker_mailbox, worker_mailbox_buf, PROFILED_WORKER_MAILBOX_DEPTH);
 static thread_t* worker_thread;
 
-static THD_WORKING_AREA(waProfiLEDThread, 180+PROFILED_OUTPUT_BUFFER_SIZE);
+static THD_WORKING_AREA(waProfiLEDThread, PROFILED_WORKER_THREAD_STACK_SIZE);
 static THD_FUNCTION(ProfiLEDThread, arg);
+#endif
 
-void profiLED_init(struct profiLED_instance_s* instance, SPIDriver* spidriver, uint32_t select_line, bool select_active_high, uint32_t num_leds) {
+static void _profiled_update(struct profiLED_instance_s* instance);
+
+void profiLED_init(struct profiLED_instance_s* instance, uint8_t spi_bus_idx, uint32_t spi_sel_line, bool sel_active_high, uint32_t num_leds) {
     if (!instance) {
         return;
     }
 
+#ifndef PROFILED_BLOCKING
     if (!worker_thread) {
-        worker_thread = chThdCreateFromHeap(NULL, PROFILED_WORKER_THREAD_STACK_SIZE, "LED", LOWPRIO, ProfiLEDThread, NULL);
+        worker_thread = chThdCreateStatic(waProfiLEDThread, sizeof(waProfiLEDThread), LOWPRIO, ProfiLEDThread, NULL);
         if (!worker_thread) goto fail;
-        chThdRelease(worker_thread);
     }
+#endif
 
-    instance->select_line = select_line;
-    instance->select_active_high = select_active_high;
-
-    profiLED_deassert_chip_select(instance);
-
-    instance->spidriver = spidriver;
-    instance->num_leds = num_leds;
-
-    size_t colors_size = sizeof(struct profiLED_gen_color_s) * instance->num_leds;
+    size_t colors_size = sizeof(struct profiLED_gen_color_s) * num_leds;
     instance->colors = chHeapAlloc(NULL, colors_size);
     if (!instance->colors) goto fail;
     memset(instance->colors, 0, colors_size);
 
+    if (!spi_device_init(&(instance->dev), spi_bus_idx, spi_sel_line, 0, 8, (sel_active_high?OMD_SPI_FLAG_SELPOL:0))) {
+        goto fail;
+    }
+
+    instance->num_leds = num_leds;
+
+    profiLED_update(instance);
+    return;
+
 fail:
     chHeapFree(instance->colors);
+    instance->colors = NULL;
 }
 
 void profiLED_update(struct profiLED_instance_s* instance) {
+#ifdef PROFILED_BLOCKING
+    _profiled_update(instance);
+#else
     // signal the worker thread to update this LED instance
-    chMBPost(&worker_mailbox, instance, TIME_IMMEDIATE);
+    chMBPost(&worker_mailbox, (msg_t)instance, TIME_IMMEDIATE);
+#endif
 }
 
 void profiLED_set_color_rgb(struct profiLED_instance_s* instance, uint32_t idx, uint8_t r, uint8_t g, uint8_t b) {
@@ -74,43 +72,28 @@ void profiLED_set_color_hex(struct profiLED_instance_s* instance, uint32_t idx, 
     profiLED_set_color_rgb(instance, idx, (uint8_t)(color>>16), (uint8_t)(color>>8), (uint8_t)color);
 }
 
+static void _profiled_update(struct profiLED_instance_s* instance) {
+    if (!instance) {
+        return;
+    }
+
+    uint8_t txbuf[PROFILED_OUTPUT_BUFFER_SIZE];
+    uint32_t buf_len = profiLED_gen_write_buf(instance->num_leds, instance->colors, txbuf, sizeof(txbuf));
+    if (buf_len == 0) {
+        return;
+    }
+
+    spi_device_send(&(instance->dev), buf_len, txbuf);
+}
+
+#ifndef PROFILED_BLOCKING
 static THD_FUNCTION(ProfiLEDThread, arg) {
     (void)arg;
 
-    uint8_t txbuf[PROFILED_OUTPUT_BUFFER_SIZE];
-
     while(true) {
-        struct profiLED_instance_s* instance;
+        msg_t instance;
         chMBFetch(&worker_mailbox, &instance, TIME_INFINITE);
-
-        if (!instance) continue;
-
-        uint32_t buf_len = profiLED_gen_write_buf(instance->num_leds, instance->colors, txbuf, PROFILED_OUTPUT_BUFFER_SIZE);
-        if (buf_len == 0) continue; // NOTE: due to a bug in chibios, calling spiSend with a length of 0 blocks forever
-
-        spiAcquireBus(instance->spidriver);
-        spiStart(instance->spidriver, &ledSPIConfig);
-        profiLED_assert_chip_select(instance);
-
-        spiSend(instance->spidriver, buf_len, txbuf);
-
-        profiLED_deassert_chip_select(instance);
-        spiReleaseBus(instance->spidriver);
+        _profiled_update((struct profiLED_instance_s*)instance);
     }
 }
-
-static void profiLED_assert_chip_select(struct profiLED_instance_s* instance) {
-    if (instance->select_active_high) {
-        palSetLine(instance->select_line);
-    } else {
-        palClearLine(instance->select_line);
-    }
-}
-
-static void profiLED_deassert_chip_select(struct profiLED_instance_s* instance) {
-    if (instance->select_active_high) {
-        palClearLine(instance->select_line);
-    } else {
-        palSetLine(instance->select_line);
-    }
-}
+#endif
