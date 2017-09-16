@@ -16,6 +16,7 @@
 #include <common/can.h>
 #include <common/timing.h>
 #include <hal.h>
+#include <string.h>
 
 static const uint32_t valid_baudrates[] = {
     125000,
@@ -37,7 +38,13 @@ void canbus_init(uint32_t baud, bool silent) {
     baudrate = baud;
     successful_recv = false;
 
-    // canStart ...
+    const CANConfig cancfg = {
+        CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP,
+        (silent?CAN_BTR_SILM:0) | CAN_BTR_SJW(0) | CAN_BTR_TS2(2-1) |
+        CAN_BTR_TS1(15-1) | CAN_BTR_BRP((STM32_PCLK1/18)/baudrate - 1)
+    };
+
+    canStart(&CAND1, &cancfg);
 }
 
 uint32_t canbus_get_confirmed_baudrate(void) {
@@ -101,9 +108,49 @@ uint32_t canbus_autobaud_update(struct canbus_autobaud_state_s* state) {
 }
 
 bool canbus_send_message(struct canbus_msg* msg) {
-    // canSend
+    if (!msg || msg->dlc > 8) {
+        return false;
+    }
+
+    CANTxFrame txmsg;
+    if (msg->ide) {
+        txmsg.EID = msg->id;
+    } else {
+        txmsg.SID = msg->id;
+    }
+
+    txmsg.IDE = msg->ide;
+    txmsg.RTR = msg->rtr;
+    txmsg.DLC = msg->dlc;
+    memcpy(txmsg.data8, msg->data, msg->dlc);
+
+    if (canTransmitTimeout(&CAND1, CAN_ANY_MAILBOX, &txmsg, TIME_IMMEDIATE) == MSG_OK) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool canbus_recv_message(struct canbus_msg* msg) {
-    // canReceive
+    if (!msg) {
+        return false;
+    }
+
+    CANRxFrame rxmsg;
+    if (canReceiveTimeout(&CAND1, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == MSG_OK) {
+        if (rxmsg.IDE) {
+            msg->id = rxmsg.EID;
+        } else {
+            msg->id = rxmsg.SID;
+        }
+
+        msg->ide = rxmsg.IDE;
+        msg->rtr = rxmsg.RTR;
+        msg->dlc = rxmsg.DLC;
+        memcpy(msg->data, rxmsg.data8, rxmsg.DLC);
+
+        return true;
+    } else {
+        return false;
+    }
 }

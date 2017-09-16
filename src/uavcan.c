@@ -68,7 +68,7 @@ static file_read_response_handler_ptr file_read_response_cb;
 static uavcan_ready_handler_ptr uavcan_ready_cb;
 
 static CanardInstance canard;
-static uint8_t canard_memory_pool[1024];
+static uint8_t canard_memory_pool[1024] __attribute__ ((aligned (4)));
 static bool canard_initialized;
 
 static uint8_t node_health = UAVCAN_HEALTH_OK;
