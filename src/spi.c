@@ -75,11 +75,9 @@ void spi_device_exchange(struct spi_device_s* dev, uint32_t n, const void* txbuf
 }
 
 static SPIConfig spi_make_config(struct spi_device_s* dev) {
-    const uint32_t periph_speed = 72000000; // TODO figure this out
-
     uint8_t br_regval;
     for (br_regval=0; br_regval<8; br_regval++) {
-        if (periph_speed/(2<<br_regval) < dev->max_speed_hz) {
+        if (STM32_PCLK1/(2<<br_regval) < dev->max_speed_hz) {
             break;
         }
     }
