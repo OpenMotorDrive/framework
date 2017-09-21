@@ -1,5 +1,4 @@
 #include <common/spi.h>
-#include <hal.h>
 
 #define FLAG_BIT_VAL(flags, bit) ((flags&bit) != 0 ? 1 : 0)
 
@@ -22,10 +21,39 @@ bool spi_device_init(struct spi_device_s* dev, uint8_t bus_idx, uint32_t sel_lin
     dev->max_speed_hz = max_speed_hz;
     dev->data_size = data_size;
     dev->flags = flags;
+    dev->bus_acquired = false;
 
     spi_device_deassert_chip_select(dev);
 
     return true;
+}
+
+void spi_device_begin(struct spi_device_s* dev) {
+    SPIDriver* spidriver = spi_get_driver(dev->bus_idx);
+
+    if (!spidriver) {
+        return;
+    }
+
+    dev->spiconf = spi_make_config(dev);
+
+    spiAcquireBus(spidriver);
+    dev->bus_acquired = true;
+
+    spiStart(spidriver, &dev->spiconf);
+    spi_device_assert_chip_select(dev);
+}
+
+void spi_device_end(struct spi_device_s* dev) {
+    SPIDriver* spidriver = spi_get_driver(dev->bus_idx);
+
+    if (!spidriver) {
+        return;
+    }
+
+    spi_device_deassert_chip_select(dev);
+    spiReleaseBus(spidriver);
+    dev->bus_acquired = false;
 }
 
 void spi_device_send(struct spi_device_s* dev, uint32_t n, const void* txbuf) {
@@ -39,16 +67,33 @@ void spi_device_send(struct spi_device_s* dev, uint32_t n, const void* txbuf) {
         return;
     }
 
-    SPIConfig spiconf = spi_make_config(dev);
+    if (dev->bus_acquired) {
+        spiSend(spidriver, n, txbuf);
+    } else {
+        spi_device_begin(dev);
+        spiSend(spidriver, n, txbuf);
+        spi_device_end(dev);
+    }
+}
 
-    spiAcquireBus(spidriver);
-    spiStart(spidriver, &spiconf);
-    spi_device_assert_chip_select(dev);
+void spi_device_receive(struct spi_device_s* dev, uint32_t n, void* txbuf) {
+    if (n == 0) {
+        return; // NOTE: due to a bug in chibios, calling spiSend with a length of 0 blocks forever
+    }
 
-    spiSend(spidriver, n, txbuf);
+    SPIDriver* spidriver = spi_get_driver(dev->bus_idx);
 
-    spi_device_deassert_chip_select(dev);
-    spiReleaseBus(spidriver);
+    if (!spidriver) {
+        return;
+    }
+
+    if (dev->bus_acquired) {
+        spiReceive(spidriver, n, txbuf);
+    } else {
+        spi_device_begin(dev);
+        spiReceive(spidriver, n, txbuf);
+        spi_device_end(dev);
+    }
 }
 
 void spi_device_exchange(struct spi_device_s* dev, uint32_t n, const void* txbuf, void* rxbuf) {
@@ -62,16 +107,13 @@ void spi_device_exchange(struct spi_device_s* dev, uint32_t n, const void* txbuf
         return;
     }
 
-    SPIConfig spiconf = spi_make_config(dev);
-
-    spiAcquireBus(spidriver);
-    spiStart(spidriver, &spiconf);
-    spi_device_assert_chip_select(dev);
-
-    spiExchange(spidriver, n, txbuf, rxbuf);
-
-    spi_device_deassert_chip_select(dev);
-    spiReleaseBus(spidriver);
+    if (dev->bus_acquired) {
+        spiExchange(spidriver, n, txbuf, rxbuf);
+    } else {
+        spi_device_begin(dev);
+        spiExchange(spidriver, n, txbuf, rxbuf);
+        spi_device_end(dev);
+    }
 }
 
 static SPIConfig spi_make_config(struct spi_device_s* dev) {
