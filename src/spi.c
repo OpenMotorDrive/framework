@@ -28,6 +28,10 @@ bool spi_device_init(struct spi_device_s* dev, uint8_t bus_idx, uint32_t sel_lin
     return true;
 }
 
+void spi_device_set_max_speed_hz(struct spi_device_s* dev, uint32_t max_speed_hz) {
+    dev->max_speed_hz = max_speed_hz;
+}
+
 void spi_device_begin(struct spi_device_s* dev) {
     SPIDriver* spidriver = spi_get_driver(dev->bus_idx);
 
