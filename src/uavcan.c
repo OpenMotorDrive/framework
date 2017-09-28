@@ -5,6 +5,7 @@
 #include <string.h>
 #include <canard.h>
 #include <board.h>
+#include <ch.h>
 
 #define UNUSED(x) ((void)x)
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
@@ -58,6 +59,14 @@
 #define UAVCAN_FILE_READ_DATA_TYPE_ID                               48
 #define UAVCAN_FILE_READ_DATA_TYPE_SIGNATURE                        0x8dcdca939f33f678
 
+#define UAVCAN_PARAM_GETSET_RESPONSE_MAX_SIZE                       BIT_LEN_TO_SIZE(2967)
+#define UAVCAN_PARAM_GETSET_DATA_TYPE_ID                            11
+#define UAVCAN_PARAM_GETSET_DATA_TYPE_SIGNATURE                     0xa7b622f939d1a4d5
+
+#define UAVCAN_PARAM_EXECUTEOPCODE_RESPONSE_MAX_SIZE                BIT_LEN_TO_SIZE(49)
+#define UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_ID                     10
+#define UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_SIGNATURE              0x3b131ac5eb69d2cd
+
 #define UNIQUE_ID_LENGTH_BYTES                                      16
 
 static struct uavcan_node_info_s node_info;
@@ -66,6 +75,8 @@ static restart_handler_ptr restart_cb;
 static file_beginfirmwareupdate_handler_ptr file_beginfirmwareupdate_cb;
 static file_read_response_handler_ptr file_read_response_cb;
 static uavcan_ready_handler_ptr uavcan_ready_cb;
+static param_getset_request_handler_ptr param_getset_request_cb;
+static param_executeopcode_request_handler_ptr param_executeopcode_request_cb;
 
 static CanardInstance canard;
 static uint8_t canard_memory_pool[1024] __attribute__ ((aligned (4)));
@@ -99,6 +110,16 @@ static bool allocation_running(void);
 static void allocation_timer_expired(void);
 static void allocation_start_request_timer(void);
 static void allocation_start_followup_timer(void);
+
+
+MUTEX_DECL(uavcan_mtx);
+void uavcan_acquire(void) {
+    chMtxLock(&uavcan_mtx);
+}
+
+void uavcan_release(void) {
+    chMtxUnlock(&uavcan_mtx);
+}
 
 void uavcan_init(void)
 {
@@ -192,6 +213,13 @@ void uavcan_set_uavcan_ready_cb(uavcan_ready_handler_ptr cb)
     uavcan_ready_cb = cb;
 }
 
+void uavcan_set_param_getset_request_cb(param_getset_request_handler_ptr cb) {
+    param_getset_request_cb = cb;
+}
+
+void uavcan_set_param_executeopcode_request_cb(param_executeopcode_request_handler_ptr cb) {
+    param_executeopcode_request_cb = cb;
+}
 
 void uavcan_set_restart_cb(restart_handler_ptr cb)
 {
@@ -425,6 +453,148 @@ void uavcan_send_restart_response(struct uavcan_transfer_info_s* transfer_info, 
     canardRequestOrRespond(transfer_info->canardInstance, transfer_info->remote_node_id, UAVCAN_RESTARTNODE_DATA_TYPE_SIGNATURE, UAVCAN_RESTARTNODE_DATA_TYPE_ID, &transfer_info->transfer_id, transfer_info->priority, CanardResponse, resp_buf, UAVCAN_RESTARTNODE_RESPONSE_MAX_SIZE);
 }
 
+static void uavcan_encode_param_value(const struct uavcan_param_value_s* msg, void* buf, uint32_t* ofs) {
+    canardEncodeScalar(buf, *ofs, 3, &msg->type);
+    *ofs += 3;
+    switch(msg->type) {
+        case UAVCAN_PARAM_VALUE_TYPE_EMPTY:
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_INT64:
+            canardEncodeScalar(buf, *ofs, 64, &msg->integer_value);
+            *ofs += 64;
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_FLOAT32:
+            canardEncodeScalar(buf, *ofs, 32, &msg->real_value);
+            *ofs += 32;
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_BOOL:
+            canardEncodeScalar(buf, *ofs, 8, &msg->boolean_value);
+            *ofs += 8;
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_STRING: {
+            canardEncodeScalar(buf, *ofs, 8, &msg->string_value_len);
+            *ofs += 8;
+            for (uint8_t i=0; i < msg->string_value_len; i++) {
+                canardEncodeScalar(buf, *ofs, 8, &msg->string_value[i]);
+                *ofs += 8;
+            }
+            break;
+        }
+    }
+}
+
+static void uavcan_encode_param_numericvalue(const struct uavcan_param_numericvalue_s* msg, void* buf, uint32_t* ofs) {
+    canardEncodeScalar(buf, *ofs, 2, &msg->type);
+    *ofs += 2;
+    switch(msg->type) {
+        case UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY:
+            break;
+        case UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64:
+            canardEncodeScalar(buf, *ofs, 64, &msg->integer_value);
+            *ofs += 64;
+            break;
+        case UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32:
+            canardEncodeScalar(buf, *ofs, 32, &msg->real_value);
+            *ofs += 32;
+            break;
+    }
+}
+
+static void uavcan_decode_param_value(const CanardRxTransfer* transfer, uint32_t* ofs, struct uavcan_param_value_s* msg) {
+    canardDecodeScalar(transfer, *ofs, 3, false, &msg->type);
+    *ofs += 3;
+
+    switch(msg->type) {
+        case UAVCAN_PARAM_VALUE_TYPE_EMPTY:
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_INT64:
+            canardDecodeScalar(transfer, *ofs, 64, true, &msg->integer_value);
+            *ofs += 64;
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_FLOAT32:
+            canardDecodeScalar(transfer, *ofs, 32, true, &msg->real_value);
+            *ofs += 32;
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_BOOL:
+            canardDecodeScalar(transfer, *ofs, 8, false, &msg->boolean_value);
+            *ofs += 8;
+            break;
+        case UAVCAN_PARAM_VALUE_TYPE_STRING: {
+            canardDecodeScalar(transfer, *ofs, 8, false, &msg->string_value_len);
+            *ofs += 8;
+            for (uint8_t i=0; i<msg->string_value_len; i++) {
+                canardDecodeScalar(transfer, *ofs, 8, false, &msg->string_value[i]);
+                *ofs += 8;
+            }
+            break;
+        }
+    }
+}
+
+static void handle_param_getset_request(CanardInstance* ins, CanardRxTransfer* transfer) {
+    if (param_getset_request_cb) {
+        struct uavcan_param_getset_request_s msg;
+        uint32_t ofs = 0;
+        canardDecodeScalar(transfer, ofs, 13, false, &msg.index);
+        ofs += 13;
+        uavcan_decode_param_value(transfer, &ofs, &msg.value);
+        // tao should apply here
+        msg.name_len = transfer->payload_len - ofs/8;
+        for (uint8_t i=0; i < msg.name_len; i++) {
+            canardDecodeScalar(transfer, ofs, 8, false, &msg.name[i]);
+            ofs += 8;
+        }
+
+        param_getset_request_cb(get_transfer_info(ins, transfer), &msg);
+    }
+}
+
+void uavcan_send_param_getset_response(struct uavcan_transfer_info_s* transfer_info, const struct uavcan_param_getset_response_s* msg) {
+    uint8_t buf[UAVCAN_PARAM_GETSET_RESPONSE_MAX_SIZE];
+    memset(buf, 0, sizeof(buf));
+
+    uint32_t ofs = 0;
+    ofs += 5;
+    uavcan_encode_param_value(&msg->value, buf, &ofs);
+    ofs += 5;
+    uavcan_encode_param_value(&msg->default_value, buf, &ofs);
+    ofs += 6;
+    uavcan_encode_param_numericvalue(&msg->max_value, buf, &ofs);
+    ofs += 6;
+    uavcan_encode_param_numericvalue(&msg->min_value, buf, &ofs);
+    // tao should apply here
+    for (uint8_t i=0; i<msg->name_len; i++) {
+        canardEncodeScalar(buf, ofs, 8, &msg->name[i]);
+        ofs += 8;
+    }
+
+    canardRequestOrRespond(transfer_info->canardInstance, transfer_info->remote_node_id, UAVCAN_PARAM_GETSET_DATA_TYPE_SIGNATURE, UAVCAN_PARAM_GETSET_DATA_TYPE_ID, &transfer_info->transfer_id, transfer_info->priority, CanardResponse, buf, (ofs+7)/8);
+}
+
+static void handle_param_executeopcode_request(CanardInstance* ins, CanardRxTransfer* transfer) {
+    if (param_executeopcode_request_cb) {
+        struct uavcan_param_executeopcode_request_s msg;
+        uint32_t ofs = 0;
+        canardDecodeScalar(transfer, ofs, 8, false, &msg.opcode);
+        ofs += 8;
+        canardDecodeScalar(transfer, ofs, 48, true, &msg.argument);
+        ofs += 48;
+
+        param_executeopcode_request_cb(get_transfer_info(ins, transfer), &msg);
+    }
+}
+
+void uavcan_send_param_executeopcode_response(struct uavcan_transfer_info_s* transfer_info, const struct uavcan_param_executeopcode_response_s* response) {
+    uint8_t buf[UAVCAN_PARAM_GETSET_RESPONSE_MAX_SIZE];
+    uint32_t ofs = 0;
+    canardEncodeScalar(buf, ofs, 48, &response->argument);
+    ofs += 48;
+    canardEncodeScalar(buf, ofs, 1, &response->ok);
+    ofs += 1;
+
+    canardRequestOrRespond(transfer_info->canardInstance, transfer_info->remote_node_id, UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_SIGNATURE, UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_ID, &transfer_info->transfer_id, transfer_info->priority, CanardResponse, buf, (ofs+7)/8);
+}
+
 static void handle_file_beginfirmwareupdate_request(CanardInstance* ins, CanardRxTransfer* transfer)
 {
     uint8_t source_node_id;
@@ -457,7 +627,6 @@ void uavcan_send_file_beginfirmwareupdate_response(struct uavcan_transfer_info_s
 
     canardRequestOrRespond(transfer_info->canardInstance, transfer_info->remote_node_id, UAVCAN_FILE_BEGINFIRMWAREUPDATE_DATA_TYPE_SIGNATURE, UAVCAN_FILE_BEGINFIRMWAREUPDATE_DATA_TYPE_ID, &transfer_info->transfer_id, transfer_info->priority, CanardResponse, buf, total_size);
 }
-
 
 static uint8_t file_read_transfer_id;
 uint8_t uavcan_send_file_read_request(uint8_t remote_node_id, const uint64_t offset, const char* path)
@@ -505,6 +674,10 @@ static void onTransferReceived(CanardInstance* ins, CanardRxTransfer* transfer)
         handle_file_beginfirmwareupdate_request(ins, transfer);
     } else if (transfer->transfer_type == CanardTransferTypeResponse && transfer->data_type_id == UAVCAN_FILE_READ_DATA_TYPE_ID) {
         handle_file_read_response(ins, transfer);
+    } else if (transfer->transfer_type == CanardTransferTypeRequest && transfer->data_type_id == UAVCAN_PARAM_GETSET_DATA_TYPE_ID) {
+        handle_param_getset_request(ins, transfer);
+    } else if (transfer->transfer_type == CanardTransferTypeRequest && transfer->data_type_id == UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_ID) {
+        handle_param_executeopcode_request(ins, transfer);
     }
 }
 
@@ -559,6 +732,18 @@ static bool shouldAcceptTransfer(const CanardInstance* ins, uint64_t* out_data_t
     if (transfer_type == CanardTransferTypeResponse && data_type_id == UAVCAN_FILE_READ_DATA_TYPE_ID)
     {
         *out_data_type_signature = UAVCAN_FILE_READ_DATA_TYPE_SIGNATURE;
+        return true;
+    }
+
+    if (transfer_type == CanardTransferTypeRequest && data_type_id == UAVCAN_PARAM_GETSET_DATA_TYPE_ID)
+    {
+        *out_data_type_signature = UAVCAN_PARAM_GETSET_DATA_TYPE_SIGNATURE;
+        return true;
+    }
+
+    if (transfer_type == CanardTransferTypeRequest && data_type_id == UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_ID)
+    {
+        *out_data_type_signature = UAVCAN_PARAM_EXECUTEOPCODE_DATA_TYPE_SIGNATURE;
         return true;
     }
 

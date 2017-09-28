@@ -6,6 +6,18 @@ SECTIONS
 
 PROVIDE(_app_bl_shared_sec = ORIGIN(app_bl_shared));
 
+PROVIDE(_bl_flash_sec = ORIGIN(bl));
+PROVIDE(_bl_flash_sec_end = ORIGIN(bl)+LENGTH(bl));
+
+PROVIDE(_app_flash_sec = ORIGIN(app));
+PROVIDE(_app_flash_sec_end = ORIGIN(app)+LENGTH(app));
+
+PROVIDE(_param1_flash_sec = ORIGIN(param1));
+PROVIDE(_param1_flash_sec_end = ORIGIN(param1)+LENGTH(param1));
+
+PROVIDE(_param2_flash_sec = ORIGIN(param2));
+PROVIDE(_param2_flash_sec_end = ORIGIN(param2)+LENGTH(param2));
+
 /* For each data/text section two region are defined, a virtual region
    and a load region (_LMA suffix).*/
 

@@ -101,15 +101,13 @@ void transform_alpha_beta_to_d_q(float theta, float alpha, float beta, float* d,
 #define FNV_1_OFFSET_BASIS_64 14695981039346656037UL
 #define FNV_1_PRIME_64 1099511628211UL
 
-uint64_t hash_fnv_1a(uint32_t len, const uint8_t* buf)
+void hash_fnv_1a(uint32_t len, const uint8_t* buf, uint64_t* hash)
 {
-    uint64_t hash = FNV_1_OFFSET_BASIS_64;
     uint32_t i;
     for (i=0; i<len; i++) {
-        hash ^= (uint64_t)buf[i];
-        hash *= FNV_1_PRIME_64;
+        *hash ^= (uint64_t)buf[i];
+        *hash *= FNV_1_PRIME_64;
     }
-    return hash;
 }
 
 // CRC16 implementation according to CCITT standards
@@ -149,7 +147,7 @@ static const uint16_t crc16tab[256] = {
     0x6E17, 0x7E36, 0x4E55, 0x5E74, 0x2E93, 0x3EB2, 0x0ED1, 0x1EF0
 };
 
-uint16_t crc16_ccitt(const char *buf, uint32_t len, uint16_t crc)
+uint16_t crc16_ccitt(const uint8_t* buf, uint32_t len, uint16_t crc)
 {
     uint32_t i;
     for (i = 0; i < len; i++)
