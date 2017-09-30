@@ -33,9 +33,9 @@ const struct shared_app_parameters_s* shared_get_parameters(const struct shared_
 
     for (uint8_t i=0; i<2; i++) {
         if (param_struct_valid(descriptor->parameters[i], descriptor->parameters_ignore_crc64) &&
-            (!ret || (int8_t)(descriptor->parameters[i]->param_idx) > (int8_t)(ret->param_idx))) {
+            (!ret || (int8_t)(descriptor->parameters[i]->param_idx-ret->param_idx) > 0)) {
             ret = descriptor->parameters[i];
-            }
+        }
     }
 
     return ret;
