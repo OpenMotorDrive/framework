@@ -23,7 +23,7 @@ static THD_WORKING_AREA(waTimingThread, 128);
 static THD_FUNCTION(TimingThread, arg);
 
 static struct {
-    uint32_t update_seconds;
+    uint64_t update_seconds;
     systime_t update_systime;
 } timing_state[2];
 
@@ -41,10 +41,18 @@ uint32_t millis(void) {
     systime_t systime_now = chVTGetSystemTimeX();
     uint32_t delta_ticks = systime_now-timing_state[idx].update_systime;
     uint32_t delta_ms = delta_ticks / (CH_CFG_ST_FREQUENCY/1000);
-    return (timing_state[idx].update_seconds*1000) + delta_ms;
+    return ((uint32_t)timing_state[idx].update_seconds*1000) + delta_ms;
 }
 
 uint32_t micros(void) {
+    uint8_t idx = timing_state_idx;
+    systime_t systime_now = chVTGetSystemTimeX();
+    uint32_t delta_ticks = systime_now-timing_state[idx].update_systime;
+    uint32_t delta_ms = delta_ticks / (CH_CFG_ST_FREQUENCY/1000000);
+    return ((uint32_t)timing_state[idx].update_seconds*1000000) + delta_ms;
+}
+
+uint64_t micros64(void) {
     uint8_t idx = timing_state_idx;
     systime_t systime_now = chVTGetSystemTimeX();
     uint32_t delta_ticks = systime_now-timing_state[idx].update_systime;
