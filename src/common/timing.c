@@ -13,12 +13,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <common/ctor.h>
 #include <common/timing.h>
 #include <ch.h>
 
 #include <common/can.h>
 
-static thread_t* worker_thread;
 static THD_WORKING_AREA(waTimingThread, 128);
 static THD_FUNCTION(TimingThread, arg);
 
@@ -29,11 +29,8 @@ static struct {
 
 static volatile uint8_t timing_state_idx;
 
-void timing_init(void)
-{
-    if (!worker_thread) {
-        worker_thread = chThdCreateStatic(waTimingThread, sizeof(waTimingThread), HIGHPRIO-1, TimingThread, NULL);
-    }
+RUN_AFTER(CH_SYS_INIT) {
+    chThdCreateStatic(waTimingThread, sizeof(waTimingThread), HIGHPRIO-1, TimingThread, NULL);
 }
 
 uint32_t millis(void) {

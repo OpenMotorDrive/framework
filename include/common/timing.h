@@ -17,7 +17,7 @@
 
 #include <stdint.h>
 
-void timing_init(void);
 uint32_t millis(void);
 uint32_t micros(void);
+uint64_t micros64(void);
 void usleep(uint32_t delay);

@@ -1,4 +1,5 @@
 #pragma once
+#include <common/ctor.h>
 #include <common/uavcan.h>
 #include <common/flash_journal.h>
 #include <stdint.h>
@@ -60,22 +61,22 @@ struct __attribute__((packed)) _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE) 
 #define _PARAM_DEFINE_SCALAR_PARAM_STATIC(HANDLE_NAME, NAME, DEFAULT_VAL, MIN_VAL, MAX_VAL, PARAM_TYPE) \
 static _PARAM_SCALAR_CTYPE(PARAM_TYPE) HANDLE_NAME; \
 static const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE) _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME) = {{PARAM_TYPE, 0, NAME, &HANDLE_NAME}, DEFAULT_VAL, MIN_VAL, MAX_VAL}; \
-static void __attribute__((constructor,unused)) _PARAM_CONCAT(_param_local_descriptor_constructor_, HANDLE_NAME)(void) { \
-    _param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \
+RUN_AFTER(OMD_PARAM_INIT) { \
+    param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \
 }
 
 #define PARAM_DEFINE_BOOL_PARAM_STATIC(HANDLE_NAME, NAME, DEFAULT_VAL) \
 static bool HANDLE_NAME; \
 static const struct param_descriptor_bool_s _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME) = {{PARAM_TYPE_BOOL, DEFAULT_VAL, NAME, &HANDLE_NAME}}; \
-static void __attribute__((constructor,unused)) _PARAM_CONCAT(_param_local_descriptor_constructor_, HANDLE_NAME)(void) { \
-    _param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \
+RUN_AFTER(OMD_PARAM_INIT) { \
+    param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \
 }
 
 #define PARAM_DEFINE_STRING_PARAM_STATIC(HANDLE_NAME, NAME, DEFAULT_VAL, MAX_LEN) \
 static char HANDLE_NAME[MAX_LEN+1]; \
 static const struct param_descriptor_string_s _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME) = {{PARAM_TYPE_STRING, 0, NAME, HANDLE_NAME}, MAX_LEN, DEFAULT_VAL}; \
-static void __attribute__((constructor,unused)) _PARAM_CONCAT(_param_local_descriptor_constructor_, HANDLE_NAME)(void) { \
-    _param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \
+RUN_AFTER(OMD_PARAM_INIT) { \
+    param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \
 }
 
 #define PARAM_DEFINE_FLOAT32_PARAM_STATIC(HANDLE_NAME, NAME, DEFAULT_VAL, MIN_VAL, MAX_VAL) \
@@ -143,11 +144,9 @@ struct __attribute__((packed)) param_descriptor_bool_s {
     struct param_descriptor_header_s header;
 };
 
-void param_init(void);
 void param_acquire(void);
 void param_release(void);
 void param_register(const struct param_descriptor_header_s* param_descriptor_header);
-void _param_register(const struct param_descriptor_header_s* param_descriptor_header);
 uint16_t param_get_num_params_registered(void);
 int16_t param_get_index_by_name(uint8_t name_len, char* name);
 void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response);

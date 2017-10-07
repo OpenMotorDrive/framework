@@ -31,11 +31,16 @@ struct omd_uavcan_instance_s {
     CANDriver* can_dev;
     CanardInstance canard;
     void* canard_memory_pool;
-    thread_t rx_thread;
-    thread_t tx_thread;
+    thread_t* rx_thread;
+    thread_t* tx_thread;
     mutex_t canard_mtx;
     mutex_t tx_mtx;
     binary_semaphore_t tx_thread_semaphore;
+
     struct omd_uavcan_subscription_list_item_s* message_subscription_list;
     memory_heap_t message_heap;
 };
+
+void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev, void* message_heap_mem, size_t message_heap_size);
+void omd_uavcan_transmit_async(struct omd_uavcan_instance_s* instance);
+void omd_uavcan_transmit_sync(struct omd_uavcan_instance_s* instance);

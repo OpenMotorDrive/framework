@@ -53,7 +53,7 @@ static uint8_t param_compress_varint64(int64_t value, uint8_t* buf);
 static bool param_journal_iterate_final_values(const struct flash_journal_entry_s** iterator);
 static void param_compress_journal(void);
 
-void param_init(void) {
+RUN_ON(OMD_PARAM_INIT) {
     param_acquire();
 
     flash_journal_init(&journals[0], BOARD_PARAM1_ADDR, BOARD_PARAM1_FLASH_SIZE);
@@ -85,14 +85,12 @@ void param_init(void) {
     // Compress journal if needed
     param_compress_journal();
 
-    for (uint16_t i=0; i<num_params_registered; i++) {
-        param_load_cache_value_from_all(i);
-    }
-
     param_release();
 }
 
-void _param_register(const struct param_descriptor_header_s* param_descriptor_header) {
+void param_register(const struct param_descriptor_header_s* param_descriptor_header) {
+    param_acquire();
+
     if (num_params_registered < PARAM_MAX_NUM_PARAMS) {
         uint16_t new_param_idx = num_params_registered;
 
@@ -111,12 +109,6 @@ void _param_register(const struct param_descriptor_header_s* param_descriptor_he
 
         param_load_cache_value_from_all(new_param_idx);
     }
-}
-
-void param_register(const struct param_descriptor_header_s* param_descriptor_header) {
-    param_acquire();
-
-    _param_register(param_descriptor_header);
 
     param_release();
 }
