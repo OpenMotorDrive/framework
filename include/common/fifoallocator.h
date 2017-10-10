@@ -2,7 +2,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <ch.h>
 
 typedef void (*delete_handler_ptr)(void* block);
 
@@ -18,10 +17,10 @@ struct fifoallocator_instance_s {
     delete_handler_ptr delete_cb;
     struct fifoallocator_block_s* newest;
     struct fifoallocator_block_s* oldest;
-    mutex_t mtx;
 };
 
 void fifoallocator_init(struct fifoallocator_instance_s* instance, size_t memory_pool_size, void* memory_pool, delete_handler_ptr delete_cb);
 void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t msg_size);
+size_t fifoallocator_get_block_size(const void* block);
 void fifoallocator_lock(struct fifoallocator_instance_s* instance);
 void fifoallocator_unlock(struct fifoallocator_instance_s* instance);
