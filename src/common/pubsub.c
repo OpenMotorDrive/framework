@@ -1,17 +1,13 @@
 #include <common/pubsub.h>
 #include <common/helpers.h>
 
+#ifndef OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE
+#define OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE 1024
+#endif
+
 MEMORYPOOL_DECL(listener_list_pool, sizeof(struct pubsub_listener_s), chCoreAllocAligned);
 
 static struct pubsub_topic_s* topic_list_head;
-
-void* pubsub_listener_peek_message(pubsub_sub_handle_t sub_handle) {
-
-}
-
-void* pubsub_listener_pop_message(pubsub_sub_handle_t sub_handle) {
-
-}
 
 struct pubsub_listener_s* pubsub_listen_to_topic(uint64_t key, struct msgfifo_instance_s* msgfifo, eventid_t event_id) {
     if (!msgfifo) {
@@ -66,7 +62,7 @@ void pubsub_register_topic(uint64_t key, size_t size) {
         topic = topic->next;
     }
 
-    struct pubsub_topic_s* new_topic = chCoreAllocAligned(sizeof(struct pubsub_topic_s));
+    struct pubsub_topic_s* new_topic = chCoreAllocAligned(sizeof(struct pubsub_topic_s), sizeof(void*));
 
     if (new_topic) {
         return;

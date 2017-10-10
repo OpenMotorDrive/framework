@@ -138,8 +138,8 @@ void omd_uavcan_transmit_async(struct omd_uavcan_instance_s* instance) {
         return;
     }
 
-    chBSemSignal(&instance->tx_thread_semaphore);
     // TODO: transmit thread should inherit calling thread priority
+    chBSemSignal(&instance->tx_thread_semaphore);
 }
 
 void omd_uavcan_transmit_sync(struct omd_uavcan_instance_s* instance) {
