@@ -18,6 +18,10 @@
 #define OMD_UAVCAN_TX_THREAD_STACK_SIZE 128
 #endif
 
+#ifndef OMD_UAVCAN_TRANSFER_ID_MAP_SIZE
+#define OMD_UAVCAN_TRANSFER_ID_MAP_SIZE 32
+#endif
+
 static THD_FUNCTION(omd_uavcan_rx_thd_func, arg);
 static THD_FUNCTION(omd_uavcan_tx_thd_func, arg);
 
@@ -28,8 +32,8 @@ static void omd_uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* 
 static CanardCANFrame convert_CANRxFrame_to_CanardCANFrame(const CANRxFrame* chibios_frame);
 static CANTxFrame convert_CanardCANFrame_to_CANTxFrame(const CanardCANFrame* canard_frame);
 
-void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev, void* message_heap_mem, size_t message_heap_size) {
-    if (!instance || !can_dev || !message_heap_mem) {
+void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev) {
+    if (!instance || !can_dev) {
         return;
     }
 
@@ -37,8 +41,6 @@ void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev,
 
     instance->canard_memory_pool = chHeapAlloc(NULL, OMD_UAVCAN_CANARD_MEMORY_POOL_SIZE);
     if (!instance->canard_memory_pool) { goto fail; }
-
-    chHeapObjectInit(&instance->message_heap, message_heap_mem, message_heap_size);
 
     instance->can_dev = can_dev;
 
@@ -82,6 +84,39 @@ fail:
     }
 }
 
+void omd_uavcan_add_sub(struct omd_uavcan_instance_s* instance, struct omd_uavcan_message_subscription_s* sub) {
+    sub->next = NULL;
+
+    struct omd_uavcan_message_subscription_s** next_ptr = &instance->message_subscription_list;
+    while (*next_ptr) {
+        next_ptr = &((*next_ptr)->next);
+    }
+    *next_ptr = sub;
+}
+
+static THD_FUNCTION(omd_uavcan_tx_thd_func, arg) {
+    (void)arg;
+    struct omd_uavcan_instance_s* instance;
+
+    // wait for start message
+    {
+        thread_t* tp = chMsgWait();
+        instance = (struct omd_uavcan_instance_s*)chMsgGet(tp);
+        chMsgRelease(tp, MSG_OK);
+    }
+
+    if (!instance) {
+        chThdExit(0);
+    }
+
+    while (true) {
+        chBSemWait(&instance->tx_thread_semaphore);
+        omd_uavcan_transmit_sync(instance);
+    }
+
+    chThdExit(0);
+}
+
 static THD_FUNCTION(omd_uavcan_rx_thd_func, arg) {
     (void)arg;
     struct omd_uavcan_instance_s* instance;
@@ -108,29 +143,6 @@ static THD_FUNCTION(omd_uavcan_rx_thd_func, arg) {
             chMtxUnlock(&instance->canard_mtx);
         }
     }
-}
-
-static THD_FUNCTION(omd_uavcan_tx_thd_func, arg) {
-    (void)arg;
-    struct omd_uavcan_instance_s* instance;
-
-    // wait for start message
-    {
-        thread_t* tp = chMsgWait();
-        instance = (struct omd_uavcan_instance_s*)chMsgGet(tp);
-        chMsgRelease(tp, MSG_OK);
-    }
-
-    if (!instance) {
-        chThdExit(0);
-    }
-
-    while (true) {
-        chBSemWait(&instance->tx_thread_semaphore);
-        omd_uavcan_transmit_sync(instance);
-    }
-
-    chThdExit(0);
 }
 
 void omd_uavcan_transmit_async(struct omd_uavcan_instance_s* instance) {
@@ -200,74 +212,58 @@ static CANTxFrame convert_CanardCANFrame_to_CANTxFrame(const CanardCANFrame* can
     return ret;
 }
 
-//
-// ^^^^^^^ good stuff ^^^^^^^
-// --------------------------
-// vvvv incomplete stuff vvvv
-//
+struct omd_uavcan_message_writer_func_args {
+    struct omd_uavcan_instance_s* omd_uavcan_instance;
+    CanardRxTransfer* transfer;
+    omd_uavcan_deserializer_func_ptr deserializer_func;
+};
 
-// static void omd_uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* transfer) {
-//     if (!canard || !transfer) {
-//         return;
-//     }
-//
-//     chMtxLock(&instance->canard_mtx);
-//     struct omd_uavcan_instance_s* instance = canardGetUserReference(canard);
-//     chMtxUnlock(&instance->canard_mtx);
-//
-//     struct omd_uavcan_subscription_list_item_s* message_subscription = instance->message_subscription_list;
-//     while (message_subscription) {
-//         struct omd_uavcan_message_descriptor_s* message_descriptor = message_descriptors[message_subscription->message_idx];
-//
-//         if (data_type_id == message_subscription->data_type_id && transfer_type == message_descriptor->transfer_type && !memcmp(&message_descriptor->data_type_signature, out_data_type_signature, sizeof(uint64_t))) {
-//
-//         }
-//
-//         message_subscription = message_subscription->next_item;
-//     }
-//
-//     struct omd_uavcan_message_s* message = chHeapAlloc(&instance->message_heap, sizeof(struct omd_uavcan_message_s)+);
-//     if (!message) {
-//         // dropped message due to insufficient heap
-//         // TODO stats
-//         return;
-//     }
-//
-//     message->num_refs = 0;
-//     message->payload_len = transfer->payload_len;
-//
-//
-//     struct omd_uavcan_subscription_list_item_s* message_subscription = instance->message_subscription_list;
-//     while (message_subscription) {
-//         if (data_type_id == message_subscription->data_type_id && transfer_type == message_subscription->transfer_type && !memcmp(&message_subscription->data_type_signature, out_data_type_signature, sizeof(uint64_t))) {
-//             // TODO figure out how to dispatch to listeners - NOTE that the payload will be released by libcanard after this function returns
-//         }
-//
-//         message_subscription = message_subscription->next_item;
-//     }
-// }
-//
-// static bool omd_uavcan_should_accept_transfer(const CanardInstance* canard, uint64_t* out_data_type_signature, uint16_t data_type_id, CanardTransferType transfer_type, uint8_t source_node_id) {
-//     if (!canard || !out_data_type_signature) {
-//         return false;
-//     }
-//
-//     chMtxLock(&instance->canard_mtx);
-//     struct omd_uavcan_instance_s* instance = canardGetUserReference(canard);
-//     chMtxUnlock(&instance->canard_mtx);
-//
-//     struct omd_uavcan_subscription_list_item_s* message_subscription = instance->message_subscription_list;
-//     while (message_subscription) {
-//         struct omd_uavcan_message_descriptor_s* message_descriptor = message_descriptors[message_subscription->message_idx];
-//
-//         if (data_type_id == message_subscription->data_type_id && transfer_type == message_descriptor->transfer_type && !memcmp(&message_descriptor->data_type_signature, out_data_type_signature, sizeof(uint64_t))) {
-//             return true;
-//         }
-//
-//         message_subscription = message_subscription->next_item;
-//     }
-//
-//     return false;
-// }
-//
-// static enum omd_uavcan_transfer_type_t canard_transfer_type_to_omd_uavcan_transfer_type
+static void omd_uavcan_message_writer_func(size_t msg_size, void* write_buf, void* ctx) {
+    (void)msg_size;
+    struct omd_uavcan_message_writer_func_args* args = ctx;
+    struct omd_uavcan_deserialized_message_s* deserialized_message = write_buf;
+    deserialized_message->omd_uavcan_instance = args->omd_uavcan_instance;
+    deserialized_message->data_type_id = args->transfer->data_type_id;
+    deserialized_message->transfer_id = args->transfer->transfer_id;
+    deserialized_message->priority = args->transfer->priority;
+    deserialized_message->source_node_id = args->transfer->source_node_id;
+    args->deserializer_func(args->transfer, deserialized_message->msg);
+}
+
+static void omd_uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* transfer) {
+    if (!canard || !transfer) {
+        return;
+    }
+
+    struct omd_uavcan_instance_s* instance = canardGetUserReference(canard);
+
+    struct omd_uavcan_message_subscription_s* message_subscription = instance->message_subscription_list;
+    while (message_subscription) {
+        if (transfer->data_type_id == message_subscription->data_type_id && transfer->transfer_type == message_subscription->transfer_type && message_subscription->deserializer_func) {
+            struct omd_uavcan_message_writer_func_args writer_args = { instance, transfer, message_subscription->deserializer_func };
+            pubsub_publish_message(message_subscription->pubsub_topic, message_subscription->deserialized_size, omd_uavcan_message_writer_func, &writer_args);
+        }
+
+        message_subscription = message_subscription->next;
+    }
+}
+
+static bool omd_uavcan_should_accept_transfer(const CanardInstance* canard, uint64_t* out_data_type_signature, uint16_t data_type_id, CanardTransferType transfer_type, uint8_t source_node_id) {
+    (void)source_node_id;
+    if (!canard || !out_data_type_signature) {
+        return false;
+    }
+
+    struct omd_uavcan_instance_s* instance = canardGetUserReference((CanardInstance*)canard);
+
+    struct omd_uavcan_message_subscription_s* message_subscription = instance->message_subscription_list;
+    while (message_subscription) {
+        if (data_type_id == message_subscription->data_type_id && transfer_type == message_subscription->transfer_type && !memcmp(&message_subscription->data_type_signature, out_data_type_signature, sizeof(uint64_t))) {
+            return true;
+        }
+
+        message_subscription = message_subscription->next;
+    }
+
+    return false;
+}

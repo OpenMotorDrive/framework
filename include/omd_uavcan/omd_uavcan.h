@@ -3,28 +3,51 @@
 #include <canard.h>
 #include <ch.h>
 #include <hal.h>
+#include <common/pubsub.h>
 
-typedef void (*deserializer_func_ptr)(CanardRxTransfer* transfer, void* buf);
+typedef void (*omd_uavcan_deserializer_func_ptr)(CanardRxTransfer* transfer, void* buf);
+typedef void (*omd_uavcan_serializer_func_ptr)(void* outbuf, void* inbuf);
 
-struct omd_uavcan_message_descriptor_s {
-    uint64_t data_type_signature;
-    CanardTransferType transfer_type;
-    size_t max_deserialized_size;
-    deserializer_func_ptr deserializer_func;
-};
-
-struct omd_uavcan_listener_s {
-    thread_t* listener_thread;
-    mailbox_t mailbox;
-};
-
-struct omd_uavcan_subscription_s {
-    uint8_t message_idx;
+struct omd_uavcan_deserialized_message_s {
+    struct omd_uavcan_instance_s* omd_uavcan_instance;
     uint16_t data_type_id;
-    event_source_t event_source;
-    mailbox_t mailbox;
-    struct omd_uavcan_subscriber_list_item_s* subscriber_list;
-    struct omd_uavcan_subscription_list_item_s* next_item;
+    uint8_t transfer_id;
+    uint8_t priority;
+    uint8_t source_node_id;
+    uint8_t msg[];
+};
+
+struct omd_uavcan_service_server_s {
+    uint64_t data_type_signature;
+    uint16_t data_type_id;
+    CanardTransferType transfer_type;
+    uint8_t priority;
+};
+
+struct omd_uavcan_service_client_s {
+    uint64_t data_type_signature;
+    uint16_t data_type_id;
+    CanardTransferType transfer_type;
+    uint8_t priority;
+};
+
+struct omd_uavcan_message_broadcaster_s {
+    uint64_t data_type_signature;
+    uint16_t data_type_id;
+    CanardTransferType transfer_type;
+    uint8_t priority;
+    uint8_t transfer_id;
+    omd_uavcan_serializer_func_ptr serializer_func;
+};
+
+struct omd_uavcan_message_subscription_s {
+    uint64_t data_type_signature;
+    uint16_t data_type_id;
+    CanardTransferType transfer_type;
+    size_t deserialized_size;
+    omd_uavcan_deserializer_func_ptr deserializer_func;
+    struct pubsub_topic_s* pubsub_topic;
+    struct omd_uavcan_message_subscription_s* next;
 };
 
 struct omd_uavcan_instance_s {
@@ -37,10 +60,10 @@ struct omd_uavcan_instance_s {
     mutex_t tx_mtx;
     binary_semaphore_t tx_thread_semaphore;
 
-    struct omd_uavcan_subscription_list_item_s* message_subscription_list;
-    memory_heap_t message_heap;
+    struct omd_uavcan_message_subscription_s* message_subscription_list;
 };
 
-void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev, void* message_heap_mem, size_t message_heap_size);
+void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev);
+void omd_uavcan_add_sub(struct omd_uavcan_instance_s* instance, struct omd_uavcan_message_subscription_s* new_sub);
 void omd_uavcan_transmit_async(struct omd_uavcan_instance_s* instance);
 void omd_uavcan_transmit_sync(struct omd_uavcan_instance_s* instance);
