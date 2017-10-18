@@ -32,8 +32,11 @@ static void omd_uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* 
 static CanardCANFrame convert_CANRxFrame_to_CanardCANFrame(const CANRxFrame* chibios_frame);
 static CANTxFrame convert_CanardCANFrame_to_CANTxFrame(const CanardCANFrame* canard_frame);
 
-void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev) {
-    if (!instance || !can_dev) {
+MEMORYPOOL_DECL(tx_thread_pool, OMD_UAVCAN_TX_THREAD_STACK_SIZE, chCoreAllocAligned);
+MEMORYPOOL_DECL(rx_thread_pool, OMD_UAVCAN_RX_THREAD_STACK_SIZE, chCoreAllocAligned);
+
+void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev, void* message_heap_mem, size_t message_heap_size) {
+    if (!instance || !can_dev || !message_heap_mem) {
         return;
     }
 
@@ -94,7 +97,30 @@ void omd_uavcan_add_sub(struct omd_uavcan_instance_s* instance, struct omd_uavca
     *next_ptr = sub;
 }
 
-static THD_FUNCTION(omd_uavcan_tx_thd_func, arg) {
+void omd_uavcan_broadcast(struct omd_uavcan_instance_s* instance, const struct omd_uavcan_message_descriptor_s* msg_descriptor, uint16_t data_type_id, uint8_t priority, void* msg_data) {
+    if (!instance || !msg_descriptor || !msg_descriptor->serializer_func || !msg_data) {
+        return;
+    }
+
+    void* serialized_msg_data = chHeapAlloc(instance->outgoing_message_heap, msg_descriptor->max_serialized_size);
+    if (!serialized_msg_data) {
+        return;
+    }
+
+    msg_descriptor->serializer_func(msg_data, serialized_msg_data);
+    canardBroadcast(instance->canard, msg_descriptor->data_type_signature, data_type_id, );
+    chHeapFree(serialized_msg_data);
+}
+
+void omd_uavcan_request(struct omd_uavcan_instance_s* instance, uint8_t destination_node_id, uint64_t data_type_signature, uint16_t data_type_id, uint8_t* transfer_id, uint8_t priority, void* payload, uint16_t payload_len) {
+
+}
+
+void omd_uavcan_respond(struct omd_uavcan_instance_s* instance, uint8_t destination_node_id, uint64_t data_type_signature, uint16_t data_type_id, uint8_t* transfer_id, uint8_t priority, void* payload, uint16_t payload_len) {
+
+}
+
+static THD_FUNCTION(omd_uavcan_rx_thd_func, arg) {
     (void)arg;
     struct omd_uavcan_instance_s* instance;
 
