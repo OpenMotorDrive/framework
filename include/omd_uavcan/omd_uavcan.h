@@ -5,8 +5,18 @@
 #include <hal.h>
 #include <common/pubsub.h>
 
-typedef void (*omd_uavcan_deserializer_func_ptr)(CanardRxTransfer* transfer, void* output_buf);
-typedef void (*omd_uavcan_serializer_func_ptr)(void* input_buf, void* output_buf);
+typedef uint32_t (*omd_uavcan_deserializer_func_ptr)(CanardRxTransfer* transfer, void* output_buf);
+typedef uint32_t (*omd_uavcan_serializer_func_ptr)(void* input_buf, void* output_buf);
+
+struct omd_uavcan_message_descriptor_s {
+    uint64_t data_type_signature;
+    uint16_t default_data_type_id;
+    CanardTransferType transfer_type;
+    size_t deserialized_size;
+    size_t max_serialized_size;
+    omd_uavcan_serializer_func_ptr serializer_func;
+    omd_uavcan_deserializer_func_ptr deserializer_func;
+};
 
 struct omd_uavcan_deserialized_message_s {
     struct omd_uavcan_instance_s* omd_uavcan_instance;
@@ -17,47 +27,8 @@ struct omd_uavcan_deserialized_message_s {
     uint8_t msg[];
 };
 
-struct omd_uavcan_service_server_s {
-    uint64_t data_type_signature;
-    uint16_t data_type_id;
-    CanardTransferType transfer_type;
-    uint8_t priority;
-};
+struct omd_uavcan_instance_s;
 
-struct omd_uavcan_message_broadcaster_s {
-    uint64_t data_type_signature;
-    uint16_t data_type_id;
-    CanardTransferType transfer_type;
-    uint8_t priority;
-    uint8_t transfer_id;
-    omd_uavcan_serializer_func_ptr serializer_func;
-};
-
-struct omd_uavcan_message_subscription_s {
-    uint64_t data_type_signature;
-    uint16_t data_type_id;
-    CanardTransferType transfer_type;
-    size_t deserialized_size;
-    omd_uavcan_deserializer_func_ptr deserializer_func;
-    struct pubsub_topic_s* pubsub_topic;
-    struct omd_uavcan_message_subscription_s* next;
-};
-
-struct omd_uavcan_instance_s {
-    CANDriver* can_dev;
-    CanardInstance canard;
-    void* canard_memory_pool;
-    thread_t* rx_thread;
-    thread_t* tx_thread;
-    mutex_t canard_mtx;
-    mutex_t tx_mtx;
-    binary_semaphore_t tx_thread_semaphore;
-    memory_heap_t outgoing_message_heap;
-
-    struct omd_uavcan_message_subscription_s* message_subscription_list;
-};
-
-void omd_uavcan_init(struct omd_uavcan_instance_s* instance, CANDriver* can_dev);
-void omd_uavcan_add_sub(struct omd_uavcan_instance_s* instance, struct omd_uavcan_message_subscription_s* new_sub);
-void omd_uavcan_transmit_async(struct omd_uavcan_instance_s* instance);
-void omd_uavcan_transmit_sync(struct omd_uavcan_instance_s* instance);
+void omd_uavcan_broadcast(uint8_t omd_uavcan_idx, const struct omd_uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, void* msg_data);
+uint8_t omd_uavcan_get_node_id(uint8_t omd_uavcan_idx);
+void omd_uavcan_set_node_id(uint8_t omd_uavcan_idx, uint8_t node_id);
