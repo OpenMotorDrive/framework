@@ -170,7 +170,7 @@ void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct 
             if (listener_with_message->handler_cb) {
                 size_t message_size = fifoallocator_get_block_size(message)-sizeof(struct pubsub_message_s);
 
-                listener_with_message->handler_cb(message_size, message, listener_with_message->handler_cb_ctx);
+                listener_with_message->handler_cb(message_size, message->data, listener_with_message->handler_cb_ctx);
             }
 
             listener_with_message->next_message = message->next_in_topic;
