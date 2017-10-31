@@ -32,6 +32,15 @@
 
 #define UNUSED(x) ((void)x)
 
+#define LINKED_LIST_APPEND(type, head_ptr, new_item_ptr) { \
+    new_item_ptr->next = NULL; \
+    type** insert_ptr = &head_ptr; \
+    while(*insert_ptr) { \
+        insert_ptr = &(*insert_ptr)->next; \
+    } \
+    *insert_ptr = new_item_ptr; \
+}
+
 float sinf_fast(float x);
 float cosf_fast(float x);
 float constrain_float(float val, float min_val, float max_val);

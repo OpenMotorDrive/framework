@@ -149,7 +149,7 @@ void param_release(void);
 void param_register(const struct param_descriptor_header_s* param_descriptor_header);
 uint16_t param_get_num_params_registered(void);
 int16_t param_get_index_by_name(uint8_t name_len, char* name);
-void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response);
+// void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response);
 void param_set_by_index_integer(uint16_t param_idx, int64_t value);
 void param_set_by_index_float32(uint16_t param_idx, float value);
 void param_set_by_index_bool(uint16_t param_idx, bool value);

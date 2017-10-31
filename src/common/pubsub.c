@@ -3,7 +3,7 @@
 #include <common/ctor.h>
 
 #ifndef OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE
-#define OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE 1024
+#define OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE 512
 #endif
 
 OMD_PUBSUB_DECLARE_TOPIC_GROUP_STATIC(default_topic_group, OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE)
@@ -51,11 +51,7 @@ void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubs
     chMtxLock(&topic->group->mtx);
 
     // append listener to topic's listener list
-    struct pubsub_listener_s** listener_list_next_ptr = &topic->listener_list_head;
-    while (*listener_list_next_ptr) {
-        listener_list_next_ptr = &(*listener_list_next_ptr)->next;
-    }
-    *listener_list_next_ptr = listener;
+    LINKED_LIST_APPEND(struct pubsub_listener_s, topic->listener_list_head, listener);
 
     // unlock topic group
     chMtxUnlock(&topic->group->mtx);
@@ -100,7 +96,7 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
     // lock topic group
     chMtxLock(&topic->group->mtx);
 
-    struct pubsub_message_s* message = fifoallocator_allocate(&topic->group->allocator, size);
+    struct pubsub_message_s* message = fifoallocator_allocate(&topic->group->allocator, size+sizeof(struct pubsub_message_s));
 
     if (!message) {
         chMtxUnlock(&topic->group->mtx);
@@ -112,9 +108,8 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
 
     if (topic->message_list_tail) {
         topic->message_list_tail->next_in_topic = message;
-    } else {
-        topic->message_list_tail = message;
     }
+    topic->message_list_tail = message;
 
     if (writer_cb) {
         writer_cb(size, message->data, ctx);
@@ -166,14 +161,19 @@ void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct 
         syssts_t sts = chSysGetStatusAndLockX();
         struct pubsub_listener_s* listener_with_message = pubsub_multiple_listener_wait_timeout_S(num_listeners, listeners, timeout-elapsed);
 
-        if (listener_with_message && listener_with_message->handler_cb) {
+        if (listener_with_message) {
             chMtxLockS(&listener_with_message->mtx);
             chSysRestoreStatusX(sts);
 
             struct pubsub_message_s* message = listener_with_message->next_message;
-            size_t message_size = fifoallocator_get_block_size(message)-sizeof(struct pubsub_message_s);
 
-            listener_with_message->handler_cb(message_size, message, listener_with_message->handler_cb_ctx);
+            if (listener_with_message->handler_cb) {
+                size_t message_size = fifoallocator_get_block_size(message)-sizeof(struct pubsub_message_s);
+
+                listener_with_message->handler_cb(message_size, message, listener_with_message->handler_cb_ctx);
+            }
+
+            listener_with_message->next_message = message->next_in_topic;
 
             chMtxUnlock(&listener_with_message->mtx);
         } else {
@@ -221,7 +221,7 @@ static struct pubsub_listener_s* pubsub_multiple_listener_wait_timeout_S(size_t 
 }
 
 static void pubsub_delete_handler(void* delete_block) {
-    // NOTE: this will be called during publishing from the publishing thread's context. The topic group will already be locked.
+    // NOTE: this will be called during publishing in the publishing thread's context. The topic group will already be locked.
     struct pubsub_message_s* message_to_delete = delete_block;
 
     struct pubsub_listener_s* listener = message_to_delete->topic->listener_list_head;

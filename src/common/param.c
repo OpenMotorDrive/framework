@@ -219,78 +219,78 @@ void param_set_by_index_integer(uint16_t param_idx, int64_t value) {
     }
 }
 
-void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response) {
-    if (param_idx >= num_params_registered || !response) {
-        return;
-    }
-
-    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
-
-    response->name_len = strnlen(descriptor->name, sizeof(response->name));
-    memcpy(response->name, descriptor->name, response->name_len);
-
-    switch(descriptor->type) {
-        case PARAM_TYPE_FLOAT32: {
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_FLOAT32;
-            response->value.real_value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE_FLOAT32)*)descriptor->cached_value;
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_FLOAT32;
-            response->default_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->default_val;
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32;
-            response->max_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->max_val;
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32;
-            response->min_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->min_val;
-            break;
-        }
-
-        case PARAM_TYPE_BOOL: {
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_BOOL;
-            response->value.boolean_value = *(bool*)descriptor->cached_value;
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_BOOL;
-            response->default_value.boolean_value = descriptor->bool_default_value;
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            break;
-        }
-
-        case PARAM_TYPE_STRING: {
-            const struct param_descriptor_string_s* string_descriptor = (const struct param_descriptor_string_s*)descriptor;
-            size_t max_len = MIN(MIN(sizeof(response->value.string_value), string_descriptor->max_len),128);
-
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_STRING;
-            response->value.string_value_len = strnlen(descriptor->cached_value, max_len);
-            memcpy(response->value.string_value, descriptor->cached_value, response->value.string_value_len);
-
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_STRING;
-            response->default_value.string_value_len = strnlen(string_descriptor->default_val, max_len);
-            memcpy(response->default_value.string_value, string_descriptor->default_val, response->default_value.string_value_len);
-
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            break;
-        }
-
-        #define PARAM_INTEGER_CASE(PARAM_TYPE) \
-        case PARAM_TYPE: {\
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_INT64; \
-            response->value.integer_value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE)*)descriptor->cached_value; \
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_INT64; \
-            response->default_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->default_val; \
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64; \
-            response->max_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->max_val; \
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64; \
-            response->min_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->min_val; \
-            break; \
-        }
-        PARAM_INTEGER_CASE(PARAM_TYPE_UINT32)
-        PARAM_INTEGER_CASE(PARAM_TYPE_UINT16)
-        PARAM_INTEGER_CASE(PARAM_TYPE_UINT8)
-        PARAM_INTEGER_CASE(PARAM_TYPE_INT64)
-        PARAM_INTEGER_CASE(PARAM_TYPE_INT32)
-        PARAM_INTEGER_CASE(PARAM_TYPE_INT16)
-        PARAM_INTEGER_CASE(PARAM_TYPE_INT8)
-        #undef PARAM_INTEGER_CASE
-    }
-}
+// void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response) {
+//     if (param_idx >= num_params_registered || !response) {
+//         return;
+//     }
+//
+//     const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+//
+//     response->name_len = strnlen(descriptor->name, sizeof(response->name));
+//     memcpy(response->name, descriptor->name, response->name_len);
+//
+//     switch(descriptor->type) {
+//         case PARAM_TYPE_FLOAT32: {
+//             response->value.type = UAVCAN_PARAM_VALUE_TYPE_FLOAT32;
+//             response->value.real_value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE_FLOAT32)*)descriptor->cached_value;
+//             response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_FLOAT32;
+//             response->default_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->default_val;
+//             response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32;
+//             response->max_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->max_val;
+//             response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32;
+//             response->min_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->min_val;
+//             break;
+//         }
+//
+//         case PARAM_TYPE_BOOL: {
+//             response->value.type = UAVCAN_PARAM_VALUE_TYPE_BOOL;
+//             response->value.boolean_value = *(bool*)descriptor->cached_value;
+//             response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_BOOL;
+//             response->default_value.boolean_value = descriptor->bool_default_value;
+//             response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
+//             response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
+//             break;
+//         }
+//
+//         case PARAM_TYPE_STRING: {
+//             const struct param_descriptor_string_s* string_descriptor = (const struct param_descriptor_string_s*)descriptor;
+//             size_t max_len = MIN(MIN(sizeof(response->value.string_value), string_descriptor->max_len),128);
+//
+//             response->value.type = UAVCAN_PARAM_VALUE_TYPE_STRING;
+//             response->value.string_value_len = strnlen(descriptor->cached_value, max_len);
+//             memcpy(response->value.string_value, descriptor->cached_value, response->value.string_value_len);
+//
+//             response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_STRING;
+//             response->default_value.string_value_len = strnlen(string_descriptor->default_val, max_len);
+//             memcpy(response->default_value.string_value, string_descriptor->default_val, response->default_value.string_value_len);
+//
+//             response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
+//             response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
+//             break;
+//         }
+//
+//         #define PARAM_INTEGER_CASE(PARAM_TYPE) \
+//         case PARAM_TYPE: {\
+//             response->value.type = UAVCAN_PARAM_VALUE_TYPE_INT64; \
+//             response->value.integer_value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE)*)descriptor->cached_value; \
+//             response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_INT64; \
+//             response->default_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->default_val; \
+//             response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64; \
+//             response->max_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->max_val; \
+//             response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64; \
+//             response->min_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->min_val; \
+//             break; \
+//         }
+//         PARAM_INTEGER_CASE(PARAM_TYPE_UINT32)
+//         PARAM_INTEGER_CASE(PARAM_TYPE_UINT16)
+//         PARAM_INTEGER_CASE(PARAM_TYPE_UINT8)
+//         PARAM_INTEGER_CASE(PARAM_TYPE_INT64)
+//         PARAM_INTEGER_CASE(PARAM_TYPE_INT32)
+//         PARAM_INTEGER_CASE(PARAM_TYPE_INT16)
+//         PARAM_INTEGER_CASE(PARAM_TYPE_INT8)
+//         #undef PARAM_INTEGER_CASE
+//     }
+// }
 
 static bool param_store_by_idx(uint16_t param_idx) {
     if (param_idx >= num_params_registered) {

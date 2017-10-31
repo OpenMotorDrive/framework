@@ -54,7 +54,9 @@ void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t d
         insert_block->next_oldest = NULL;
         insert_block->data_size = data_size;
 
-        instance->newest->next_oldest = insert_block;
+        if (instance->newest) {
+            instance->newest->next_oldest = insert_block;
+        }
 
         instance->newest = insert_block;
 
