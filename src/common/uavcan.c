@@ -314,15 +314,27 @@ static THD_FUNCTION(uavcan_rx_thd_func, arg) {
     (void)arg;
     struct uavcan_instance_s* instance = (struct uavcan_instance_s*)arg;
 
+    uint32_t last_cleanup_us;
     while (true) {
         CANRxFrame chibios_frame;
-        if (canReceiveTimeout(instance->can_dev, CAN_ANY_MAILBOX, &chibios_frame, TIME_INFINITE) == MSG_OK) {
-            uint64_t timestamp = micros64();
-            CanardCANFrame canard_frame = convert_CANRxFrame_to_CanardCANFrame(&chibios_frame);
 
+        uint32_t tnow_us = micros();
+        uint32_t time_since_cleanup_us = tnow_us-last_cleanup_us;
+        if (time_since_cleanup_us >= CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC) {
             chMtxLock(&instance->canard_mtx);
-            canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
+            canardCleanupStaleTransfers(&instance->canard, micros64());
             chMtxUnlock(&instance->canard_mtx);
+            last_cleanup_us = tnow_us;
+        } else {
+            uint32_t time_until_cleanup_us = CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC-time_since_cleanup_us;
+            if (canReceiveTimeout(instance->can_dev, CAN_ANY_MAILBOX, &chibios_frame, US2ST(time_until_cleanup_us)) == MSG_OK) {
+                uint64_t timestamp = micros64();
+                CanardCANFrame canard_frame = convert_CANRxFrame_to_CanardCANFrame(&chibios_frame);
+
+                chMtxLock(&instance->canard_mtx);
+                canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
+                chMtxUnlock(&instance->canard_mtx);
+            }
         }
     }
 }
