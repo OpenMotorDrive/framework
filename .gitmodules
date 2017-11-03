@@ -1,0 +1,3 @@
+[submodule "libcanard"]
+	path = libcanard
+	url = git@github.com:OpenMotorDrive/libcanard.git
