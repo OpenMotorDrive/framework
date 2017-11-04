@@ -1,4 +1,4 @@
-#include <common/profiLED_gen.h>
+#include "profiLED_gen.h"
 #include <stdint.h>
 
 typedef void (*profiLED_gen_write_byte_func_internal_t)(uint32_t index, uint8_t byte, void* context);

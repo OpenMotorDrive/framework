@@ -215,11 +215,10 @@ LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 include $(RULESPATH)/rules.mk
 
 DSDL_NAMESPACE_DIRS += $(OMD_COMMON_DIR)/dsdl/uavcan
-UAVCAN_MSGS += uavcan.protocol.NodeStatus uavcan.protocol.debug.LogMessage
 
 $(BUILDDIR)/dsdlc.mk:
 	rm -rf $(BUILDDIR)/dsdlc
-	python $(OMD_COMMON_DIR)/tools/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(UAVCAN_MSGS)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
+	python $(OMD_COMMON_DIR)/tools/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
 	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $@
 
 MODULES_INC_COPIES := $(foreach module,$(MODULES_ENABLED),$(BUILDDIR)/module_includes/$(module))

@@ -14,7 +14,7 @@
  */
 
 #include <common/can.h>
-#include <common/timing.h>
+#include <timing/timing.h>
 #include <hal.h>
 #include <string.h>
 

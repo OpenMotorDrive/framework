@@ -1,7 +1,7 @@
 #pragma once
 
-#include <common/spi.h>
-#include <common/profiLED_gen.h>
+#include <spi_device/spi_device.h>
+#include "profiLED_gen.h"
 
 struct profiLED_instance_s {
     struct spi_device_s dev;

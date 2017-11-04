@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stddef.h>
-#include <common/fifoallocator.h>
+#include "fifoallocator.h"
 #include <ch.h>
 
 #define __PUBSUB_CONCAT(a,b) a ## b

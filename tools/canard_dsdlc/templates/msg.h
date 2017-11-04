@@ -3,7 +3,7 @@
 #include <canard.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <common/uavcan.h>
+#include <uavcan/uavcan.h>
 
 @{
 dep_headers = set()

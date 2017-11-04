@@ -1,4 +1,4 @@
-#include <common/spi.h>
+#include "spi_device.h"
 
 #define FLAG_BIT_VAL(flags, bit) ((flags&bit) != 0 ? 1 : 0)
 

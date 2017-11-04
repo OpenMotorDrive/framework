@@ -1,6 +1,6 @@
-#include <common/uavcan.h>
+#include "uavcan.h"
 #include <common/ctor.h>
-#include <common/timing.h>
+#include <timing/timing.h>
 #include <common/helpers.h>
 #include <string.h>
 

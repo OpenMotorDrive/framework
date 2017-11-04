@@ -14,10 +14,8 @@
  */
 
 #include <common/ctor.h>
-#include <common/timing.h>
+#include "timing.h"
 #include <ch.h>
-
-#include <common/can.h>
 
 static THD_WORKING_AREA(waTimingThread, 128);
 static THD_FUNCTION(TimingThread, arg);

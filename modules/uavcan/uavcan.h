@@ -3,7 +3,7 @@
 #include <canard.h>
 #include <ch.h>
 #include <hal.h>
-#include <common/pubsub.h>
+#include <pubsub/pubsub.h>
 
 typedef uint32_t (*uavcan_serializer_func_ptr)(void* msg_struct, void* buffer);
 typedef uint32_t (*uavcan_deserializer_func_ptr)(CanardRxTransfer* transfer, void* msg_struct);

@@ -1,4 +1,4 @@
-#include <common/flash.h>
+#include "flash.h"
 
 #include <ch.h>
 #include <hal.h>

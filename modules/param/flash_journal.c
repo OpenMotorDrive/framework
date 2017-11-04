@@ -1,5 +1,5 @@
-#include <common/flash_journal.h>
-#include <common/flash.h>
+#include "flash_journal.h"
+#include <flash/flash.h>
 #include <common/helpers.h>
 
 #define FLASH_JOURNAL_ALIGNMENT 2

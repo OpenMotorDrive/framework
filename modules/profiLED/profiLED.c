@@ -1,8 +1,7 @@
 #include <ch.h>
 #include <string.h>
-#include <common/profiLED.h>
+#include "profiLED.h"
 #include <common/helpers.h>
-#include <common/spi.h>
 
 #define MAX_NUM_PROFILEDS 64
 #define PROFILED_OUTPUT_BUFFER_SIZE PROFILED_GEN_BUF_SIZE(MAX_NUM_PROFILEDS)
