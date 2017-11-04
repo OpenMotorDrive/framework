@@ -67,7 +67,7 @@ static THD_FUNCTION(uavcan_rx_thd_func, arg);
 static THD_FUNCTION(uavcan_tx_thd_func, arg);
 
 static struct uavcan_instance_s* uavcan_get_instance(uint8_t idx);
-static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg);
+// static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg);
 static void uavcan_init(CANDriver* can_dev);
 
 static void uavcan_transmit_frames_async(struct uavcan_instance_s* instance);
@@ -353,15 +353,15 @@ static struct uavcan_instance_s* uavcan_get_instance(uint8_t idx) {
     }
 }
 
-static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg) {
-    uint8_t idx = 0;
-    struct uavcan_instance_s* instance = uavcan_instance_list_head;
-    while (instance && instance != instance_arg) {
-        idx++;
-        instance = instance->next;
-    }
-    return idx;
-}
+// static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg) {
+//     uint8_t idx = 0;
+//     struct uavcan_instance_s* instance = uavcan_instance_list_head;
+//     while (instance && instance != instance_arg) {
+//         idx++;
+//         instance = instance->next;
+//     }
+//     return idx;
+// }
 
 static CanardCANFrame convert_CANRxFrame_to_CanardCANFrame(const CANRxFrame* chibios_frame) {
     CanardCANFrame ret;

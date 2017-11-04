@@ -229,6 +229,7 @@ static uint8_t dw1000_conf_get_default_pcode(struct dw1000_config_s config) {
             }
             break;
     }
+    return 0;
 }
 
 static uint16_t dw1000_conf_lde_repc(struct dw1000_config_s config) {

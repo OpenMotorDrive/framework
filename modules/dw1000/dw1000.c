@@ -317,7 +317,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
 
     // Check if the frame fits in the provided buffer
-    if (rx_finfo.RXFLEN-2 <= buf_len) {
+    if ((uint32_t)rx_finfo.RXFLEN <= buf_len+2) {
         // Read RX_BUFFER
         dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, rx_finfo.RXFLEN-2, buf);
         ret.len = rx_finfo.RXFLEN-2;
