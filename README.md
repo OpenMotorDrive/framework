@@ -2,10 +2,10 @@ OMD_Framework is a framework for embedded applications, primarily targeted at dr
 
 ## Targeted minimum feature set
 - RTOS-based (ChibiOS)
+- Minimizes boilerplate code in application
 - Modular architecture
 - Supports STM32F3 targets, ready to support many others
 - Includes startup code and ld scripts for supported MCUs
-- Minimizes boilerplate code in application
 - UAVCAN bootloader provided
 - Makefile-based build system provided
 - Flash-based configuration parameter store

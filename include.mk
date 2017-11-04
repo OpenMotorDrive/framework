@@ -88,18 +88,46 @@ include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
 
-COMMON_CSRC = $(shell find $(OMD_COMMON_DIR)/src -name "*.c") $(CANARD_DIR)/canard.c
-COMMON_INC = $(OMD_COMMON_DIR)/include $(CANARD_DIR)
+MODULE_SEARCH_DIRS := $(OMD_COMMON_DIR)/modules modules
+
+COMMON_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard $(OMD_COMMON_DIR)/modules/$(module)))
+COMMON_MODULES := $(patsubst $(OMD_COMMON_DIR)/modules/%,%,$(COMMON_MODULE_DIRS))
+
+APP_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard modules/$(module)))
+APP_MODULES := $(patsubst modules/%,%,$(APP_MODULE_DIRS))
+
+ifneq ($(filter $(COMMON_MODULES), $(APP_MODULES)),)
+  $(error Duplicated module(s): $(filter $(COMMON_MODULES), $(APP_MODULES)))
+endif
+
+MODULES_FOUND := $(COMMON_MODULES) $(APP_MODULES)
+ifneq ($(filter-out $(MODULES_FOUND), $(MODULES_ENABLED)),)
+  $(error Could not find module(s): $(filter-out $(MODULES_FOUND), $(MODULES_ENABLED)))
+endif
+
+MODULE_DIRS := $(COMMON_MODULE_DIRS) $(APP_MODULE_DIRS)
+
+-include $(foreach module_dir,$(MODULE_DIRS),$(module_dir)/module.mk)
+MODULES_CSRC += $(foreach module_dir,$(MODULE_DIRS),$(shell find $(module_dir) -name "*.c"))
+MODULES_INC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/include))
+
+COMMON_CSRC := $(shell find $(OMD_COMMON_DIR)/src -name "*.c") $(CANARD_DIR)/canard.c
+COMMON_INC := $(OMD_COMMON_DIR)/include $(CANARD_DIR)
 
 INCDIR += $(CHIBIOS)/os/license \
           $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
           $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) \
           $(CHIBIOS)/community/os/various \
           $(CHIBIOS)/os/various \
-          $(COMMON_INC)
+          $(COMMON_INC) \
+          $(BUILDDIR)/module_includes \
+          $(BUILDDIR)/dsdlc/include
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
+ifneq ($(MAKECMDGOALS),clean)
+include $(BUILDDIR)/dsdlc.mk
+endif
 CSRC += $(STARTUPSRC) \
         $(KERNSRC) \
         $(PORTSRC) \
@@ -108,7 +136,9 @@ CSRC += $(STARTUPSRC) \
         $(PLATFORMSRC) \
         $(BOARDSRC) \
         $(TESTSRC) \
-        $(COMMON_CSRC)
+        $(COMMON_CSRC) \
+        $(MODULES_CSRC)
+#         $(shell find $(BUILDDIR)/dsdlc/src -name "*.c")
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -184,11 +214,28 @@ LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 
 include $(RULESPATH)/rules.mk
 
+DSDL_NAMESPACE_DIRS += $(OMD_COMMON_DIR)/dsdl/uavcan
+UAVCAN_MSGS += uavcan.protocol.NodeStatus uavcan.protocol.debug.LogMessage
+
+$(BUILDDIR)/dsdlc.mk:
+	rm -rf $(BUILDDIR)/dsdlc
+	python $(OMD_COMMON_DIR)/tools/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(UAVCAN_MSGS)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
+	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $@
+
+MODULES_INC_COPIES := $(foreach module,$(MODULES_ENABLED),$(BUILDDIR)/module_includes/$(module))
+$(MODULES_INC_COPIES):
+	mkdir -p $(dir $@)
+	cp -R $(wildcard $(addsuffix /$(patsubst $(BUILDDIR)/module_includes/%,%,$@),$(MODULE_SEARCH_DIRS))) $@
+PRE_BUILD_RULE: $(MODULES_INC_COPIES)
+
 POST_MAKE_ALL_RULE_HOOK: $(BUILDDIR)/$(PROJECT).bin
 	python $(OMD_COMMON_DIR)/tools/crc_binary.py $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).bin
 
+.PHONY: PRE_BUILD_RULE
 PRE_BUILD_RULE:
 	cd $(OMD_COMMON_DIR) && git submodule init && git submodule update
 
 # This ensures that PRE_BUILD_RULE is executed first and non-concurrently
+ifneq ($(MAKECMDGOALS),clean)
 -include PRE_BUILD_RULE
+endif
