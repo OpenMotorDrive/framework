@@ -123,35 +123,35 @@ def msg_header_name_request(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return 'canard/%s_Request.h' % (obj.full_name,)
+    return '%s_Request.h' % (obj.full_name,)
 
 def msg_header_name_response(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return 'canard/%s_Response.h' % (obj.full_name,)
+    return '%s_Response.h' % (obj.full_name,)
 
 def msg_header_name(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
-    return 'canard/%s.h' % (obj.full_name,)
+    return '%s.h' % (obj.full_name,)
 
 def msg_c_file_name_request(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return 'canard/%s_Request.c' % (obj.full_name,)
+    return '%s_Request.c' % (obj.full_name,)
 
 def msg_c_file_name_response(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return 'canard/%s_Response.c' % (obj.full_name,)
+    return '%s_Response.c' % (obj.full_name,)
 
 def msg_c_file_name(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
-    return 'canard/%s.c' % (obj.full_name,)
+    return '%s.c' % (obj.full_name,)
 
 def underscored_name(obj):
     return obj.full_name.replace('.','_')
