@@ -181,7 +181,14 @@ ULIBDIR =
 ULIBS =
 
 LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
+
 include $(RULESPATH)/rules.mk
 
 POST_MAKE_ALL_RULE_HOOK: $(BUILDDIR)/$(PROJECT).bin
 	python $(OMD_COMMON_DIR)/tools/crc_binary.py $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).bin
+
+PRE_BUILD_RULE:
+	cd $(OMD_COMMON_DIR) && git submodule init && git submodule update
+
+# This ensures that PRE_BUILD_RULE is executed first and non-concurrently
+-include PRE_BUILD_RULE
