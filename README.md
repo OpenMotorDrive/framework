@@ -21,7 +21,8 @@ OMD_Framework is a framework for embedded applications, primarily targeted at dr
 |---|---|---|
 |worker_thread|Provides worker threads that can perform tasks on an interval, or upon receiving a pubsub message||
 |lpwork_thread|Provides a standard worker thread for low-priority tasks|worker_thread|
-|chibios_init|Uses constructor functions to initialize ChibiOS||
+|chibios_sys_init|Uses constructor functions to initialize ChibiOS||
+|chibios_hal_init|Uses constructor functions to initialize ChibiOS HAL||
 |bootloader_compat|runs during init, retreives boot message left by bootloader, provides app descriptor in flash||
 |timing|Arduino-compatible millis(), micros() functions|lpwork_thread|
 |pubsub|Internal publish-subscribe messaging||

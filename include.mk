@@ -111,6 +111,8 @@ MODULE_DIRS := $(COMMON_MODULE_DIRS) $(APP_MODULE_DIRS)
 MODULES_CSRC += $(foreach module_dir,$(MODULE_DIRS),$(shell find $(module_dir) -name "*.c"))
 MODULES_INC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/include))
 
+MODULES_ENABLED_DEFS := $(foreach module,$(MODULES_ENABLED),-DMODULE_$(shell echo $(module) | tr a-z A-Z)_ENABLED)
+
 COMMON_CSRC := $(shell find $(OMD_COMMON_DIR)/src -name "*.c") $(CANARD_DIR)/canard.c
 COMMON_INC := $(OMD_COMMON_DIR)/include $(CANARD_DIR)
 
@@ -196,7 +198,7 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 CPPWARN = -Wall -Wextra -Wundef
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) -D"CANARD_ASSERT(x)"="{}"
+UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) -D"CANARD_ASSERT(x)"="{}" $(MODULES_ENABLED_DEFS)
 
 # Define ASM defines here
 UADEFS =
