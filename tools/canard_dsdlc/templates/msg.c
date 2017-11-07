@@ -144,7 +144,12 @@ void _decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, uint32_t*
 @(ind)*bit_ofs += @(array_len_field_bitlen(field.type));
 @[          if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() >= 8]@
 @{indent -= 1}@{ind = '    '*indent}@
+@(ind)} else {
+@{indent += 1}@{ind = '    '*indent}@
+@(ind)msg->@(field.name)_len = ((transfer->payload_len*8)-*bit_ofs)/@(field.type.value_type.bitlen);
+@{indent -= 1}@{ind = '    '*indent}@
 @(ind)}
+
 @[          end if]@
 @(ind)for (size_t i=0; i < msg->@(field.name)_len; i++) {
 @[        else]@
@@ -152,10 +157,10 @@ void _decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, uint32_t*
 @[        end if]@
 @{indent += 1}@{ind = '    '*indent}@
 @[        if field.type.value_type.category == field.type.value_type.CATEGORY_PRIMITIVE]@
-@(ind)    canardDecodeScalar(transfer, *bit_ofs, @(field.type.value_type.bitlen), @('true' if uavcan_type_is_signed(field.type.value_type) else 'false'), &msg->@(field.name)[i]);
-@(ind)    *bit_ofs += @(field.type.value_type.bitlen);
+@(ind)canardDecodeScalar(transfer, *bit_ofs, @(field.type.value_type.bitlen), @('true' if uavcan_type_is_signed(field.type.value_type) else 'false'), &msg->@(field.name)[i]);
+@(ind)*bit_ofs += @(field.type.value_type.bitlen);
 @[        elif field.type.value_type.category == field.type.value_type.CATEGORY_COMPOUND]@
-@(ind)    _decode_@(underscored_name(field.type.value_type))(transfer, bit_ofs, &msg->@(field.name)[i], @[if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() < 8]tao && i==msg->@(field.name)_len@[else]false@[end if]@);
+@(ind)_decode_@(underscored_name(field.type.value_type))(transfer, bit_ofs, &msg->@(field.name)[i], @[if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() < 8]tao && i==msg->@(field.name)_len@[else]false@[end if]@);
 @[        end if]@
 @{indent -= 1}@{ind = '    '*indent}@
 @(ind)}
@@ -167,6 +172,7 @@ void _decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, uint32_t*
 @{indent -= 1}@{ind = '    '*indent}@
 @(ind)}
 @[      end if]@
+
 @[    end for]@
 @[  if msg_union]@
 @{indent -= 1}@{ind = '    '*indent}@

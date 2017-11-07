@@ -446,7 +446,7 @@ static bool uavcan_should_accept_transfer(const CanardInstance* canard, uint64_t
 
     struct uavcan_rx_list_item_s* rx_list_item = instance->rx_list_head;
     while (rx_list_item) {
-        if (transfer_type == rx_list_item->msg_descriptor->transfer_type &&  data_type_id) {
+        if (transfer_type == rx_list_item->msg_descriptor->transfer_type && data_type_id == _uavcan_get_message_data_type_id(instance, rx_list_item->msg_descriptor)) {
             *out_data_type_signature = rx_list_item->msg_descriptor->data_type_signature;
             return true;
         }
@@ -515,8 +515,8 @@ static uint8_t* uavcan_transfer_id_map_retrieve(struct transfer_id_map_s* map, b
     // Move to front
     if (entry_prev != OMD_UAVCAN_TRANSFER_ID_MAP_MAX_LEN) {
         map->entries[entry_prev].next = map->entries[entry].next;
+        map->entries[entry].next = map->head;
     }
-    map->entries[entry].next = map->head;
     map->head = entry;
 
     return &map->entries[entry].transfer_id;

@@ -151,34 +151,44 @@ void pubsub_listener_handle_until_timeout(struct pubsub_listener_s* listener, sy
     pubsub_multiple_listener_handle_until_timeout(1, &listener, timeout);
 }
 
+bool pubsub_listener_handle_one_timeout(struct pubsub_listener_s* listener, systime_t timeout) {
+    return pubsub_multiple_listener_handle_one_timeout(1, &listener, timeout);
+}
+
 static struct pubsub_listener_s* pubsub_multiple_listener_wait_timeout_S(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout);
+
+bool pubsub_multiple_listener_handle_one_timeout(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout) {
+    syssts_t sts = chSysGetStatusAndLockX();
+    struct pubsub_listener_s* listener_with_message = pubsub_multiple_listener_wait_timeout_S(num_listeners, listeners, timeout);
+
+    if (listener_with_message) {
+        chMtxLockS(&listener_with_message->mtx);
+        chSysRestoreStatusX(sts);
+
+        struct pubsub_message_s* message = listener_with_message->next_message;
+
+        if (listener_with_message->handler_cb) {
+            size_t message_size = fifoallocator_get_block_size(message)-sizeof(struct pubsub_message_s);
+
+            listener_with_message->handler_cb(message_size, message->data, listener_with_message->handler_cb_ctx);
+        }
+
+        listener_with_message->next_message = message->next_in_topic;
+
+        chMtxUnlock(&listener_with_message->mtx);
+        return true;
+    } else {
+        chSysRestoreStatusX(sts);
+        return false;
+    }
+}
 
 void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout) {
     systime_t start = chVTGetSystemTimeX();
     systime_t elapsed = 0;
 
     do {
-        syssts_t sts = chSysGetStatusAndLockX();
-        struct pubsub_listener_s* listener_with_message = pubsub_multiple_listener_wait_timeout_S(num_listeners, listeners, timeout-elapsed);
-
-        if (listener_with_message) {
-            chMtxLockS(&listener_with_message->mtx);
-            chSysRestoreStatusX(sts);
-
-            struct pubsub_message_s* message = listener_with_message->next_message;
-
-            if (listener_with_message->handler_cb) {
-                size_t message_size = fifoallocator_get_block_size(message)-sizeof(struct pubsub_message_s);
-
-                listener_with_message->handler_cb(message_size, message->data, listener_with_message->handler_cb_ctx);
-            }
-
-            listener_with_message->next_message = message->next_in_topic;
-
-            chMtxUnlock(&listener_with_message->mtx);
-        } else {
-            chSysRestoreStatusX(sts);
-        }
+        pubsub_multiple_listener_handle_one_timeout(num_listeners, listeners, timeout-elapsed);
 
         if (timeout != TIME_INFINITE) {
             elapsed = chVTTimeElapsedSinceX(start);

@@ -79,6 +79,9 @@ void pubsub_listener_reset(struct pubsub_listener_s* listener);
 //   topic group, or using a separate topic group.
 void pubsub_listener_set_handler_cb(struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
 
+bool pubsub_listener_handle_one_timeout(struct pubsub_listener_s* listener, systime_t timeout);
+bool pubsub_multiple_listener_handle_one_timeout(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout);
+
 // - Handles messages that become available to listener using the listener's handler_cb. Returns after timeout has elapsed.
 // - Note that a listener is intended to have one owner thread, and calling this on the same listener from multiple threads is forbidden.
 // - timeout can be TIME_IMMEDIATE to handle all immediately available messages, or TIME_INFINITE to handle messages forever.
