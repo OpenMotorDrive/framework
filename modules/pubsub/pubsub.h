@@ -79,7 +79,12 @@ void pubsub_listener_reset(struct pubsub_listener_s* listener);
 //   topic group, or using a separate topic group.
 void pubsub_listener_set_handler_cb(struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
 
+// - Handles the first message that becomes available to listener using the listener's handler_cb
+// - Returns true if message has been handled, false if timeout has elapsed.
 bool pubsub_listener_handle_one_timeout(struct pubsub_listener_s* listener, systime_t timeout);
+
+// - Handles the first message that becomes available to any listener in the listeners array using the listener's handler_cb.
+// - Returns true if message has been handled, false if timeout has elapsed.
 bool pubsub_multiple_listener_handle_one_timeout(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout);
 
 // - Handles messages that become available to listener using the listener's handler_cb. Returns after timeout has elapsed.
