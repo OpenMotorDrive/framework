@@ -68,6 +68,7 @@ void pubsub_listener_unregister(struct pubsub_listener_s* listener) {
     // remove listener from topic's listener list
     struct pubsub_listener_s** listener_list_next_ptr = &listener->topic->listener_list_head;
     while (*listener_list_next_ptr && *listener_list_next_ptr != listener) {
+        chDbgCheck((*listener_list_next_ptr)->next != *listener_list_next_ptr); // Circular reference
         listener_list_next_ptr = &(*listener_list_next_ptr)->next;
     }
 
@@ -107,6 +108,7 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
     message->next_in_topic = NULL;
 
     if (topic->message_list_tail) {
+        chDbgCheck(topic->message_list_tail != message); // Circular reference
         topic->message_list_tail->next_in_topic = message;
     }
     topic->message_list_tail = message;
@@ -196,12 +198,27 @@ void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct 
     } while(elapsed < timeout);
 }
 
+void pubsub_listener_set_waiting_thread_reference_S(struct pubsub_listener_s* listener, thread_reference_t* trpp) {
+    chDbgCheckClassS();
+    if (!listener) {
+        return;
+    }
+
+    listener->waiting_thread_reference_ptr = trpp;
+}
+
 static struct pubsub_listener_s* pubsub_multiple_listener_wait_timeout_S(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout) {
+    chDbgCheckClassS();
+
     // Check for immediately available messages
     for (size_t i=0; i<num_listeners; i++) {
         if (listeners && listeners[i] && listeners[i]->next_message) {
             return listeners[i];
         }
+    }
+
+    if (timeout == TIME_IMMEDIATE) {
+        return NULL;
     }
 
     // Point listeners' waiting thread references to our thread
@@ -217,7 +234,11 @@ static struct pubsub_listener_s* pubsub_multiple_listener_wait_timeout_S(size_t 
 
     struct pubsub_listener_s* ret = NULL;
     if (message != MSG_TIMEOUT) {
-        ret = (struct pubsub_listener_s*)message;
+        for (size_t i=0; i<num_listeners; i++) {
+            if (listeners[i] == (void*)message) {
+                ret = listeners[i];
+            }
+        }
     }
 
     // Set listeners' waiting thread references back to NULL

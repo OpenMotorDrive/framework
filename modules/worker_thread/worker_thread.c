@@ -1,7 +1,9 @@
 #include "worker_thread.h"
 
+#include <common/helpers.h>
+
 static THD_FUNCTION(worker_thread_func, arg);
-static void worker_thread_insert_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
+static void worker_thread_insert_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
 
 void worker_thread_init(struct worker_thread_s* worker_thread, size_t stack_size, tprio_t prio) {
     if (!worker_thread) {
@@ -13,8 +15,19 @@ void worker_thread_init(struct worker_thread_s* worker_thread, size_t stack_size
     }
     worker_thread->thread = chThdCreateStatic(working_area, THD_WORKING_AREA_SIZE(stack_size), prio, worker_thread_func, worker_thread);
     worker_thread->next_timer_task = NULL;
+#ifdef MODULE_PUBSUB_ENABLED
+    worker_thread->listener_task_list_head = NULL;
+#endif
     worker_thread->waiting = false;
     chMtxObjectInit(&worker_thread->mtx);
+}
+
+static void wake_worker_thread(struct worker_thread_s* worker_thread) {
+    chSysLock();
+    if (worker_thread->waiting) {
+        chSchWakeupS(worker_thread->thread, MSG_TIMEOUT);
+    }
+    chSysUnlock();
 }
 
 void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, task_handler_func_ptr task_func, void* ctx, systime_t period_ticks, bool auto_repeat) {
@@ -25,18 +38,31 @@ void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct 
     task->last_run_time_ticks = chVTGetSystemTimeX();
 
     chMtxLock(&worker_thread->mtx);
-    worker_thread_insert_task(worker_thread, task);
-    chMtxUnlock(&worker_thread->mtx);
+
+    worker_thread_insert_timer_task(worker_thread, task);
 
     // Wake worker thread to process tasks
-    chSysLock();
-    if (worker_thread->waiting) {
-        chSchWakeupS(worker_thread->thread, MSG_TIMEOUT);
-    }
-    chSysUnlock();
+    wake_worker_thread(worker_thread);
+
+    chMtxUnlock(&worker_thread->mtx);
 }
 
-static void worker_thread_insert_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task) {
+#ifdef MODULE_PUBSUB_ENABLED
+void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task, struct pubsub_listener_s* listener) {
+    task->listener = listener;
+
+    chMtxLock(&worker_thread->mtx);
+
+    LINKED_LIST_APPEND(struct worker_thread_listener_task_s, worker_thread->listener_task_list_head, task);
+
+    // Wake worker thread to process tasks
+    wake_worker_thread(worker_thread);
+
+    chMtxUnlock(&worker_thread->mtx);
+}
+#endif
+
+static void worker_thread_insert_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task) {
     systime_t task_run_time = task->last_run_time_ticks + task->period_ticks;
     struct worker_thread_timer_task_s** insert_ptr = &worker_thread->next_timer_task;
     while (*insert_ptr && task_run_time - (*insert_ptr)->last_run_time_ticks >= (*insert_ptr)->period_ticks) {
@@ -45,6 +71,16 @@ static void worker_thread_insert_task(struct worker_thread_s* worker_thread, str
     task->next = *insert_ptr;
     *insert_ptr = task;
 }
+
+#ifdef MODULE_PUBSUB_ENABLED
+static void worker_thread_set_listener_thread_references_S(struct worker_thread_s* worker_thread, thread_reference_t* trpp) {
+    struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
+    while (listener_task) {
+        pubsub_listener_set_waiting_thread_reference_S(listener_task->listener, trpp);
+        listener_task = listener_task->next;
+    }
+}
+#endif
 
 static THD_FUNCTION(worker_thread_func, arg) {
     struct worker_thread_s* worker_thread = arg;
@@ -69,7 +105,7 @@ static THD_FUNCTION(worker_thread_func, arg) {
 
                     if (next_timer_task->auto_repeat) {
                         // Re-insert task
-                        worker_thread_insert_task(worker_thread, next_timer_task);
+                        worker_thread_insert_timer_task(worker_thread, next_timer_task);
                     }
                 } else {
                     // Task is not due
@@ -85,11 +121,40 @@ static THD_FUNCTION(worker_thread_func, arg) {
             chMtxLock(&worker_thread->mtx);
         }
 
+#ifdef MODULE_PUBSUB_ENABLED
         chSysLock();
         chMtxUnlockS(&worker_thread->mtx);
+
+        thread_reference_t trp = NULL;
+
+        worker_thread_set_listener_thread_references_S(worker_thread, &trp);
+
+        worker_thread->waiting = true;
+        msg_t wake_msg = chThdSuspendTimeoutS(&trp, timeout);
+        worker_thread->waiting = false;
+
+        worker_thread_set_listener_thread_references_S(worker_thread, NULL);
+
+        chSysUnlock();
+
+        if (wake_msg != MSG_TIMEOUT) {
+            struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
+            while (listener_task) {
+                if (listener_task->listener == (void*)wake_msg) {
+                    pubsub_listener_handle_one_timeout(listener_task->listener, TIME_IMMEDIATE);
+                }
+                listener_task = listener_task->next;
+            }
+        }
+#else
+        chSysLock();
+        chMtxUnlockS(&worker_thread->mtx);
+
         worker_thread->waiting = true;
         chThdSleepS(timeout);
         worker_thread->waiting = false;
+
         chSysUnlock();
+#endif
     }
 }

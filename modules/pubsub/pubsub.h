@@ -98,3 +98,8 @@ void pubsub_listener_handle_until_timeout(struct pubsub_listener_s* listener, sy
 // - timeout can be TIME_IMMEDIATE to handle all immediately available messages, or TIME_INFINITE to handle messages forever.
 // - Guarantees chronological handling of messages within the same topic. Does *not* guarantee chronological handling of messages across the topic list.
 void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout);
+
+// - Sets the listener's waiting thread reference to the provided reference. The caller can then suspend the thread with chThdSuspendS or
+//   chThdSuspendTimeoutS. Once the listener recieves a message, the thread will be resumed, and the return value of chThdSuspendS will be
+//   a pointer to the listener with the new message.
+void pubsub_listener_set_waiting_thread_reference_S(struct pubsub_listener_s* listener, thread_reference_t* trpp);
