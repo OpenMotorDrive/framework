@@ -26,47 +26,54 @@ void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t d
 
     size_t insert_block_size = data_size+sizeof(struct fifoallocator_block_s);
 
-    while(true) {
-        struct fifoallocator_block_s* insert_block;
-        if (instance->newest) {
-            insert_block = (struct fifoallocator_block_s*)((uint8_t*)instance->newest->data + instance->newest->data_size);
-        } else {
-            insert_block = (struct fifoallocator_block_s*)instance->memory_pool;
-        }
-
-        insert_block = FIFOALLOCATOR_ALIGN(insert_block);
-
-        // Check if the block to be inserted is inside the memory pool
-        if (!fifoallocator_block_in_range(instance, insert_block, insert_block_size)) {
-            insert_block = (struct fifoallocator_block_s*)instance->memory_pool;
-            insert_block = FIFOALLOCATOR_ALIGN(insert_block);
-
-            if (!fifoallocator_block_in_range(instance, insert_block, insert_block_size)) {
-                return NULL;
-            }
-        }
-
-        // Check if the insert block overlaps with the oldest block
-        if (instance->oldest && (size_t)instance->oldest >= (size_t)insert_block && (size_t)instance->oldest < (size_t)insert_block+insert_block_size) {
-            fifoallocator_pop_oldest(instance);
-            continue;
-        }
-
-        insert_block->next_oldest = NULL;
-        insert_block->data_size = data_size;
-
-        if (instance->newest) {
-            instance->newest->next_oldest = insert_block;
-        }
-
-        instance->newest = insert_block;
-
-        if (!instance->oldest) {
-            instance->oldest = insert_block;
-        }
-
-        return insert_block->data;
+    struct fifoallocator_block_s* insert_block;
+    if (instance->newest) {
+        insert_block = (struct fifoallocator_block_s*)((uint8_t*)instance->newest->data + instance->newest->data_size);
+    } else {
+        insert_block = (struct fifoallocator_block_s*)instance->memory_pool;
     }
+
+    insert_block = FIFOALLOCATOR_ALIGN(insert_block);
+
+    // Check if the block to be inserted is inside the memory pool
+    if (!fifoallocator_block_in_range(instance, insert_block, insert_block_size)) {
+        // The block doesn't fit. Move it to the beginning of the memory pool.
+        insert_block = FIFOALLOCATOR_ALIGN((struct fifoallocator_block_s*)instance->memory_pool);
+
+        if (!fifoallocator_block_in_range(instance, insert_block, insert_block_size)) {
+            return NULL;
+        }
+
+        // Delete oldest block until there is no wrapping.
+        while ((size_t)instance->oldest > (size_t)instance->newest) {
+            fifoallocator_pop_oldest(instance);
+        }
+    }
+
+    // Check if the insert block overlaps with the oldest block
+    while (instance->oldest && (size_t)instance->oldest >= (size_t)insert_block && (size_t)instance->oldest < (size_t)insert_block+insert_block_size) {
+        fifoallocator_pop_oldest(instance);
+    }
+
+    // Check if we've deleted everything, start from the beginning if so
+    if (!instance->newest) {
+        insert_block = FIFOALLOCATOR_ALIGN((struct fifoallocator_block_s*)instance->memory_pool);
+    }
+
+    insert_block->next_oldest = NULL;
+    insert_block->data_size = data_size;
+
+    if (instance->newest) {
+        instance->newest->next_oldest = insert_block;
+    }
+
+    instance->newest = insert_block;
+
+    if (!instance->oldest) {
+        instance->oldest = insert_block;
+    }
+
+    return insert_block->data;
 }
 
 size_t fifoallocator_get_block_size(const void* block) {
@@ -96,5 +103,5 @@ static void fifoallocator_pop_oldest(struct fifoallocator_instance_s* instance) 
 static bool fifoallocator_block_in_range(struct fifoallocator_instance_s* instance, void* block, size_t block_size) {
     return instance && instance->memory_pool &&
            (size_t)block-(size_t)instance->memory_pool < instance->memory_pool_size &&
-           (size_t)block+block_size-(size_t)instance->memory_pool < instance->memory_pool_size;
+           (size_t)block+block_size-(size_t)instance->memory_pool <= instance->memory_pool_size;
 }
