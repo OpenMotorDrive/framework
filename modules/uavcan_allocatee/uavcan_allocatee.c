@@ -130,8 +130,9 @@ static void allocation_start_request_timer(struct allocation_state_s* allocation
     }
 
     allocation_state->request_timer_begin_us = micros();
-    allocation_state->request_delay_us = UAVCAN_NODE_ID_ALLOCATION_MIN_REQUEST_PERIOD_US + (uint32_t)(getRandomFloat() * (UAVCAN_NODE_ID_ALLOCATION_MAX_REQUEST_PERIOD_US-UAVCAN_NODE_ID_ALLOCATION_MIN_REQUEST_PERIOD_US));
+    float request_delay_ms = UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_REQUEST_PERIOD_MS + (getRandomFloat() * (UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MAX_REQUEST_PERIOD_MS-UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_REQUEST_PERIOD_MS));
 
+    allocation_state->request_delay_us = 1000*request_delay_ms;
 }
 
 static void allocation_start_followup_timer(struct allocation_state_s* allocation_state) {
@@ -140,7 +141,9 @@ static void allocation_start_followup_timer(struct allocation_state_s* allocatio
     }
 
     allocation_state->request_timer_begin_us = micros();
-    allocation_state->request_delay_us = UAVCAN_NODE_ID_ALLOCATION_MIN_FOLLOWUP_PERIOD_US + (uint32_t)(getRandomFloat() * (UAVCAN_NODE_ID_ALLOCATION_MAX_FOLLOWUP_PERIOD_US-UAVCAN_NODE_ID_ALLOCATION_MIN_FOLLOWUP_PERIOD_US));
+
+    float request_delay_ms = UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_FOLLOWUP_DELAY_MS + (getRandomFloat() * (UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MAX_FOLLOWUP_DELAY_MS-UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_FOLLOWUP_DELAY_MS));
+    allocation_state->request_delay_us = 1000*request_delay_ms;
 }
 
 static bool allocation_running(struct allocation_state_s* allocation_state) {

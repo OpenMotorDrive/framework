@@ -36,6 +36,7 @@ void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct 
     task->period_ticks = period_ticks;
     task->auto_repeat = auto_repeat;
     task->last_run_time_ticks = chVTGetSystemTimeX();
+    task->worker_thread = worker_thread;
 
     chMtxLock(&worker_thread->mtx);
 
@@ -45,6 +46,31 @@ void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct 
     wake_worker_thread(worker_thread);
 
     chMtxUnlock(&worker_thread->mtx);
+}
+
+void worker_thread_timer_task_cancel(struct worker_thread_timer_task_s* task) {
+    struct worker_thread_s* worker_thread = task->worker_thread;
+
+    chMtxLock(&worker_thread->mtx);
+
+    struct worker_thread_timer_task_s** remove_ptr = &worker_thread->next_timer_task;
+    while (*remove_ptr && *remove_ptr != task) {
+        remove_ptr = &(*remove_ptr)->next;
+    }
+
+    if (*remove_ptr) {
+        *remove_ptr = task->next;
+    }
+
+    chMtxUnlock(&worker_thread->mtx);
+}
+
+void* worker_thread_task_get_user_context(struct worker_thread_timer_task_s* task) {
+    if (!task) {
+        return NULL;
+    }
+
+    return task->ctx;
 }
 
 #ifdef MODULE_PUBSUB_ENABLED
@@ -100,7 +126,7 @@ static THD_FUNCTION(worker_thread_func, arg) {
                     worker_thread->next_timer_task = next_timer_task->next;
 
                     // Perform task
-                    next_timer_task->task_func(next_timer_task->ctx);
+                    next_timer_task->task_func(next_timer_task);
                     next_timer_task->last_run_time_ticks = tnow_ticks;
 
                     if (next_timer_task->auto_repeat) {
