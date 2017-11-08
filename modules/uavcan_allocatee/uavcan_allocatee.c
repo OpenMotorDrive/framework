@@ -62,6 +62,7 @@ static THD_FUNCTION(allocatorThread, arg) {
             pubsub_listener_handle_one_timeout(&allocation_listener, US2ST(remaining_us));
         }
     }
+    pubsub_listener_unregister(&allocation_listener);
 }
 
 static void allocation_timer_expired(struct allocation_state_s* allocation_state)

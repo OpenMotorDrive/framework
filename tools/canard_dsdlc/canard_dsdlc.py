@@ -68,7 +68,7 @@ if __name__ == '__main__':
             for msg_name in buildlist:
                 msg = message_dict[msg_name]
                 fields = getattr(msg, 'fields', []) + getattr(msg, 'request_fields', []) + getattr(msg, 'response_fields', [])
-                for field in msg.fields:
+                for field in fields:
                     if field.type.category == field.type.CATEGORY_COMPOUND:
                         new_buildlist.add(field.type.full_name)
 

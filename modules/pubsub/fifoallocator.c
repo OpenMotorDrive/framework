@@ -46,7 +46,8 @@ void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t d
             }
         }
 
-        if (instance->oldest && (size_t)instance->oldest < (size_t)insert_block+insert_block_size) {
+        // Check if the insert block overlaps with the oldest block
+        if (instance->oldest && (size_t)instance->oldest >= (size_t)insert_block && (size_t)instance->oldest < (size_t)insert_block+insert_block_size) {
             fifoallocator_pop_oldest(instance);
             continue;
         }
@@ -59,6 +60,10 @@ void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t d
         }
 
         instance->newest = insert_block;
+
+        if (!instance->oldest) {
+            instance->oldest = insert_block;
+        }
 
         return insert_block->data;
     }
