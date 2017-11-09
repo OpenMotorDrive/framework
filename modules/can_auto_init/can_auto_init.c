@@ -2,6 +2,7 @@
 #include <can/can.h>
 #include <can/autobaud.h>
 #include <timing/timing.h>
+#include <lpwork_thread/lpwork_thread.h>
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
 #include <app_descriptor/app_descriptor.h>

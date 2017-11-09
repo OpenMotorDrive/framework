@@ -114,7 +114,8 @@ enum param_type_t {
     PARAM_TYPE_INT8,
     PARAM_TYPE_BOOL,
     PARAM_TYPE_STRING,
-    PARAM_NUM_TYPES
+    PARAM_NUM_TYPES,
+    PARAM_TYPE_UNKNOWN
 };
 
 struct __attribute__((packed)) param_descriptor_header_s {
@@ -148,11 +149,31 @@ void param_acquire(void);
 void param_release(void);
 void param_register(const struct param_descriptor_header_s* param_descriptor_header);
 uint16_t param_get_num_params_registered(void);
+bool param_get_exists(uint16_t param_idx);
+enum param_type_t param_get_type_by_index(uint16_t param_idx);
 int16_t param_get_index_by_name(uint8_t name_len, char* name);
-// void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response);
+const char* param_get_name_by_index(uint16_t param_idx);
+
 void param_set_by_index_integer(uint16_t param_idx, int64_t value);
 void param_set_by_index_float32(uint16_t param_idx, float value);
 void param_set_by_index_bool(uint16_t param_idx, bool value);
 void param_set_by_index_string(uint16_t param_idx, uint8_t length, const char* value);
+
+bool param_get_value_by_index_integer(uint16_t param_idx, int64_t* value);
+bool param_get_value_by_index_float32(uint16_t param_idx, float* value);
+bool param_get_value_by_index_bool(uint16_t param_idx, bool* value);
+bool param_get_value_by_index_string(uint16_t param_idx, uint8_t* length, char* value, size_t value_size);
+
+bool param_get_default_value_by_index_integer(uint16_t param_idx, int64_t* value);
+bool param_get_default_value_by_index_float32(uint16_t param_idx, float* value);
+bool param_get_default_value_by_index_bool(uint16_t param_idx, bool* value);
+bool param_get_default_value_by_index_string(uint16_t param_idx, uint8_t* length, char* value, size_t value_size);
+
+bool param_get_max_value_by_index_integer(uint16_t param_idx, int64_t* value);
+bool param_get_max_value_by_index_float32(uint16_t param_idx, float* value);
+
+bool param_get_min_value_by_index_integer(uint16_t param_idx, int64_t* value);
+bool param_get_min_value_by_index_float32(uint16_t param_idx, float* value);
+
 bool param_erase(void);
 bool param_store_all(void);

@@ -136,8 +136,18 @@ bool param_store_all(void) {
     return true;
 }
 
-uint16_t param_get_num_params_registered(void) {
-    return num_params_registered;
+bool param_get_exists(uint16_t param_idx) {
+    return param_idx < num_params_registered;
+}
+
+enum param_type_t param_get_type_by_index(uint16_t param_idx) {
+    if (param_idx >= num_params_registered) {
+        return PARAM_TYPE_UNKNOWN;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    return descriptor->type;
 }
 
 int16_t param_get_index_by_name(uint8_t name_len, char* name) {
@@ -152,6 +162,16 @@ int16_t param_get_index_by_name(uint8_t name_len, char* name) {
     return -1;
 }
 
+const char* param_get_name_by_index(uint16_t param_idx) {
+    if (param_idx >= num_params_registered) {
+        return NULL;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    return descriptor->name;
+}
+
 void param_set_by_index_string(uint16_t param_idx, uint8_t length, const char* value) {
     if (param_idx >= num_params_registered || !value) {
         return;
@@ -161,10 +181,12 @@ void param_set_by_index_string(uint16_t param_idx, uint8_t length, const char* v
 
     if (descriptor->type == PARAM_TYPE_STRING) {
         const struct param_descriptor_string_s* string_descriptor = (const struct param_descriptor_string_s*)descriptor;
+
         size_t max_len = MIN(string_descriptor->max_len,128);
 
         if (length <= max_len) {
-            strncpy(descriptor->cached_value, value, max_len);
+            memcpy(descriptor->cached_value, value, length);
+            ((char*)descriptor->cached_value)[length] = 0;
         }
     }
 }
@@ -219,67 +241,18 @@ void param_set_by_index_integer(uint16_t param_idx, int64_t value) {
     }
 }
 
-#if 0
-void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_getset_response_s* response) {
-    if (param_idx >= num_params_registered || !response) {
-        return;
+bool param_get_value_by_index_integer(uint16_t param_idx, int64_t* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
     }
 
     const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
 
-    response->name_len = strnlen(descriptor->name, sizeof(response->name));
-    memcpy(response->name, descriptor->name, response->name_len);
-
     switch(descriptor->type) {
-        case PARAM_TYPE_FLOAT32: {
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_FLOAT32;
-            response->value.real_value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE_FLOAT32)*)descriptor->cached_value;
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_FLOAT32;
-            response->default_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->default_val;
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32;
-            response->max_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->max_val;
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_FLOAT32;
-            response->min_value.real_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->min_val;
-            break;
-        }
-
-        case PARAM_TYPE_BOOL: {
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_BOOL;
-            response->value.boolean_value = *(bool*)descriptor->cached_value;
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_BOOL;
-            response->default_value.boolean_value = descriptor->bool_default_value;
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            break;
-        }
-
-        case PARAM_TYPE_STRING: {
-            const struct param_descriptor_string_s* string_descriptor = (const struct param_descriptor_string_s*)descriptor;
-            size_t max_len = MIN(MIN(sizeof(response->value.string_value), string_descriptor->max_len),128);
-
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_STRING;
-            response->value.string_value_len = strnlen(descriptor->cached_value, max_len);
-            memcpy(response->value.string_value, descriptor->cached_value, response->value.string_value_len);
-
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_STRING;
-            response->default_value.string_value_len = strnlen(string_descriptor->default_val, max_len);
-            memcpy(response->default_value.string_value, string_descriptor->default_val, response->default_value.string_value_len);
-
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_EMPTY;
-            break;
-        }
-
         #define PARAM_INTEGER_CASE(PARAM_TYPE) \
         case PARAM_TYPE: {\
-            response->value.type = UAVCAN_PARAM_VALUE_TYPE_INT64; \
-            response->value.integer_value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE)*)descriptor->cached_value; \
-            response->default_value.type = UAVCAN_PARAM_VALUE_TYPE_INT64; \
-            response->default_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->default_val; \
-            response->max_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64; \
-            response->max_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->max_val; \
-            response->min_value.type = UAVCAN_PARAM_NUMERICVALUE_TYPE_INT64; \
-            response->min_value.integer_value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->min_val; \
+            *value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE)*)descriptor->cached_value; \
+            return true; \
             break; \
         }
         PARAM_INTEGER_CASE(PARAM_TYPE_UINT32)
@@ -291,8 +264,212 @@ void param_make_uavcan_getset_response(uint16_t param_idx, struct uavcan_param_g
         PARAM_INTEGER_CASE(PARAM_TYPE_INT8)
         #undef PARAM_INTEGER_CASE
     }
+
+    return false;
 }
-#endif
+
+bool param_get_value_by_index_float32(uint16_t param_idx, float* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_FLOAT32) {
+        *value = *(_PARAM_SCALAR_CTYPE(PARAM_TYPE_FLOAT32)*)descriptor->cached_value;
+        return true;
+    }
+    return false;
+}
+
+bool param_get_value_by_index_bool(uint16_t param_idx, bool* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_BOOL) {
+        *value = *(bool*)descriptor->cached_value;
+        return true;
+    }
+    return false;
+}
+
+bool param_get_value_by_index_string(uint16_t param_idx, uint8_t* length, char* value, size_t value_size) {
+    if (param_idx >= num_params_registered || !value || !length) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_STRING) {
+        const struct param_descriptor_string_s* string_descriptor = (const struct param_descriptor_string_s*)descriptor;
+
+        size_t max_len = MIN(string_descriptor->max_len,128);
+        size_t out_len = strnlen(descriptor->cached_value, max_len);
+
+        if (out_len <= value_size) {
+            *length = out_len;
+            strncpy(value, descriptor->cached_value, out_len);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool param_get_default_value_by_index_integer(uint16_t param_idx, int64_t* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    switch(descriptor->type) {
+        #define PARAM_INTEGER_CASE(PARAM_TYPE) \
+        case PARAM_TYPE: {\
+            *value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->default_val; \
+            return true; \
+        }
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT32)
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT16)
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT8)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT64)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT32)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT16)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT8)
+        #undef PARAM_INTEGER_CASE
+    }
+    return false;
+}
+
+bool param_get_default_value_by_index_float32(uint16_t param_idx, float* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_FLOAT32) {
+        *value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->default_val;
+        return true;
+    }
+    return false;
+}
+
+bool param_get_default_value_by_index_bool(uint16_t param_idx, bool* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_BOOL) {
+        *value = descriptor->bool_default_value;
+        return true;
+    }
+    return false;
+}
+
+bool param_get_default_value_by_index_string(uint16_t param_idx, uint8_t* length, char* value, size_t value_size) {
+    if (param_idx >= num_params_registered || !value || !length) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_STRING) {
+        const struct param_descriptor_string_s* string_descriptor = (const struct param_descriptor_string_s*)descriptor;
+
+        size_t max_len = MIN(string_descriptor->max_len,128);
+        size_t out_len = strnlen(string_descriptor->default_val, max_len);
+
+        if (out_len <= value_size) {
+            *length = out_len;
+            strncpy(value, string_descriptor->default_val, out_len);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool param_get_max_value_by_index_integer(uint16_t param_idx, int64_t* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    switch(descriptor->type) {
+        #define PARAM_INTEGER_CASE(PARAM_TYPE) \
+        case PARAM_TYPE: {\
+            *value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->max_val; \
+            return true; \
+        }
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT32)
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT16)
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT8)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT64)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT32)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT16)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT8)
+        #undef PARAM_INTEGER_CASE
+    }
+    return false;
+}
+
+bool param_get_max_value_by_index_float32(uint16_t param_idx, float* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_FLOAT32) {
+        *value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->max_val;
+        return true;
+    }
+    return false;
+}
+
+bool param_get_min_value_by_index_integer(uint16_t param_idx, int64_t* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    switch(descriptor->type) {
+        #define PARAM_INTEGER_CASE(PARAM_TYPE) \
+        case PARAM_TYPE: {\
+            *value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE)*)descriptor)->min_val; \
+            return true; \
+        }
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT32)
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT16)
+        PARAM_INTEGER_CASE(PARAM_TYPE_UINT8)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT64)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT32)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT16)
+        PARAM_INTEGER_CASE(PARAM_TYPE_INT8)
+        #undef PARAM_INTEGER_CASE
+    }
+    return false;
+}
+
+bool param_get_min_value_by_index_float32(uint16_t param_idx, float* value) {
+    if (param_idx >= num_params_registered || !value) {
+        return false;
+    }
+
+    const struct param_descriptor_header_s* descriptor = param_descriptor_table[param_idx];
+
+    if (descriptor->type == PARAM_TYPE_FLOAT32) {
+        *value = ((const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE_FLOAT32)*)descriptor)->min_val;
+        return true;
+    }
+    return false;
+}
 
 static bool param_store_by_idx(uint16_t param_idx) {
     if (param_idx >= num_params_registered) {

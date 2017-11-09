@@ -10,7 +10,7 @@ static void node_status_publisher_task_func(struct worker_thread_timer_task_s* t
 
 // TODO mechanism to change node status
 
-struct uavcan_protocol_NodeStatus_s* uavcan_nodestatus_publisher_get_nodestatus_message(void) {
+const struct uavcan_protocol_NodeStatus_s* uavcan_nodestatus_publisher_get_nodestatus_message(void) {
     return &node_status;
 }
 

@@ -48,7 +48,8 @@ uint32_t can_autobaud_update(struct can_autobaud_state_s* state) {
     uint32_t time_since_switch_us = tnow_us - state->last_switch_us;
 
     CANRxFrame rxmsg;
-    if (can_receive_timeout(state->can_idx, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE) == MSG_OK) {
+    can_receive_timeout(state->can_idx, CAN_ANY_MAILBOX, &rxmsg, TIME_IMMEDIATE);
+    if (can_get_baudrate_confirmed(state->can_idx)) {
         state->success = true;
         return valid_baudrates[state->curr_baud_idx];
     }
