@@ -1,4 +1,4 @@
-OMD_Framework is a framework for embedded applications, primarily targeted at drone accessories that connect via CAN bus and the UAVCAN protocol. OMD_Framework is under development, and has not yet achieved its targeted minimum feature set.
+openmotordrive/Framework is a framework for embedded applications, primarily targeted at drone accessories that connect via CAN bus and the UAVCAN protocol. OMD_Framework is under development, and has not yet achieved its targeted minimum feature set.
 
 ## Targeted minimum feature set
 - RTOS-based (ChibiOS)

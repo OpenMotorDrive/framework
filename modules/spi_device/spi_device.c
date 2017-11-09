@@ -132,13 +132,13 @@ static SPIConfig spi_make_config(struct spi_device_s* dev) {
     ret.end_cb = NULL;
     ret.ssport = 0;
     ret.sspad = 0;
-    ret.cr1 = ((br_regval&0b111)<<3) | (FLAG_BIT_VAL(dev->flags,OMD_SPI_FLAG_CPHA)<<0) | (FLAG_BIT_VAL(dev->flags,OMD_SPI_FLAG_CPOL)<<1) | (FLAG_BIT_VAL(dev->flags,OMD_SPI_FLAG_LSBFIRST)<<7);
+    ret.cr1 = ((br_regval&0b111)<<3) | (FLAG_BIT_VAL(dev->flags,SPI_DEVICE_FLAG_CPHA)<<0) | (FLAG_BIT_VAL(dev->flags,SPI_DEVICE_FLAG_CPOL)<<1) | (FLAG_BIT_VAL(dev->flags,SPI_DEVICE_FLAG_LSBFIRST)<<7);
     ret.cr2 = (((dev->data_size-1)&0b1111)<<8);
     return ret;
 }
 
 static void spi_device_assert_chip_select(struct spi_device_s* dev) {
-    if (FLAG_BIT_VAL(dev->flags,OMD_SPI_FLAG_SELPOL)) {
+    if (FLAG_BIT_VAL(dev->flags,SPI_DEVICE_FLAG_SELPOL)) {
         palSetLine(dev->sel_line);
     } else {
         palClearLine(dev->sel_line);
@@ -146,7 +146,7 @@ static void spi_device_assert_chip_select(struct spi_device_s* dev) {
 }
 
 static void spi_device_deassert_chip_select(struct spi_device_s* dev) {
-    if (FLAG_BIT_VAL(dev->flags,OMD_SPI_FLAG_SELPOL)) {
+    if (FLAG_BIT_VAL(dev->flags,SPI_DEVICE_FLAG_SELPOL)) {
         palClearLine(dev->sel_line);
     } else {
         palSetLine(dev->sel_line);

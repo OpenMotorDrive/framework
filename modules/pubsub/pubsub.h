@@ -7,7 +7,7 @@
 #define __PUBSUB_CONCAT(a,b) a ## b
 #define _PUBSUB_CONCAT(a,b) __PUBSUB_CONCAT(a,b)
 
-#define OMD_PUBSUB_DECLARE_TOPIC_GROUP_STATIC(HANDLE_NAME, SIZE) \
+#define PUBSUB_DECLARE_TOPIC_GROUP_STATIC(HANDLE_NAME, SIZE) \
 static struct pubsub_topic_group_s HANDLE_NAME; \
 static uint8_t _PUBSUB_CONCAT(_pubsub_topic_group_memory_, HANDLE_NAME)[SIZE]; \
 RUN_BEFORE(PUBSUB_TOPIC_INIT) { \

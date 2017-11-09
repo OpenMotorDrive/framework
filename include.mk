@@ -56,11 +56,11 @@ ifeq ($(USE_FPU),)
   USE_FPU = hard
 endif
 
-OMD_COMMON_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
+FRAMEWORK_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
-CHIBIOS = $(OMD_COMMON_DIR)/ChibiOS_17.6.0
+CHIBIOS = $(FRAMEWORK_DIR)/ChibiOS_17.6.0
 
-CANARD_DIR = $(OMD_COMMON_DIR)/libcanard
+CANARD_DIR = $(FRAMEWORK_DIR)/libcanard
 
 ifeq ($(PROJECT),)
   PROJECT = $(notdir $(shell pwd))
@@ -73,7 +73,7 @@ endif
 BUILDDIR = build/$(BOARD)
 
 ifneq ($(findstring stm32,$(TGT_MCU)),)
-  RULESPATH = $(OMD_COMMON_DIR)/rules/ARMCMx
+  RULESPATH = $(FRAMEWORK_DIR)/rules/ARMCMx
   MCU  = cortex-m4
   TRGT = arm-none-eabi-
   UDEFS += -DARCH_LITTLE_ENDIAN
@@ -88,10 +88,10 @@ include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
 
-MODULE_SEARCH_DIRS := $(OMD_COMMON_DIR)/modules modules
+MODULE_SEARCH_DIRS := $(FRAMEWORK_DIR)/modules modules
 
-COMMON_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard $(OMD_COMMON_DIR)/modules/$(module)))
-COMMON_MODULES := $(patsubst $(OMD_COMMON_DIR)/modules/%,%,$(COMMON_MODULE_DIRS))
+COMMON_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard $(FRAMEWORK_DIR)/modules/$(module)))
+COMMON_MODULES := $(patsubst $(FRAMEWORK_DIR)/modules/%,%,$(COMMON_MODULE_DIRS))
 
 APP_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard modules/$(module)))
 APP_MODULES := $(patsubst modules/%,%,$(APP_MODULE_DIRS))
@@ -113,8 +113,8 @@ MODULES_INC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/incl
 
 MODULES_ENABLED_DEFS := $(foreach module,$(MODULES_ENABLED),-DMODULE_$(shell echo $(module) | tr a-z A-Z)_ENABLED)
 
-COMMON_CSRC := $(shell find $(OMD_COMMON_DIR)/src -name "*.c") $(CANARD_DIR)/canard.c
-COMMON_INC := $(OMD_COMMON_DIR)/include $(CANARD_DIR)
+COMMON_CSRC := $(shell find $(FRAMEWORK_DIR)/src -name "*.c") $(CANARD_DIR)/canard.c
+COMMON_INC := $(FRAMEWORK_DIR)/include $(CANARD_DIR)
 
 INCDIR += $(CHIBIOS)/os/license \
           $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
@@ -216,11 +216,11 @@ LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 
 include $(RULESPATH)/rules.mk
 
-DSDL_NAMESPACE_DIRS += $(OMD_COMMON_DIR)/dsdl/uavcan
+DSDL_NAMESPACE_DIRS += $(FRAMEWORK_DIR)/dsdl/uavcan
 
 $(BUILDDIR)/dsdlc.mk:
 	rm -rf $(BUILDDIR)/dsdlc
-	python $(OMD_COMMON_DIR)/tools/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
+	python $(FRAMEWORK_DIR)/tools/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
 	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $@
 
 MODULES_INC_COPIES := $(foreach module,$(MODULES_ENABLED),$(BUILDDIR)/module_includes/$(module))
@@ -230,11 +230,11 @@ $(MODULES_INC_COPIES):
 PRE_BUILD_RULE: $(MODULES_INC_COPIES)
 
 POST_MAKE_ALL_RULE_HOOK: $(BUILDDIR)/$(PROJECT).bin
-	python $(OMD_COMMON_DIR)/tools/crc_binary.py $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).bin
+	python $(FRAMEWORK_DIR)/tools/crc_binary.py $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).bin
 
 .PHONY: PRE_BUILD_RULE
 PRE_BUILD_RULE:
-	cd $(OMD_COMMON_DIR) && git submodule init && git submodule update
+	cd $(FRAMEWORK_DIR) && git submodule init && git submodule update
 
 # This ensures that PRE_BUILD_RULE is executed first and non-concurrently
 ifneq ($(MAKECMDGOALS),clean)

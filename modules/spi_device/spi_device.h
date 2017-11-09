@@ -4,10 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define OMD_SPI_FLAG_CPHA     (1<<0)
-#define OMD_SPI_FLAG_CPOL     (1<<1)
-#define OMD_SPI_FLAG_LSBFIRST (1<<2)
-#define OMD_SPI_FLAG_SELPOL   (1<<3)
+#define SPI_DEVICE_FLAG_CPHA     (1<<0)
+#define SPI_DEVICE_FLAG_CPOL     (1<<1)
+#define SPI_DEVICE_FLAG_LSBFIRST (1<<2)
+#define SPI_DEVICE_FLAG_SELPOL   (1<<3)
 
 struct spi_device_s {
     uint32_t max_speed_hz;

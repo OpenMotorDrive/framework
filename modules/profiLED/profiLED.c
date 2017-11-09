@@ -36,7 +36,7 @@ void profiLED_init(struct profiLED_instance_s* instance, uint8_t spi_bus_idx, ui
     if (!instance->colors) goto fail;
     memset(instance->colors, 0, colors_size);
 
-    if (!spi_device_init(&(instance->dev), spi_bus_idx, spi_sel_line, 30000000, 8, (sel_active_high?OMD_SPI_FLAG_SELPOL:0))) {
+    if (!spi_device_init(&(instance->dev), spi_bus_idx, spi_sel_line, 30000000, 8, (sel_active_high?SPI_DEVICE_FLAG_SELPOL:0))) {
         goto fail;
     }
 
