@@ -1,3 +1,16 @@
+#include <uavcan_nodestatus_publisher/uavcan_nodestatus_publisher.h>
+#include <lpwork_thread/lpwork_thread.h>
+
+#ifdef MODULE_APP_DESCRIPTOR_ENABLED
+#include <app_descriptor/app_descriptor.h>
+#endif
+
+#ifdef MODULE_BOOT_MSG_ENABLED
+#include <boot_msg/boot_msg.h>
+#endif
+
+#include <string.h>
+
 #include <uavcan.protocol.GetNodeInfo.h>
 
 static struct pubsub_listener_s getnodeinfo_req_listener;
@@ -10,12 +23,34 @@ RUN_AFTER(UAVCAN_INIT) {
     worker_thread_add_listener_task(&lpwork_thread, &getnodeinfo_req_listener_task, &getnodeinfo_req_listener);
 }
 
-static void allocation_message_handler(size_t msg_size, const void* buf, void* ctx) {
+static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx) {
     (void)msg_size;
     (void)ctx;
 
     const struct uavcan_deserialized_message_s* msg_wrapper = buf;
-    const struct uavcan_protocol_GetNodeInfo_req_s* msg = (const struct uavcan_protocol_GetNodeInfo_req_s*)msg_wrapper->msg;
 
+    struct uavcan_protocol_GetNodeInfo_res_s res;
+    memset(&res, 0, sizeof(struct uavcan_protocol_GetNodeInfo_res_s));
 
+    res.status = *uavcan_nodestatus_publisher_get_nodestatus_message();
+
+#ifdef MODULE_BOOT_MSG_ENABLED
+    if (get_boot_msg_valid() && boot_msg_id == SHARED_MSG_BOOT_INFO && boot_msg.boot_info_msg.hw_info) {
+        strncpy((char*)res.name, boot_msg.boot_info_msg.hw_info->hw_name, sizeof(res.name));
+        res.name_len = strnlen((char*)res.name, sizeof(res.name));
+        res.hardware_version.major = boot_msg.boot_info_msg.hw_info->hw_major_version;
+        res.hardware_version.minor = boot_msg.boot_info_msg.hw_info->hw_minor_version;
+    }
+#endif
+
+#ifdef MODULE_APP_DESCRIPTOR_ENABLED
+    res.software_version.major = shared_app_descriptor.major_version;
+    res.software_version.minor = shared_app_descriptor.minor_version;
+    res.software_version.optional_field_flags = UAVCAN_PROTOCOL_SOFTWAREVERSION_OPTIONAL_FIELD_FLAG_VCS_COMMIT |
+                                                UAVCAN_PROTOCOL_SOFTWAREVERSION_OPTIONAL_FIELD_FLAG_IMAGE_CRC;
+    res.software_version.vcs_commit = shared_app_descriptor.vcs_commit;
+    res.software_version.image_crc = shared_app_descriptor.image_crc;
+#endif
+
+    uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
 }

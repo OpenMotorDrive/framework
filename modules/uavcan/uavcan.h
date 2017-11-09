@@ -16,10 +16,12 @@ struct uavcan_message_descriptor_s {
     size_t max_serialized_size;
     uavcan_serializer_func_ptr_t serializer_func;
     uavcan_deserializer_func_ptr_t deserializer_func;
+    const struct uavcan_message_descriptor_s* resp_descriptor;
 };
 
 struct uavcan_deserialized_message_s {
     uint8_t uavcan_idx;
+    const struct uavcan_message_descriptor_s* descriptor;
     uint16_t data_type_id;
     uint8_t transfer_id;
     uint8_t priority;
@@ -38,6 +40,6 @@ uint16_t uavcan_get_message_data_type_id(uint8_t uavcan_idx, const struct uavcan
 
 struct pubsub_topic_s* uavcan_get_message_topic(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor);
 
-void uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, void* msg_data);
-void uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data);
-void uavcan_respond(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, uint8_t transfer_id, uint8_t dest_node_id, void* msg_data);
+void uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data);
+void uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data);
+void uavcan_respond(uint8_t uavcan_idx, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data);

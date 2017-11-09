@@ -232,7 +232,7 @@ void uavcan_set_node_id(uint8_t uavcan_idx, uint8_t node_id) {
     return _uavcan_set_node_id(uavcan_get_instance(uavcan_idx), node_id);
 }
 
-static void _uavcan_broadcast(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, void* msg_data) {
+static void _uavcan_broadcast(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data) {
     if (!instance || !instance->outgoing_message_buf || !msg_descriptor || !msg_descriptor->serializer_func || !msg_data) {
         return;
     }
@@ -248,11 +248,11 @@ static void _uavcan_broadcast(struct uavcan_instance_s* instance, const struct u
     uavcan_transmit_frames_async(instance);
 }
 
-void uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, void* msg_data) {
+void uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data) {
     return _uavcan_broadcast(uavcan_get_instance(uavcan_idx), msg_descriptor, priority, msg_data);
 }
 
-static void _uavcan_request(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
+static void _uavcan_request(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
     if (!instance || !instance->outgoing_message_buf || !msg_descriptor || !msg_descriptor->serializer_func || !msg_data) {
         return;
     }
@@ -268,14 +268,19 @@ static void _uavcan_request(struct uavcan_instance_s* instance, const struct uav
     uavcan_transmit_frames_async(instance);
 }
 
-void uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
+void uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
     return _uavcan_request(uavcan_get_instance(uavcan_idx), msg_descriptor, priority, dest_node_id, msg_data);
 }
 
-static void _uavcan_respond(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, uint8_t transfer_id, uint8_t dest_node_id, void* msg_data) {
-    if (!instance || !instance->outgoing_message_buf || !msg_descriptor || !msg_descriptor->serializer_func || !msg_data) {
+static void _uavcan_respond(struct uavcan_instance_s* instance, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data) {
+    if (!instance || !instance->outgoing_message_buf || !req_msg || !req_msg->descriptor || !req_msg->descriptor->resp_descriptor || !req_msg->descriptor->resp_descriptor->serializer_func || !msg_data) {
         return;
     }
+
+    const struct uavcan_message_descriptor_s* msg_descriptor = req_msg->descriptor->resp_descriptor;
+    uint8_t priority = req_msg->priority;
+    uint8_t transfer_id = req_msg->transfer_id;
+    uint8_t dest_node_id = req_msg->source_node_id;
 
     chMtxLock(&instance->tx_mtx);
     chMtxLock(&instance->canard_mtx);
@@ -287,8 +292,8 @@ static void _uavcan_respond(struct uavcan_instance_s* instance, const struct uav
     uavcan_transmit_frames_async(instance);
 }
 
-void uavcan_respond(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor, uint8_t priority, uint8_t transfer_id, uint8_t dest_node_id, void* msg_data) {
-    return _uavcan_respond(uavcan_get_instance(uavcan_idx), msg_descriptor, priority, transfer_id, dest_node_id, msg_data);
+void uavcan_respond(uint8_t uavcan_idx, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data) {
+    return _uavcan_respond(uavcan_get_instance(uavcan_idx), req_msg, msg_data);
 }
 
 static THD_FUNCTION(uavcan_tx_thd_func, arg) {
@@ -440,7 +445,7 @@ static CANTxFrame convert_CanardCANFrame_to_CANTxFrame(const CanardCANFrame* can
 struct uavcan_message_writer_func_args {
     uint8_t uavcan_idx;
     CanardRxTransfer* transfer;
-    uavcan_deserializer_func_ptr_t deserializer_func;
+    const struct uavcan_message_descriptor_s* const descriptor;
 };
 
 static void uavcan_message_writer_func(size_t msg_size, void* write_buf, void* ctx) {
@@ -448,11 +453,12 @@ static void uavcan_message_writer_func(size_t msg_size, void* write_buf, void* c
     struct uavcan_message_writer_func_args* args = ctx;
     struct uavcan_deserialized_message_s* deserialized_message = write_buf;
     deserialized_message->uavcan_idx = args->uavcan_idx;
+    deserialized_message->descriptor = args->descriptor;
     deserialized_message->data_type_id = args->transfer->data_type_id;
     deserialized_message->transfer_id = args->transfer->transfer_id;
     deserialized_message->priority = args->transfer->priority;
     deserialized_message->source_node_id = args->transfer->source_node_id;
-    args->deserializer_func(args->transfer, deserialized_message->msg);
+    args->descriptor->deserializer_func(args->transfer, deserialized_message->msg);
 }
 
 static void uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* transfer) {
@@ -468,7 +474,7 @@ static void uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* tran
     struct uavcan_rx_list_item_s* rx_list_item = instance->rx_list_head;
     while (rx_list_item) {
         if (rx_list_item->msg_descriptor->transfer_type == transfer->transfer_type && _uavcan_get_message_data_type_id(instance, rx_list_item->msg_descriptor) == transfer->data_type_id) {
-            struct uavcan_message_writer_func_args writer_args = { instance->idx, transfer, rx_list_item->msg_descriptor->deserializer_func };
+            struct uavcan_message_writer_func_args writer_args = { instance->idx, transfer, rx_list_item->msg_descriptor };
             pubsub_publish_message(&rx_list_item->topic, rx_list_item->msg_descriptor->deserialized_size+sizeof(struct uavcan_deserialized_message_s), uavcan_message_writer_func, &writer_args);
         }
 

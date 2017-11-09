@@ -1,6 +1,9 @@
 @{from canard_dsdlc_helpers import *}@
 @{indent = 0}@{ind = '    '*indent}@
 #include <@(msg_header_file_name)>
+@[    if msg_kind == "request"]@
+#include <@(msg_resp_header_file_name)>
+@[    end if]@
 #include <string.h>
 
 @[  if msg_default_dtid is not None]@
@@ -25,7 +28,12 @@ const struct uavcan_message_descriptor_s @(msg_underscored_name)_descriptor = {
     sizeof(@(msg_c_type)),
     @(msg_underscored_name.upper())_MAX_PACK_SIZE,
     encode_func,
-    decode_func
+    decode_func,
+@[    if msg_kind == "request"]@
+    &@(msg_resp_underscored_name)_descriptor
+@[    else]@
+    NULL
+@[    end if]@
 };
 @[  end if]@
 

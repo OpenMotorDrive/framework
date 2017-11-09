@@ -8,6 +8,7 @@ import copy
 def get_empy_env_request(msg):
     assert msg.kind == msg.KIND_SERVICE
     msg_underscored_name = msg.full_name.replace('.','_')+'_req'
+    msg_resp_underscored_name = msg.full_name.replace('.','_')+'_res'
     return {
         'msg_underscored_name': msg_underscored_name,
         'msg_header_file_name': msg_header_name_request(msg),
@@ -18,7 +19,9 @@ def get_empy_env_request(msg):
         'msg_max_bitlen': msg.get_max_bitlen_request(),
         'msg_dt_sig': msg.get_data_type_signature(),
         'msg_default_dtid': msg.default_dtid,
-        'msg_kind': 'request'
+        'msg_kind': 'request',
+        'msg_resp_underscored_name': msg_resp_underscored_name,
+        'msg_resp_header_file_name': msg_header_name_response(msg)
     }
 
 def get_empy_env_response(msg):
@@ -123,13 +126,13 @@ def msg_header_name_request(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return '%s_Request.h' % (obj.full_name,)
+    return '%s_req.h' % (obj.full_name,)
 
 def msg_header_name_response(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return '%s_Response.h' % (obj.full_name,)
+    return '%s_res.h' % (obj.full_name,)
 
 def msg_header_name(obj):
     if isinstance(obj, uavcan.dsdl.Field):
@@ -140,13 +143,13 @@ def msg_c_file_name_request(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return '%s_Request.c' % (obj.full_name,)
+    return '%s_req.c' % (obj.full_name,)
 
 def msg_c_file_name_response(obj):
     if isinstance(obj, uavcan.dsdl.Field):
         obj = obj.type
     assert obj.category == obj.CATEGORY_COMPOUND and obj.kind == obj.KIND_SERVICE
-    return '%s_Response.c' % (obj.full_name,)
+    return '%s_res.c' % (obj.full_name,)
 
 def msg_c_file_name(obj):
     if isinstance(obj, uavcan.dsdl.Field):
