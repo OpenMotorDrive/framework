@@ -3,6 +3,7 @@
 #include <timing/timing.h>
 #include <common/helpers.h>
 #include <string.h>
+#include <can/can.h>
 
 #ifdef MODULE_BOOT_MSG_ENABLED
 #include <boot_msg/boot_msg.h>
@@ -10,6 +11,10 @@
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
 #include <app_descriptor/app_descriptor.h>
+#endif
+
+#ifdef MODULE_SYSTEM_EVENT_ENABLED
+#include <system_event/system_event.h>
 #endif
 
 #if CH_CFG_USE_MUTEXES_RECURSIVE != TRUE
@@ -56,7 +61,7 @@ struct uavcan_rx_list_item_s {
 
 struct uavcan_instance_s {
     uint8_t idx;
-    CANDriver* can_dev;
+    uint8_t can_dev_idx;
     CanardInstance canard;
     void* canard_memory_pool;
     thread_t* rx_thread;
@@ -77,7 +82,7 @@ static THD_FUNCTION(uavcan_tx_thd_func, arg);
 
 static struct uavcan_instance_s* uavcan_get_instance(uint8_t idx);
 static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg);
-static void uavcan_init(CANDriver* can_dev);
+static void uavcan_init(uint8_t can_dev_idx);
 static void _uavcan_set_node_id(struct uavcan_instance_s* instance, uint8_t node_id);
 
 static void uavcan_transmit_frames_async(struct uavcan_instance_s* instance);
@@ -99,16 +104,16 @@ MEMORYPOOL_DECL(rx_thread_pool, THD_WORKING_AREA_SIZE(UAVCAN_RX_THREAD_STACK_SIZ
 static struct uavcan_instance_s* uavcan_instance_list_head;
 
 RUN_ON(UAVCAN_INIT) {
-    uavcan_init(&CAND1);
+    uavcan_init(0);
 }
 
-static void uavcan_init(CANDriver* can_dev) {
+static void uavcan_init(uint8_t can_dev_idx) {
     struct uavcan_instance_s* instance;
     void* transfer_id_map_working_area;
 
     if (!(instance = chCoreAllocAligned(sizeof(struct uavcan_instance_s), PORT_WORKING_AREA_ALIGN))) { goto fail; }
     memset(instance, 0, sizeof(struct uavcan_instance_s));
-    instance->can_dev = can_dev;
+    instance->can_dev_idx = can_dev_idx;
     chMtxObjectInit(&instance->canard_mtx);
     chMtxObjectInit(&instance->tx_mtx);
     chBSemObjectInit(&instance->tx_thread_semaphore, true);
@@ -329,7 +334,7 @@ static void uavcan_transmit_frames_sync(struct uavcan_instance_s* instance) {
 
         CANTxFrame chibios_frame = convert_CanardCANFrame_to_CANTxFrame(canard_frame);
 
-        if (canTransmitTimeout(instance->can_dev, CAN_ANY_MAILBOX, &chibios_frame, TIME_INFINITE) == MSG_OK) {
+        if (can_transmit_timeout(instance->can_dev_idx, CAN_ANY_MAILBOX, &chibios_frame, TIME_INFINITE) == MSG_OK) {
             chMtxLock(&instance->canard_mtx);
             canardPopTxQueue(&instance->canard);
             chMtxUnlock(&instance->canard_mtx);
@@ -355,7 +360,7 @@ static THD_FUNCTION(uavcan_rx_thd_func, arg) {
             last_cleanup_us = tnow_us;
         } else {
             uint32_t time_until_cleanup_us = CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC-time_since_cleanup_us;
-            if (canReceiveTimeout(instance->can_dev, CAN_ANY_MAILBOX, &chibios_frame, US2ST(time_until_cleanup_us)) == MSG_OK) {
+            if (can_receive_timeout(instance->can_dev_idx, CAN_ANY_MAILBOX, &chibios_frame, US2ST(time_until_cleanup_us)) == MSG_OK) {
                 uint64_t timestamp = micros64();
                 CanardCANFrame canard_frame = convert_CANRxFrame_to_CanardCANFrame(&chibios_frame);
 

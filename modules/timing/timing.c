@@ -16,9 +16,7 @@
 #include <common/ctor.h>
 #include "timing.h"
 #include <ch.h>
-
-static THD_WORKING_AREA(waTimingThread, 128);
-static THD_FUNCTION(TimingThread, arg);
+#include <lpwork_thread/lpwork_thread.h>
 
 static struct {
     uint64_t update_seconds;
@@ -27,8 +25,12 @@ static struct {
 
 static volatile uint8_t timing_state_idx;
 
-RUN_AFTER(CH_SYS_INIT) {
-    chThdCreateStatic(waTimingThread, sizeof(waTimingThread), HIGHPRIO-1, TimingThread, NULL);
+static struct worker_thread_timer_task_s timing_state_update_task;
+
+static void timing_state_update_task_func(struct worker_thread_timer_task_s* task);
+
+RUN_AFTER(WORKER_THREADS_START) {
+    worker_thread_add_timer_task(&lpwork_thread, &timing_state_update_task, timing_state_update_task_func, NULL, S2ST(10), true);
 }
 
 uint32_t millis(void) {
@@ -60,9 +62,8 @@ void usleep(uint32_t delay) {
     while (micros()-tbegin < delay);
 }
 
-static THD_FUNCTION(TimingThread, arg)
-{
-    (void)arg;
+static void timing_state_update_task_func(struct worker_thread_timer_task_s* task) {
+    (void)task;
     while (true) {
         uint8_t next_timing_state_idx = (timing_state_idx+1) % 2;
 

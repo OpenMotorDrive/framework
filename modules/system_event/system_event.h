@@ -1,7 +1,7 @@
 #pragma once
 
 enum system_event_t {
-    SYSTEM_EVENT_REBOOT_IMMINENT
+    SYSTEM_EVENT_REBOOT_IMMINENT,
 };
 
 extern struct pubsub_topic_s system_event_topic;

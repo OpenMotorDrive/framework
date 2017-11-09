@@ -1,5 +1,11 @@
 #include <common/ctor.h>
 #include <common/shared_boot_msg.h>
+#include <string.h>
+
+#ifdef MODULE_UAVCAN_ENABLED
+#include <uavcan/uavcan.h>
+#include <can/can.h>
+#endif
 
 enum shared_msg_t boot_msg_id;
 union shared_msg_payload_u boot_msg;
@@ -12,4 +18,16 @@ RUN_ON(BOOT_MSG_RETRIEVAL) {
 
 bool get_boot_msg_valid(void) {
     return boot_msg_valid;
+}
+
+void boot_msg_fill_shared_canbus_info(struct shared_canbus_info_s* ret) {
+    memset(ret,0,sizeof(struct shared_canbus_info_s));
+
+#ifdef MODULE_UAVCAN_ENABLED
+    ret->local_node_id = uavcan_get_node_id(0);
+
+    if (can_get_baudrate_confirmed(0)) {
+        ret->baudrate = can_get_baudrate(0);
+    }
+#endif
 }
