@@ -10,7 +10,7 @@
 #define OMD_PUBSUB_DECLARE_TOPIC_GROUP_STATIC(HANDLE_NAME, SIZE) \
 static struct pubsub_topic_group_s HANDLE_NAME; \
 static uint8_t _PUBSUB_CONCAT(_pubsub_topic_group_memory_, HANDLE_NAME)[SIZE]; \
-RUN_BEFORE(OMD_PUBSUB_TOPIC_INIT) { \
+RUN_BEFORE(PUBSUB_TOPIC_INIT) { \
     pubsub_create_topic_group(&HANDLE_NAME, SIZE, _PUBSUB_CONCAT(_pubsub_topic_group_memory_, HANDLE_NAME)); \
 }
 
@@ -59,16 +59,14 @@ void pubsub_create_topic_group(struct pubsub_topic_group_s* topic_group, size_t 
 void pubsub_init_topic(struct pubsub_topic_s* topic, struct pubsub_topic_group_s* topic_group);
 
 // - Initializes a listener object owned by the current thread and registers it on a topic.
-void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubsub_listener_s* listener);
-
-// - Allocates a message on topic topic of size size, calls writer_cb(size, msg, ctx) to populate it, and publishes it.
-void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx);
-
-// - Unregisters a listener from its topic.
-void pubsub_listener_unregister(struct pubsub_listener_s* listener);
-
-// - Resets a listener to a state of no messages pending.
-void pubsub_listener_reset(struct pubsub_listener_s* listener);
+// - Sets the handler callback and context variable that it will be called with. Note that the handler callback will not be called
+//   until the listener's owner thread calls one of the following APIs:
+//     - pubsub_listener_handle_until_timeout
+//     - pubsub_multiple_listener_handle_until_timeout
+// - Note that while handler_cb is executing, publishers on the listener's topic group can be blocked if they need to deallocate
+//   the message that the handler is handling. This problem can be mitigated by minimizing blocking, allocating more memory to the
+//   topic group, or using a separate topic group.
+void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
 
 // - Sets the handler callback and context variable that it will be called with. Note that the handler callback will not be called
 //   until the listener's owner thread calls one of the following APIs:
@@ -78,6 +76,16 @@ void pubsub_listener_reset(struct pubsub_listener_s* listener);
 //   the message that the handler is handling. This problem can be mitigated by minimizing blocking, allocating more memory to the
 //   topic group, or using a separate topic group.
 void pubsub_listener_set_handler_cb(struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
+
+// - Allocates a message on topic topic of size size, calls writer_cb(size, msg, ctx) to populate it, and publishes it.
+void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx);
+void pubsub_copy_writer_func(size_t msg_size, void* msg, void* ctx);
+
+// - Unregisters a listener from its topic.
+void pubsub_listener_unregister(struct pubsub_listener_s* listener);
+
+// - Resets a listener to a state of no messages pending.
+void pubsub_listener_reset(struct pubsub_listener_s* listener);
 
 // - Handles the first message that becomes available to listener using the listener's handler_cb
 // - Returns true if message has been handled, false if timeout has elapsed.

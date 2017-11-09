@@ -1,6 +1,7 @@
 #include <pubsub/pubsub.h>
 #include <common/helpers.h>
 #include <common/ctor.h>
+#include <string.h>
 
 #ifndef OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE
 #define OMD_PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE 512
@@ -33,7 +34,7 @@ void pubsub_init_topic(struct pubsub_topic_s* topic, struct pubsub_topic_group_s
     topic->listener_list_head = NULL;
 }
 
-void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubsub_listener_s* listener) {
+void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx) {
     if (!topic || !topic->group || !listener) {
         return;
     }
@@ -42,8 +43,8 @@ void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubs
     listener->topic = topic;
     listener->next_message = NULL;
     listener->waiting_thread_reference_ptr = NULL;
-    listener->handler_cb = NULL;
-    listener->handler_cb_ctx = NULL;
+    listener->handler_cb = handler_cb;
+    listener->handler_cb_ctx = handler_cb_ctx;
     chMtxObjectInit(&listener->mtx);
     listener->next = NULL;
 
@@ -87,6 +88,10 @@ void pubsub_listener_reset(struct pubsub_listener_s* listener) {
     chMtxLock(&listener->mtx);
     listener->next_message = NULL;
     chMtxUnlock(&listener->mtx);
+}
+
+void pubsub_copy_writer_func(size_t msg_size, void* msg, void* ctx) {
+    memcpy(msg, ctx, msg_size);
 }
 
 void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx) {

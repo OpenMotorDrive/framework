@@ -1,5 +1,4 @@
-#include <common/shared_app_descriptor.h>
-
+#include "app_descriptor.h"
 #include <app_config.h>
 
 static const struct shared_app_parameters_s shared_app_parameters = {

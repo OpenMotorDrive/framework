@@ -5,8 +5,8 @@
 #include <hal.h>
 #include <pubsub/pubsub.h>
 
-typedef uint32_t (*uavcan_serializer_func_ptr)(void* msg_struct, void* buffer);
-typedef uint32_t (*uavcan_deserializer_func_ptr)(CanardRxTransfer* transfer, void* msg_struct);
+typedef uint32_t (*uavcan_serializer_func_ptr_t)(void* msg_struct, void* buffer);
+typedef uint32_t (*uavcan_deserializer_func_ptr_t)(CanardRxTransfer* transfer, void* msg_struct);
 
 struct uavcan_message_descriptor_s {
     uint64_t data_type_signature;
@@ -14,20 +14,22 @@ struct uavcan_message_descriptor_s {
     CanardTransferType transfer_type;
     size_t deserialized_size;
     size_t max_serialized_size;
-    uavcan_serializer_func_ptr serializer_func;
-    uavcan_deserializer_func_ptr deserializer_func;
+    uavcan_serializer_func_ptr_t serializer_func;
+    uavcan_deserializer_func_ptr_t deserializer_func;
 };
 
 struct uavcan_deserialized_message_s {
-    struct uavcan_instance_s* uavcan_instance;
+    uint8_t uavcan_idx;
     uint16_t data_type_id;
     uint8_t transfer_id;
     uint8_t priority;
     uint8_t source_node_id;
-    uint8_t msg[];
+    uint8_t msg[] __attribute__((aligned));
 };
 
 struct uavcan_instance_s;
+
+uint8_t uavcan_get_num_instances(void);
 
 uint8_t uavcan_get_node_id(uint8_t uavcan_idx);
 void uavcan_set_node_id(uint8_t uavcan_idx, uint8_t node_id);

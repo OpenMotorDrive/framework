@@ -13,6 +13,7 @@ static void param_getset_handler(size_t msg_size, const void* buf, void* ctx) {
     const struct uavcan_deserialized_message_s* wrapper = buf;
     const struct uavcan_protocol_param_GetSet_req_s* msg = (const struct uavcan_protocol_param_GetSet_req_s*)wrapper->msg;
 
+    (void)msg;
     struct uavcan_protocol_debug_LogMessage_s log_message;
     log_message.level.value = UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_DEBUG;
     log_message.source_len = 0;
@@ -23,11 +24,10 @@ static void param_getset_handler(size_t msg_size, const void* buf, void* ctx) {
 
 static struct worker_thread_listener_task_s task;
 static struct pubsub_listener_s getset_listener;
-RUN_AFTER(OMD_UAVCAN_INIT) {
+RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* getset_topic = uavcan_get_message_topic(0, &uavcan_protocol_param_GetSet_req_descriptor);
 
-    pubsub_init_and_register_listener(getset_topic, &getset_listener);
-    pubsub_listener_set_handler_cb(&getset_listener, param_getset_handler, NULL);
+    pubsub_init_and_register_listener(getset_topic, &getset_listener, param_getset_handler, NULL);
 
     worker_thread_add_listener_task(&lpwork_thread, &task, &getset_listener);
 }

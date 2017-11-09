@@ -53,7 +53,7 @@ static uint8_t param_compress_varint64(int64_t value, uint8_t* buf);
 static bool param_journal_iterate_final_values(const struct flash_journal_entry_s** iterator);
 static void param_compress_journal(void);
 
-RUN_ON(OMD_PARAM_INIT) {
+RUN_ON(PARAM_INIT) {
     param_acquire();
 
     flash_journal_init(&journals[0], BOARD_PARAM1_ADDR, BOARD_PARAM1_FLASH_SIZE);

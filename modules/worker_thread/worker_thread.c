@@ -36,7 +36,6 @@ void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct 
     task->period_ticks = period_ticks;
     task->auto_repeat = auto_repeat;
     task->last_run_time_ticks = chVTGetSystemTimeX();
-    task->worker_thread = worker_thread;
 
     chMtxLock(&worker_thread->mtx);
 
@@ -48,9 +47,7 @@ void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct 
     chMtxUnlock(&worker_thread->mtx);
 }
 
-void worker_thread_timer_task_cancel(struct worker_thread_timer_task_s* task) {
-    struct worker_thread_s* worker_thread = task->worker_thread;
-
+void worker_thread_remove_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task) {
     chMtxLock(&worker_thread->mtx);
 
     struct worker_thread_timer_task_s** remove_ptr = &worker_thread->next_timer_task;
@@ -83,6 +80,21 @@ void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, stru
 
     // Wake worker thread to process tasks
     wake_worker_thread(worker_thread);
+
+    chMtxUnlock(&worker_thread->mtx);
+}
+
+void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task) {
+    chMtxLock(&worker_thread->mtx);
+
+    struct worker_thread_listener_task_s** remove_ptr = &worker_thread->listener_task_list_head;
+    while (*remove_ptr && *remove_ptr != task) {
+        remove_ptr = &(*remove_ptr)->next;
+    }
+
+    if (*remove_ptr) {
+        *remove_ptr = task->next;
+    }
 
     chMtxUnlock(&worker_thread->mtx);
 }
