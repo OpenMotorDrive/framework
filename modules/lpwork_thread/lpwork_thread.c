@@ -3,7 +3,7 @@
 #include <common/ctor.h>
 
 #ifndef LPWORK_THREAD_STACK_SIZE
-#define LPWORK_THREAD_STACK_SIZE 512
+#define LPWORK_THREAD_STACK_SIZE 1024
 #endif
 
 #ifndef LPWORK_THREAD_PRIORITY

@@ -64,17 +64,13 @@ void usleep(uint32_t delay) {
 
 static void timing_state_update_task_func(struct worker_thread_timer_task_s* task) {
     (void)task;
-    while (true) {
-        uint8_t next_timing_state_idx = (timing_state_idx+1) % 2;
+    uint8_t next_timing_state_idx = (timing_state_idx+1) % 2;
 
-        systime_t systime_now = chVTGetSystemTimeX();
-        uint32_t delta_ticks = systime_now-timing_state[timing_state_idx].update_systime;
+    systime_t systime_now = chVTGetSystemTimeX();
+    uint32_t delta_ticks = systime_now-timing_state[timing_state_idx].update_systime;
 
-        timing_state[next_timing_state_idx].update_seconds = timing_state[timing_state_idx].update_seconds + delta_ticks / CH_CFG_ST_FREQUENCY;
-        timing_state[next_timing_state_idx].update_systime = systime_now - (delta_ticks % CH_CFG_ST_FREQUENCY);
+    timing_state[next_timing_state_idx].update_seconds = timing_state[timing_state_idx].update_seconds + delta_ticks / CH_CFG_ST_FREQUENCY;
+    timing_state[next_timing_state_idx].update_systime = systime_now - (delta_ticks % CH_CFG_ST_FREQUENCY);
 
-        timing_state_idx = next_timing_state_idx;
-
-        chThdSleepSeconds(10);
-    }
+    timing_state_idx = next_timing_state_idx;
 }

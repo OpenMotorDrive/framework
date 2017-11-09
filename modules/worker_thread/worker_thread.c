@@ -87,6 +87,8 @@ void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, stru
 void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task) {
     chMtxLock(&worker_thread->mtx);
 
+    pubsub_listener_set_waiting_thread_reference_S(task->listener, NULL);
+
     struct worker_thread_listener_task_s** remove_ptr = &worker_thread->listener_task_list_head;
     while (*remove_ptr && *remove_ptr != task) {
         remove_ptr = &(*remove_ptr)->next;
@@ -181,6 +183,7 @@ static THD_FUNCTION(worker_thread_func, arg) {
                 if (listener_task->listener == (void*)wake_msg) {
                     pubsub_listener_handle_one_timeout(listener_task->listener, TIME_IMMEDIATE);
                 }
+                chDbgCheck(listener_task->next != listener_task);
                 listener_task = listener_task->next;
             }
         }
