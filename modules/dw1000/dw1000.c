@@ -36,7 +36,7 @@ void dw1000_handle_interrupt(struct dw1000_instance_s* instance) {
     dw1000_write(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
 }
 
-void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line) {
+void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint32_t ant_delay) {
     if (!instance) {
         return;
     }
@@ -57,6 +57,7 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
     instance->config.channel = DW1000_CHANNEL_7;
     instance->config.data_rate = DW1000_DATA_RATE_6_8M;
     instance->config.pcode = dw1000_conf_get_default_pcode(instance->config);
+    instance->config.ant_delay = ant_delay;
 
     dw1000_hard_reset(instance);
 
@@ -132,7 +133,7 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     // 0x18       2  TX_ANTD
     {
         // [0x00:0x01] TX_ANTD
-        dw1000_write16(instance, 0x18, 0, 21620);
+        dw1000_write16(instance, 0x18, 0, config.ant_delay);
     }
     // 0x19       5  SYS_STATE   not config
     // 0x1A       4  ACK_RESP_T  -
@@ -250,7 +251,7 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
         // [0x1000:0x1001] LDE_PPINDX
         // [0x1002:0x1003] LDE_PPAMPL
         // [0x1804:0x1805] LDE_RXANTD
-        dw1000_write16(instance, 0x2E, 0x1804, 21620);
+        dw1000_write16(instance, 0x2E, 0x1804, config.ant_delay);
         // [0x1806:0x1807] LDE_CFG2
         dw1000_write16(instance, 0x2E, 0x1806, dw1000_conf_lde_cfg2(config));
         // [0x2804:0x2805] LDE_REPC
@@ -317,7 +318,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
 
     // Check if the frame fits in the provided buffer
-    if ((uint32_t)rx_finfo.RXFLEN <= buf_len+2) {
+    if (rx_finfo.RXFLEN-2 <= buf_len) {
         // Read RX_BUFFER
         dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, rx_finfo.RXFLEN-2, buf);
         ret.len = rx_finfo.RXFLEN-2;
@@ -450,6 +451,18 @@ bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t tran
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance) {
     uint64_t ret = 0;
     dw1000_read(instance, 0x17, 0, 5, &ret);
+    return ret;
+}
+
+uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance) {
+    uint64_t ret = 0;
+    dw1000_read(instance, 0x06, 0, 5, &ret);
+    return ret;
+}
+
+uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance) {
+    uint16_t ret = 0;
+    dw1000_read(instance, 0x18, 0, 2, &ret);
     return ret;
 }
 

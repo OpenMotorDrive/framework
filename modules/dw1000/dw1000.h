@@ -40,6 +40,7 @@ struct dw1000_config_s {
     enum dw1000_channel_t channel;
     enum dw1000_data_rate_t data_rate;
     uint8_t pcode;
+    uint32_t ant_delay;
 };
 
 enum dw1000_rx_frame_err_code_s {
@@ -65,7 +66,7 @@ struct dw1000_instance_s {
     struct dw1000_config_s config;
 };
 
-void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line);
+void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint32_t ant_delay);
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf);
 void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf, bool expect_response);
 bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t transmit_time, uint32_t buf_len, void* buf, bool expect_response);
@@ -75,3 +76,6 @@ void dw1000_disable_transceiver(struct dw1000_instance_s* instance);
 void dw1000_handle_interrupt(struct dw1000_instance_s* instance);
 
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
+uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
+uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
+float dw1000_get_range_bias(uint8_t chan, float range, uint8_t prf);
