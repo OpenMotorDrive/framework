@@ -2,7 +2,7 @@ all:
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Os -ggdb --specs=nosys.specs -lnosys -lm -ffast-math
+  USE_OPT = -Os -ggdb -std=gnu99 --specs=nano.specs -lm -ffast-math
 endif
 
 # C specific options here (added to USE_OPT).
