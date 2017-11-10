@@ -1,9 +1,8 @@
 @{from canard_dsdlc_helpers import *}@
 #pragma once
-#include <canard.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <uavcan/uavcan.h>
+#include <modules/uavcan/uavcan.h>
 
 @{
 dep_headers = set()

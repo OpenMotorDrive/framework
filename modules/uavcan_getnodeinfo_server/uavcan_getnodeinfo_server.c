@@ -1,12 +1,12 @@
-#include <uavcan_nodestatus_publisher/uavcan_nodestatus_publisher.h>
-#include <lpwork_thread/lpwork_thread.h>
+#include <modules/uavcan_nodestatus_publisher/uavcan_nodestatus_publisher.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
-#include <app_descriptor/app_descriptor.h>
+#include <modules/app_descriptor/app_descriptor.h>
 #endif
 
 #ifdef MODULE_BOOT_MSG_ENABLED
-#include <boot_msg/boot_msg.h>
+#include <modules/boot_msg/boot_msg.h>
 #endif
 
 #include <string.h>

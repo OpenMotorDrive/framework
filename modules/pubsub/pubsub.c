@@ -1,4 +1,4 @@
-#include <pubsub/pubsub.h>
+#include <modules/pubsub/pubsub.h>
 #include <common/helpers.h>
 #include <common/ctor.h>
 #include <string.h>

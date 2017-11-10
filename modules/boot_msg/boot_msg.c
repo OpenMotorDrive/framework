@@ -3,8 +3,8 @@
 #include <string.h>
 
 #ifdef MODULE_UAVCAN_ENABLED
-#include <uavcan/uavcan.h>
-#include <can/can.h>
+#include <modules/uavcan/uavcan.h>
+#include <modules/can/can.h>
 #endif
 
 enum shared_msg_t boot_msg_id;

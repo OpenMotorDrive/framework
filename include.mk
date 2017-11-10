@@ -1,3 +1,5 @@
+all:
+
 # Compiler options here.
 ifeq ($(USE_OPT),)
   USE_OPT = -Os -ggdb --specs=nosys.specs -lnosys -lm -ffast-math
@@ -60,8 +62,6 @@ FRAMEWORK_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
 CHIBIOS = $(FRAMEWORK_DIR)/ChibiOS_17.6.0
 
-CANARD_DIR = $(FRAMEWORK_DIR)/libcanard
-
 ifeq ($(PROJECT),)
   PROJECT = $(notdir $(shell pwd))
 endif
@@ -71,22 +71,6 @@ ifneq ($(BOARD),)
 endif
 
 BUILDDIR = build/$(BOARD)
-
-ifneq ($(findstring stm32,$(TGT_MCU)),)
-  RULESPATH = $(FRAMEWORK_DIR)/rules/ARMCMx
-  MCU  = cortex-m4
-  TRGT = arm-none-eabi-
-  UDEFS += -DARCH_LITTLE_ENDIAN
-  ifneq ($(findstring stm32f3,$(TGT_MCU)),)
-    include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
-    include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
-  endif
-  include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
-endif
-
-include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/hal/osal/rt/osal.mk
-include $(CHIBIOS)/os/rt/rt.mk
 
 MODULE_SEARCH_DIRS := $(FRAMEWORK_DIR)/modules modules
 
@@ -108,39 +92,52 @@ endif
 MODULE_DIRS := $(COMMON_MODULE_DIRS) $(APP_MODULE_DIRS)
 
 -include $(foreach module_dir,$(MODULE_DIRS),$(module_dir)/module.mk)
-MODULES_CSRC += $(foreach module_dir,$(MODULE_DIRS),$(shell find $(module_dir) -name "*.c"))
+MODULES_CSRC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/*.c))
 MODULES_INC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/include))
 
 MODULES_ENABLED_DEFS := $(foreach module,$(MODULES_ENABLED),-DMODULE_$(shell echo $(module) | tr a-z A-Z)_ENABLED)
 
-COMMON_CSRC := $(shell find $(FRAMEWORK_DIR)/src -name "*.c") $(CANARD_DIR)/canard.c
-COMMON_INC := $(FRAMEWORK_DIR)/include $(CANARD_DIR)
+COMMON_CSRC := $(shell find $(FRAMEWORK_DIR)/src -name "*.c")
+COMMON_INC := $(FRAMEWORK_DIR)/include
+
+ifneq ($(findstring stm32,$(TGT_MCU)),)
+  RULESPATH = $(FRAMEWORK_DIR)/platforms/ARMCMx
+  MCU  = cortex-m4
+  TRGT = arm-none-eabi-
+  UDEFS += -DARCH_LITTLE_ENDIAN
+  ifneq ($(findstring stm32f3,$(TGT_MCU)),)
+    include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
+    include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
+  endif
+  include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+endif
+
+include $(CHIBIOS)/os/hal/hal.mk
+include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+include $(CHIBIOS)/os/rt/rt.mk
 
 INCDIR += $(CHIBIOS)/os/license \
           $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) \
+          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC) \
           $(CHIBIOS)/community/os/various \
           $(CHIBIOS)/os/various \
           $(COMMON_INC) \
-          $(BUILDDIR)/module_includes \
-          $(BUILDDIR)/dsdlc/include
+          $(BUILDDIR)/module_includes
+
+
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
-ifneq ($(MAKECMDGOALS),clean)
-include $(BUILDDIR)/dsdlc.mk
-endif
 CSRC += $(STARTUPSRC) \
         $(KERNSRC) \
         $(PORTSRC) \
         $(OSALSRC) \
         $(HALSRC) \
         $(PLATFORMSRC) \
-        $(BOARDSRC) \
+        $(BOARD_SRC) \
         $(TESTSRC) \
         $(COMMON_CSRC) \
         $(MODULES_CSRC)
-#         $(shell find $(BUILDDIR)/dsdlc/src -name "*.c")
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -198,7 +195,7 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 CPPWARN = -Wall -Wextra -Wundef
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) -D"CANARD_ASSERT(x)"="{}" $(MODULES_ENABLED_DEFS)
+UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS)
 
 # Define ASM defines here
 UADEFS =
@@ -216,17 +213,13 @@ LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 
 include $(RULESPATH)/rules.mk
 
-DSDL_NAMESPACE_DIRS += $(FRAMEWORK_DIR)/dsdl/uavcan
+MODULE_DIR_PATTERN := $(BUILDDIR)/module_includes/modules/%
+MODULES_INC_COPIES := $(patsubst %,$(MODULE_DIR_PATTERN),$(MODULES_ENABLED))
 
-$(BUILDDIR)/dsdlc.mk:
-	rm -rf $(BUILDDIR)/dsdlc
-	python $(FRAMEWORK_DIR)/tools/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
-	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $@
-
-MODULES_INC_COPIES := $(foreach module,$(MODULES_ENABLED),$(BUILDDIR)/module_includes/$(module))
 $(MODULES_INC_COPIES):
 	mkdir -p $(dir $@)
-	cp -R $(wildcard $(addsuffix /$(patsubst $(BUILDDIR)/module_includes/%,%,$@),$(MODULE_SEARCH_DIRS))) $@
+	cp -R $(wildcard $(addsuffix /$(patsubst $(MODULE_DIR_PATTERN),%,$@),$(MODULE_SEARCH_DIRS))) $@
+
 PRE_BUILD_RULE: $(MODULES_INC_COPIES)
 
 POST_MAKE_ALL_RULE_HOOK: $(BUILDDIR)/$(PROJECT).bin

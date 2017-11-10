@@ -1,0 +1,1 @@
+TGT_MCU = stm32f302x8

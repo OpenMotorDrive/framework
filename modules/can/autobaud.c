@@ -1,6 +1,6 @@
 #include "can.h"
 #include "autobaud.h"
-#include <timing/timing.h>
+#include <modules/timing/timing.h>
 
 static const uint32_t valid_baudrates[] = {
     125000,

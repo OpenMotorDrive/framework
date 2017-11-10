@@ -4,7 +4,7 @@
 #include <common/ctor.h>
 
 #ifdef MODULE_PUBSUB_ENABLED
-#include <pubsub/pubsub.h>
+#include <modules/pubsub/pubsub.h>
 #endif
 
 #define __WORKER_THREAD_CONCAT(a,b) a ## b

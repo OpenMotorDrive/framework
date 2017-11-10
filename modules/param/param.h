@@ -1,7 +1,6 @@
 #pragma once
 #include <common/ctor.h>
-#include <uavcan/uavcan.h>
-#include "flash_journal.h"
+#include <modules/uavcan/uavcan.h>
 #include <stdint.h>
 #include <stdbool.h>
 

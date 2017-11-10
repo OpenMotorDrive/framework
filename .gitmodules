@@ -1,5 +1,5 @@
 [submodule "libcanard"]
-	path = libcanard
+	path = modules/uavcan/libcanard
 	url = git@github.com:OpenMotorDrive/libcanard.git
 [submodule "dsdl"]
 	path = dsdl

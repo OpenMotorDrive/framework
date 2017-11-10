@@ -1,15 +1,15 @@
 #include <common/ctor.h>
-#include <can/can.h>
-#include <can/autobaud.h>
-#include <timing/timing.h>
-#include <lpwork_thread/lpwork_thread.h>
+#include <modules/can/can.h>
+#include <modules/can/autobaud.h>
+#include <modules/timing/timing.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
-#include <app_descriptor/app_descriptor.h>
+#include <modules/app_descriptor/app_descriptor.h>
 #endif
 
 #ifdef MODULE_BOOT_MSG_ENABLED
-#include <boot_msg/boot_msg.h>
+#include <modules/boot_msg/boot_msg.h>
 #endif
 
 #define CANBUS_AUTOBAUD_SWITCH_INTERVAL_US 1000000

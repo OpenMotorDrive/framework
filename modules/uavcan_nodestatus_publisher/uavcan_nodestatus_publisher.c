@@ -1,7 +1,7 @@
 #include "uavcan_nodestatus_publisher.h"
-#include <uavcan/uavcan.h>
+#include <modules/uavcan/uavcan.h>
 #include <common/ctor.h>
-#include <lpwork_thread/lpwork_thread.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 static struct uavcan_protocol_NodeStatus_s node_status;
 static struct worker_thread_timer_task_s node_status_publisher_task;

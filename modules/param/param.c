@@ -1,4 +1,5 @@
 #include "param.h"
+#include "flash_journal.h"
 #include <common/helpers.h>
 
 #include <ch.h>

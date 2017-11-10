@@ -1,20 +1,20 @@
 #include "uavcan.h"
 #include <common/ctor.h>
-#include <timing/timing.h>
+#include <modules/timing/timing.h>
 #include <common/helpers.h>
 #include <string.h>
-#include <can/can.h>
+#include <modules/can/can.h>
 
 #ifdef MODULE_BOOT_MSG_ENABLED
-#include <boot_msg/boot_msg.h>
+#include <modules/boot_msg/boot_msg.h>
 #endif
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
-#include <app_descriptor/app_descriptor.h>
+#include <modules/app_descriptor/app_descriptor.h>
 #endif
 
 #ifdef MODULE_SYSTEM_EVENT_ENABLED
-#include <system_event/system_event.h>
+#include <modules/system_event/system_event.h>
 #endif
 
 #if CH_CFG_USE_MUTEXES_RECURSIVE != TRUE

@@ -1,9 +1,9 @@
-#include <uavcan/uavcan.h>
-#include <pubsub/pubsub.h>
+#include <modules/uavcan/uavcan.h>
+#include <modules/pubsub/pubsub.h>
 #include <common/ctor.h>
-#include <param/param.h>
+#include <modules/param/param.h>
 #include <string.h>
-#include <lpwork_thread/lpwork_thread.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 #include <uavcan.protocol.param.GetSet.h>
 #include <uavcan.protocol.param.ExecuteOpcode.h>

@@ -1,6 +1,6 @@
 #include "system_event.h"
 #include <common/ctor.h>
-#include <pubsub/pubsub.h>
+#include <modules/pubsub/pubsub.h>
 
 struct pubsub_topic_s system_event_topic;
 

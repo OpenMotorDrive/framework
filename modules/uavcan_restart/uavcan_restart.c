@@ -1,10 +1,10 @@
-#include <uavcan/uavcan.h>
+#include <modules/uavcan/uavcan.h>
 #include <uavcan.protocol.RestartNode.h>
-#include <lpwork_thread/lpwork_thread.h>
-#include <system/system.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/system/system.h>
 
 #ifdef MODULE_BOOT_MSG_ENABLED
-#include <boot_msg/boot_msg.h>
+#include <modules/boot_msg/boot_msg.h>
 #endif
 
 #ifndef UAVCAN_RESTART_DELAY_MS

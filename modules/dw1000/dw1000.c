@@ -1,8 +1,8 @@
 #include "dw1000.h"
 #include "dw1000_internal.h"
 #include <hal.h>
-#include <timing/timing.h>
-#include <uavcan/uavcan.h>
+#include <modules/timing/timing.h>
+#include <modules/uavcan/uavcan.h>
 #include <bswap.h>
 
 #include <stdio.h>

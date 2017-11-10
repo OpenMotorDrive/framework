@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spi_device/spi_device.h>
+#include <modules/spi_device/spi_device.h>
 #include "profiLED_gen.h"
 
 struct profiLED_instance_s {

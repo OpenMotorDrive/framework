@@ -1,11 +1,11 @@
 #include <common/helpers.h>
 #include <common/ctor.h>
-#include <uavcan/uavcan.h>
+#include <modules/uavcan/uavcan.h>
 #include <uavcan.protocol.dynamic_node_id.Allocation.h>
 #include <string.h>
 #include <stdlib.h>
-#include <timing/timing.h>
-#include <lpwork_thread/lpwork_thread.h>
+#include <modules/timing/timing.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 struct allocatee_instance_s;
 

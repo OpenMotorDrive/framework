@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ch.h>
-#include <spi_device/spi_device.h>
+#include <modules/spi_device/spi_device.h>
 
 enum dw1000_prf_t {
     DW1000_PRF_16MHZ,

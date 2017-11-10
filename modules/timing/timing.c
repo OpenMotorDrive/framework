@@ -16,7 +16,7 @@
 #include <common/ctor.h>
 #include "timing.h"
 #include <ch.h>
-#include <lpwork_thread/lpwork_thread.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 static struct {
     uint64_t update_seconds;
