@@ -72,24 +72,27 @@ endif
 
 BUILDDIR = build/$(BOARD)
 
-MODULE_SEARCH_DIRS := $(FRAMEWORK_DIR)/modules modules
+MODULE_SEARCH_DIRS += $(FRAMEWORK_DIR)/modules
 
-COMMON_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard $(FRAMEWORK_DIR)/modules/$(module)))
-COMMON_MODULES := $(patsubst $(FRAMEWORK_DIR)/modules/%,%,$(COMMON_MODULE_DIRS))
+MODULE_DIRS := $(foreach search_dir,$(MODULE_SEARCH_DIRS),$(foreach module,$(MODULES_ENABLED),$(wildcard $(search_dir)/$(module))))
+MODULES_FOUND := $(notdir $(MODULE_DIRS))
 
-APP_MODULE_DIRS := $(foreach module,$(MODULES_ENABLED),$(wildcard modules/$(module)))
-APP_MODULES := $(patsubst modules/%,%,$(APP_MODULE_DIRS))
+define __duplicates__func
+  undefine __duplicates__seen
+  undefine __duplicates__result
+  $$(foreach _v,$1,\
+    $$(eval __duplicates__result += $$(filter $$(__duplicates__seen),$$(_v))\
+    $$(eval __duplicates__seen += $$(_v))))
+endef
+duplicates = $(eval $(__duplicates__func))$(sort $(__duplicates__result))
 
-ifneq ($(filter $(COMMON_MODULES), $(APP_MODULES)),)
-  $(error Duplicated module(s): $(filter $(COMMON_MODULES), $(APP_MODULES)))
+ifneq ($(call duplicates, $(MODULES_FOUND)),)
+  $(error Duplicated module(s): $(call duplicates, $(MODULES_FOUND)))
 endif
 
-MODULES_FOUND := $(COMMON_MODULES) $(APP_MODULES)
 ifneq ($(filter-out $(MODULES_FOUND), $(MODULES_ENABLED)),)
   $(error Could not find module(s): $(filter-out $(MODULES_FOUND), $(MODULES_ENABLED)))
 endif
-
-MODULE_DIRS := $(COMMON_MODULE_DIRS) $(APP_MODULE_DIRS)
 
 -include $(foreach module_dir,$(MODULE_DIRS),$(module_dir)/module.mk)
 MODULES_CSRC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/*.c))

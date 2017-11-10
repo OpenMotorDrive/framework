@@ -1,3 +1,4 @@
+#include "platform_stm32f302x8.h"
 #include <hal.h>
 #include <string.h>
 
