@@ -225,9 +225,6 @@ $(MODULES_INC_COPIES):
 
 PRE_BUILD_RULE: $(MODULES_INC_COPIES)
 
-POST_MAKE_ALL_RULE_HOOK: $(BUILDDIR)/$(PROJECT).bin
-	python $(FRAMEWORK_DIR)/tools/crc_binary.py $(BUILDDIR)/$(PROJECT).bin $(BUILDDIR)/$(PROJECT).bin
-
 .PHONY: PRE_BUILD_RULE
 PRE_BUILD_RULE:
 	cd $(FRAMEWORK_DIR) && git submodule init && git submodule update

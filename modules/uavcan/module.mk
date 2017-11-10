@@ -1,5 +1,6 @@
-MODULE_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
-MODULES_CSRC += $(MODULE_DIR)/libcanard/canard.c
+UAVCAN_MODULE_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
+
+MODULES_CSRC += $(UAVCAN_MODULE_DIR)/libcanard/canard.c
 
 UDEFS += -D"CANARD_ASSERT(x)"="{}"
 
@@ -15,5 +16,5 @@ endif
 
 $(BUILDDIR)/dsdlc.mk:
 	rm -rf $(BUILDDIR)/dsdlc
-	python $(MODULE_DIR)/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
+	python $(UAVCAN_MODULE_DIR)/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
 	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $@

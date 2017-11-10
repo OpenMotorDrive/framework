@@ -1,4 +1,4 @@
-#include "uavcan.h"
+#include <modules/uavcan/uavcan.h>
 #include <common/ctor.h>
 #include <modules/timing/timing.h>
 #include <common/helpers.h>
