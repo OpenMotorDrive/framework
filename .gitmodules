@@ -4,3 +4,6 @@
 [submodule "dsdl"]
 	path = dsdl
 	url = git@github.com:UAVCAN/dsdl.git
+[submodule "ChibiOS"]
+	path = ChibiOS
+	url = git@github.com:OpenMotorDrive/ChibiOS.git

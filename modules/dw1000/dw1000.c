@@ -3,7 +3,7 @@
 #include <hal.h>
 #include <modules/timing/timing.h>
 #include <modules/uavcan/uavcan.h>
-#include <bswap.h>
+#include <common/bswap.h>
 
 #include <stdio.h>
 

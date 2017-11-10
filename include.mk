@@ -60,7 +60,7 @@ endif
 
 FRAMEWORK_DIR := $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
-CHIBIOS = $(FRAMEWORK_DIR)/ChibiOS_17.6.0
+CHIBIOS ?= $(FRAMEWORK_DIR)/ChibiOS
 
 ifeq ($(PROJECT),)
   PROJECT = $(notdir $(shell pwd))
