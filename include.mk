@@ -123,10 +123,11 @@ endif
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 
 INCDIR += $(CHIBIOS)/os/license \
           $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC) \
+          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC)$(STREAMSINC) \
           $(CHIBIOS)/community/os/various \
           $(CHIBIOS)/os/various \
           $(COMMON_INC) \
@@ -143,7 +144,8 @@ CSRC += $(STARTUPSRC) \
         $(BOARD_SRC) \
         $(TESTSRC) \
         $(COMMON_CSRC) \
-        $(MODULES_CSRC)
+        $(MODULES_CSRC) \
+        $(STREAMSSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
