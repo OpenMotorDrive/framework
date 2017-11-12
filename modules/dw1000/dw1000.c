@@ -36,6 +36,13 @@ void dw1000_handle_interrupt(struct dw1000_instance_s* instance) {
     dw1000_write(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
 }
 
+//call this method after every subtraction of timestamps
+int64_t dw1000_wrap_timestamp(int64_t ts) {
+    if (ts < 0) {
+        ts += TIMESTAMP_MAX + 1ULL;
+    }
+}
+
 void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint32_t ant_delay) {
     if (!instance) {
         return;
@@ -294,6 +301,7 @@ void dw1000_rx_enable(struct dw1000_instance_s* instance) {
 
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf) {
     struct dw1000_rx_frame_info_s ret;
+    uint16_t rxpacc, cir_pwr;
     memset(&ret,0,sizeof(ret));
     if (!instance || !buf) {
         ret.err_code = DW1000_RX_ERROR_NULLPTR;
@@ -304,6 +312,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
 
     struct dw1000_sys_status_s sys_status;
     struct dw1000_rx_finfo_s rx_finfo;
+    struct dw1000_rx_fqual_s rx_fqual;
 
     // Read SYS_STATUS
     dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
@@ -325,6 +334,11 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     } else {
         ret.err_code = DW1000_RX_ERROR_PROVIDED_BUFFER_TOO_SMALL;
     }
+    rxpacc = rx_finfo.RXPACC;
+
+    // Read RX_FQUAL
+    dw1000_read(instance, DW1000_RX_FRAME_QUALITY_INFORMATION_FILE, 0, sizeof(rx_fqual), &rx_fqual);
+    cir_pwr = rx_fqual.CIR_PWR;
 
     // Read RX_TIME
     dw1000_read(instance, 0x15, 0, 5, &ret.timestamp);
@@ -335,6 +349,10 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
         // extend the sign bit
         ret.rx_ttcko |= ~((1<<19)-1);
     }
+
+    //correct timestamp
+    float estRxPwr = dw1000_get_rx_power(instance, cir_pwr, rxpacc);
+    ret.timestamp = dw1000_correct_tstamp(instance, estRxPwr, ret.timestamp);
 
     // Read SYS_STATUS
     dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);

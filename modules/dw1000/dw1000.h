@@ -3,6 +3,11 @@
 #include <ch.h>
 #include <modules/spi_device/spi_device.h>
 
+
+#define TIME_TO_METERS 0.0046917639786159f
+#define METERS_TO_TIME 213.13945f
+#define TIMESTAMP_MAX 0xffffffffff
+
 enum dw1000_prf_t {
     DW1000_PRF_16MHZ,
     DW1000_PRF_64MHZ
@@ -55,7 +60,7 @@ enum dw1000_rx_frame_err_code_s {
 struct dw1000_rx_frame_info_s {
     enum dw1000_rx_frame_err_code_s err_code;
     uint16_t len;
-    uint64_t timestamp;
+    int64_t timestamp;
     int32_t rx_ttcko;
     uint32_t rx_ttcki;
 };
@@ -66,6 +71,7 @@ struct dw1000_instance_s {
     struct dw1000_config_s config;
 };
 
+int64_t dw1000_wrap_timestamp(int64_t ts);
 void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint32_t ant_delay);
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf);
 void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf, bool expect_response);
@@ -78,4 +84,5 @@ void dw1000_handle_interrupt(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
 uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
-float dw1000_get_range_bias(uint8_t chan, float range, uint8_t prf);
+float dw1000_get_rx_power(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
+int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);

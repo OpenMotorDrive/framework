@@ -9,6 +9,7 @@
 #define DW1000_SYSTEM_CONTROL_REGISTER_FILE 0x0D
 #define DW1000_RX_FRAME_INFORMATION_REGISTER_FILE 0x10
 #define DW1000_RX_FRAME_BUFFER_FILE 0x11
+#define DW1000_RX_FRAME_QUALITY_INFORMATION_FILE 0x12
 #define DW1000_SYSTEM_EVENT_MASK_REGISTER_FILE 0x0E
 #define DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE 0x0F
 #define DW1000_OTP_MEMORY_INTERFACE_FILE 0x2D
@@ -25,6 +26,15 @@ struct __attribute__((packed)) dw1000_rx_finfo_s {
         uint32_t RXPRF:2;            // [16:17]
         uint32_t RXPSR:2;            // [18:19]
         uint32_t RXPACC:12;          // [20:31]
+    };
+};
+
+struct __attribute__((packed)) dw1000_rx_fqual_s {
+    struct {
+        uint32_t PP_AMPL3:2;    // [0:15]
+        uint32_t CIR_PWR:2;     // [16:31]
+        uint32_t STD_NOISE:2;   // [32:47]
+        uint32_t FP_AMPL2:2;    // [48:63]
     };
 };
 

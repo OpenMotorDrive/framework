@@ -1,697 +1,94 @@
-/*! ----------------------------------------------------------------------------
- *  @file    deca_range_tables.c
- *  @brief   DW1000 range correction tables
- *
- * @attention
- *
- * Copyright 2015 (c) DecaWave Ltd, Dublin, Ireland.
- *
- * All rights reserved.
- *
- */
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "dw1000.h"
+#include "dw1000_internal.h"
+#include <math.h>
 
-#define NUM_16M_OFFSET  (37)
-#define NUM_16M_OFFSETWB  (68)
-#define NUM_64M_OFFSET  (26)
-#define NUM_64M_OFFSETWB  (59)
-#define NUM_CH_SUPPORTED 8
-const uint8_t chan_idxnb[NUM_CH_SUPPORTED] = {0, 0, 1, 2, 0, 3, 0, 0}; //only channels 1,2,3 and 5 are in the narrow band tables
-const uint8_t chan_idxwb[NUM_CH_SUPPORTED] = {0, 0, 0, 0, 0, 0, 0, 1}; //only channels 4 and 7 are in in the wide band tables
+static const uint8_t BIAS_500_16_ZERO = 10;
+static const uint8_t BIAS_500_64_ZERO = 8;
+static const uint8_t BIAS_900_16_ZERO = 7;
+static const uint8_t BIAS_900_64_ZERO = 7;
 
-//---------------------------------------------------------------------------------------------------------------------------
-// Range Bias Correction TABLES of range values in integer units of 25 CM, for 8-bit unsigned storage, MUST END IN 255 !!!!!!
-//---------------------------------------------------------------------------------------------------------------------------
-
-// offsets to nearest centimeter for index 0, all rest are +1 cm per value
-
-#define CM_OFFSET_16M_NB    (-23)   // for normal band channels at 16 MHz PRF
-#define CM_OFFSET_16M_WB    (-28)   // for wider  band channels at 16 MHz PRF
-#define CM_OFFSET_64M_NB    (-17)   // for normal band channels at 64 MHz PRF
-#define CM_OFFSET_64M_WB    (-30)   // for wider  band channels at 64 MHz PRF
+// range bias tables (500 MHz in [mm] and 900 MHz in [2mm] - to fit into bytes)
+static const uint8_t BIAS_500_16[] = {198, 187, 179, 163, 143, 127, 109, 84, 59, 31, 0, 36, 65, 84, 97, 106, 110, 112};
+static const uint8_t BIAS_500_64[] = {110, 105, 100, 93, 82, 69, 51, 27, 0, 21, 35, 42, 49, 62, 71, 76, 81, 86};
+static const uint8_t BIAS_900_16[] = {137, 122, 105, 88, 69, 47, 25, 0, 21, 48, 79, 105, 127, 147, 160, 169, 178, 197};
+static const uint8_t BIAS_900_64[] = {147, 133, 117, 99, 75, 50, 29, 0, 24, 45, 63, 76, 87, 98, 116, 122, 132, 142};
 
 
-//---------------------------------------------------------------------------------------------------------------------------
-// range25cm16PRFnb: Range Bias Correction table for narrow band channels at 16 MHz PRF, NB: !!!! each MUST END IN 255 !!!!
-//---------------------------------------------------------------------------------------------------------------------------
-
-const uint8_t range25cm16PRFnb[4][NUM_16M_OFFSET] =
+float dw1000_get_rx_power(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc)
 {
-    // ch 1 - range25cm16PRFnb
-    {
-           1,
-           3,
-           4,
-           5,
-           7,
-           9,
-          11,
-          12,
-          13,
-          15,
-          18,
-          20,
-          23,
-          25,
-          28,
-          30,
-          33,
-          36,
-          40,
-          43,
-          47,
-          50,
-          54,
-          58,
-          63,
-          66,
-          71,
-          76,
-          82,
-          89,
-          98,
-         109,
-         127,
-         155,
-         222,
-         255,
-         255
-    },
-
-    // ch 2 - range25cm16PRFnb
-    {
-           1,
-           2,
-           4,
-           5,
-           6,
-           8,
-           9,
-          10,
-          12,
-          13,
-          15,
-          18,
-          20,
-          22,
-          24,
-          27,
-          29,
-          32,
-          35,
-          38,
-          41,
-          44,
-          47,
-          51,
-          55,
-          58,
-          62,
-          66,
-          71,
-          78,
-          85,
-          96,
-         111,
-         135,
-         194,
-         240,
-         255
-    },
-
-    // ch 3 - range25cm16PRFnb
-    {
-           1,
-           2,
-           3,
-           4,
-           5,
-           7,
-           8,
-           9,
-          10,
-          12,
-          14,
-          16,
-          18,
-          20,
-          22,
-          24,
-          26,
-          28,
-          31,
-          33,
-          36,
-          39,
-          42,
-          45,
-          49,
-          52,
-          55,
-          59,
-          63,
-          69,
-          76,
-          85,
-          98,
-         120,
-         173,
-         213,
-         255
-    },
-
-    // ch 5 - range25cm16PRFnb
-    {
-           1,
-           1,
-           2,
-           3,
-           4,
-           5,
-           6,
-           6,
-           7,
-           8,
-           9,
-          11,
-          12,
-          14,
-          15,
-          16,
-          18,
-          20,
-          21,
-          23,
-          25,
-          27,
-          29,
-          31,
-          34,
-          36,
-          38,
-          41,
-          44,
-          48,
-          53,
-          59,
-          68,
-          83,
-         120,
-         148,
-         255
+    uint32_t twoPower17 = 131072;
+    float    A, corrFac;
+    if(instance->config.prf == DW1000_PRF_16MHZ) {
+        A       = 113.77f;
+        corrFac = 2.3334f;
+    } else {
+        A       = 121.74f;
+        corrFac = 1.1667f;
     }
-}; // end range25cm16PRFnb
+    float estRxPwr = 10.0f*log10(((float)cir_pwr*(float)twoPower17)/((float)rxpacc*(float)rxpacc))-A;
+    if(estRxPwr <= -88.0f) {
+        return estRxPwr;
+    } else {
+        // approximation of Fig. 22 in user manual for dbm correction
+        estRxPwr += (estRxPwr+88)*corrFac;
+    }
+    return estRxPwr;
+}
 
-
-//---------------------------------------------------------------------------------------------------------------------------
-// range25cm16PRFwb: Range Bias Correction table for wide band channels at 16 MHz PRF, NB: !!!! each MUST END IN 255 !!!!
-//---------------------------------------------------------------------------------------------------------------------------
-
-const uint8_t range25cm16PRFwb[2][NUM_16M_OFFSETWB] =
+int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts)
 {
-    // ch 4 - range25cm16PRFwb
-    {
-           7,
-           7,
-           8,
-           9,
-           9,
-          10,
-          11,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-          24,
-          26,
-          27,
-          28,
-          30,
-          31,
-          32,
-          34,
-          36,
-          38,
-          40,
-          42,
-          44,
-          46,
-          48,
-          50,
-          52,
-          55,
-          57,
-          59,
-          61,
-          63,
-          66,
-          68,
-          71,
-          74,
-          78,
-          81,
-          85,
-          89,
-          94,
-          99,
-         104,
-         110,
-         116,
-         123,
-         130,
-         139,
-         150,
-         164,
-         182,
-         207,
-         238,
-         255,
-         255,
-         255,
-         255,
-         255
-    },
-
-    // ch 7 - range25cm16PRFwb
-    {
-           4,
-           5,
-           5,
-           5,
-           6,
-           6,
-           7,
-           7,
-           7,
-           8,
-           9,
-           9,
-          10,
-          10,
-          11,
-          11,
-          12,
-          13,
-          13,
-          14,
-          15,
-          16,
-          17,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-          25,
-          26,
-          27,
-          29,
-          30,
-          31,
-          32,
-          34,
-          35,
-          36,
-          38,
-          39,
-          40,
-          42,
-          44,
-          46,
-          48,
-          50,
-          52,
-          55,
-          58,
-          61,
-          64,
-          68,
-          72,
-          75,
-          80,
-          85,
-          92,
-         101,
-         112,
-         127,
-         147,
-         168,
-         182,
-         194,
-         205,
-         255
+    // base line dBm, which is -61, 2 dBm steps, total 18 data points (down to -95 dBm)
+    float rxPowerBase     = -(estRxPwr+61.0f)*0.5f;
+    int16_t   rxPowerBaseLow  = (int16_t)rxPowerBase; // TODO check type
+    int16_t   rxPowerBaseHigh = rxPowerBaseLow+1; // TODO check type
+    if(rxPowerBaseLow <= 0) {
+        rxPowerBaseLow  = 0;
+        rxPowerBaseHigh = 0;
+    } else if(rxPowerBaseHigh >= 17) {
+        rxPowerBaseLow  = 17;
+        rxPowerBaseHigh = 17;
     }
-}; // end range25cm16PRFwb
-
-//---------------------------------------------------------------------------------------------------------------------------
-// range25cm64PRFnb: Range Bias Correction table for narrow band channels at 64 MHz PRF, NB: !!!! each MUST END IN 255 !!!!
-//---------------------------------------------------------------------------------------------------------------------------
-
-const uint8_t range25cm64PRFnb[4][NUM_64M_OFFSET] =
-{
-    // ch 1 - range25cm64PRFnb
-    {
-           1,
-           2,
-           2,
-           3,
-           4,
-           5,
-           7,
-          10,
-          13,
-          16,
-          19,
-          22,
-          24,
-          27,
-          30,
-          32,
-          35,
-          38,
-          43,
-          48,
-          56,
-          78,
-         101,
-         120,
-         157,
-         255
-    },
-
-    // ch 2 - range25cm64PRFnb
-    {
-           1,
-           2,
-           2,
-           3,
-           4,
-           4,
-           6,
-           9,
-          12,
-          14,
-          17,
-          19,
-          21,
-          24,
-          26,
-          28,
-          31,
-          33,
-          37,
-          42,
-          49,
-          68,
-          89,
-         105,
-         138,
-         255
-    },
-
-    // ch 3 - range25cm64PRFnb
-    {
-           1,
-           1,
-           2,
-           3,
-           3,
-           4,
-           5,
-           8,
-          10,
-          13,
-          15,
-          17,
-          19,
-          21,
-          23,
-          25,
-          27,
-          30,
-          33,
-          37,
-          44,
-          60,
-          79,
-          93,
-         122,
-         255
-    },
-
-    // ch 5 - range25cm64PRFnb
-    {
-           1,
-           1,
-           1,
-           2,
-           2,
-           3,
-           4,
-           6,
-           7,
-           9,
-          10,
-          12,
-          13,
-          15,
-          16,
-          17,
-          19,
-          21,
-          23,
-          26,
-          30,
-          42,
-          55,
-          65,
-          85,
-         255
+    // select range low/high values from corresponding table
+    int16_t rangeBiasHigh;
+    int16_t rangeBiasLow;
+    if(instance->config.channel == DW1000_CHANNEL_4 || instance->config.channel == DW1000_CHANNEL_7) {
+        // 900 MHz receiver bandwidth
+        if(instance->config.prf == DW1000_PRF_16MHZ) {
+            rangeBiasHigh = (rxPowerBaseHigh < BIAS_900_16_ZERO ? -BIAS_900_16[rxPowerBaseHigh] : BIAS_900_16[rxPowerBaseHigh]);
+            rangeBiasHigh <<= 1;
+            rangeBiasLow  = (rxPowerBaseLow < BIAS_900_16_ZERO ? -BIAS_900_16[rxPowerBaseLow] : BIAS_900_16[rxPowerBaseLow]);
+            rangeBiasLow <<= 1;
+        } else if(instance->config.prf == DW1000_PRF_64MHZ) {
+            rangeBiasHigh = (rxPowerBaseHigh < BIAS_900_64_ZERO ? -BIAS_900_64[rxPowerBaseHigh] : BIAS_900_64[rxPowerBaseHigh]);
+            rangeBiasHigh <<= 1;
+            rangeBiasLow  = (rxPowerBaseLow < BIAS_900_64_ZERO ? -BIAS_900_64[rxPowerBaseLow] : BIAS_900_64[rxPowerBaseLow]);
+            rangeBiasLow <<= 1;
+        } else {
+            // TODO proper error handling
+            return ts;
+        }
+    } else {
+        // 500 MHz receiver bandwidth
+        if(instance->config.prf == DW1000_PRF_16MHZ) {
+            rangeBiasHigh = (rxPowerBaseHigh < BIAS_500_16_ZERO ? -BIAS_500_16[rxPowerBaseHigh] : BIAS_500_16[rxPowerBaseHigh]);
+            rangeBiasLow  = (rxPowerBaseLow < BIAS_500_16_ZERO ? -BIAS_500_16[rxPowerBaseLow] : BIAS_500_16[rxPowerBaseLow]);
+        } else if(instance->config.prf == DW1000_PRF_64MHZ) {
+            rangeBiasHigh = (rxPowerBaseHigh < BIAS_500_64_ZERO ? -BIAS_500_64[rxPowerBaseHigh] : BIAS_500_64[rxPowerBaseHigh]);
+            rangeBiasLow  = (rxPowerBaseLow < BIAS_500_64_ZERO ? -BIAS_500_64[rxPowerBaseLow] : BIAS_500_64[rxPowerBaseLow]);
+        } else {
+            // TODO proper error handling
+            return ts;
+        }
     }
-}; // end range25cm64PRFnb
+    // linear interpolation of bias values
+    float rangeBias = rangeBiasLow+(rxPowerBase-rxPowerBaseLow)*(rangeBiasHigh-rangeBiasLow);
+    // range bias [mm] to timestamp modification value conversion
+    // apply correction
+    ts = dw1000_wrap_timestamp(ts - (int16_t)(rangeBias*METERS_TO_TIME*0.001f));
 
-//---------------------------------------------------------------------------------------------------------------------------
-// range25cm64PRFwb: Range Bias Correction table for wide band channels at 64 MHz PRF, NB: !!!! each MUST END IN 255 !!!!
-//---------------------------------------------------------------------------------------------------------------------------
-
-const uint8_t range25cm64PRFwb[2][NUM_64M_OFFSETWB] =
-{
-    // ch 4 - range25cm64PRFwb
-    {
-           7,
-           8,
-           8,
-           9,
-           9,
-          10,
-          11,
-          12,
-          13,
-          13,
-          14,
-          15,
-          16,
-          16,
-          17,
-          18,
-          19,
-          19,
-          20,
-          21,
-          22,
-          24,
-          25,
-          27,
-          28,
-          29,
-          30,
-          32,
-          33,
-          34,
-          35,
-          37,
-          39,
-          41,
-          43,
-          45,
-          48,
-          50,
-          53,
-          56,
-          60,
-          64,
-          68,
-          74,
-          81,
-          89,
-          98,
-         109,
-         122,
-         136,
-         146,
-         154,
-         162,
-         178,
-         220,
-         249,
-         255,
-         255,
-         255
-    },
-
-    // ch 7 - range25cm64PRFwb
-    {
-           4,
-           5,
-           5,
-           5,
-           6,
-           6,
-           7,
-           7,
-           8,
-           8,
-           9,
-           9,
-          10,
-          10,
-          10,
-          11,
-          11,
-          12,
-          13,
-          13,
-          14,
-          15,
-          16,
-          16,
-          17,
-          18,
-          19,
-          19,
-          20,
-          21,
-          22,
-          23,
-          24,
-          25,
-          26,
-          28,
-          29,
-          31,
-          33,
-          35,
-          37,
-          39,
-          42,
-          46,
-          50,
-          54,
-          60,
-          67,
-          75,
-          83,
-          90,
-          95,
-         100,
-         110,
-         135,
-         153,
-         172,
-         192,
-         255
-    }
-}; // end range25cm64PRFwb
-
-
-/*! ------------------------------------------------------------------------------------------------------------------
- * Function: dwt_getrangebias()
- *
- * Description: This function is used to return the range bias correction need for TWR with DW1000 units.
- *
- * input parameters:    
- * @param chan  - specifies the operating channel (e.g. 1, 2, 3, 4, 5, 6 or 7) 
- * @param range - the calculated distance before correction
- * @param prf   - this is the PRF e.g. DW1000_PRF_16MHZ or DW1000_PRF_64MHZ
- *
- * output parameters
- *
- * returns correction needed in meters
- */
-float dw1000_get_range_bias(uint8_t chan, float range, uint8_t prf)
-{
-    //first get the lookup index that corresponds to given range for a particular channel at 16M PRF
-    int i = 0 ;
-    int chanIdx ;
-    int cmoffseti ;                                 // integer number of CM offset
-
-    float mOffset ;                                // final offset result in metres
-
-    // NB: note we may get some small negitive values e.g. up to -50 cm.
-
-    int rangeint25cm = (int) (range * 4.00) ;       // convert range to integer number of 25cm values.
-
-    if (rangeint25cm > 255) rangeint25cm = 255 ;    // make sure it matches largest value in table (all tables end in 255 !!!!)
-
-    if (prf == DW1000_PRF_16MHZ)
-    {
-        switch(chan)
-        {
-            case 4:
-            case 7:
-            {
-                chanIdx = chan_idxwb[chan];
-                while (rangeint25cm > range25cm16PRFwb[chanIdx][i]) i++ ;       // find index in table corresponding to range
-                cmoffseti = i + CM_OFFSET_16M_WB ;                              // nearest centimeter correction
-            }
-            break;
-            default:
-            {
-                chanIdx = chan_idxnb[chan];
-                while (rangeint25cm > range25cm16PRFnb[chanIdx][i]) i++ ;       // find index in table corresponding to range
-                cmoffseti = i + CM_OFFSET_16M_NB ;                              // nearest centimeter correction
-            }
-        }//end of switch
-    }
-    else // 64M PRF
-    {
-        switch(chan)
-        {
-            case 4:
-            case 7:
-            {
-                chanIdx = chan_idxwb[chan];
-                while (rangeint25cm > range25cm64PRFwb[chanIdx][i]) i++ ;       // find index in table corresponding to range
-                cmoffseti = i + CM_OFFSET_64M_WB ;                              // nearest centimeter correction
-            }
-            break;
-            default:
-            {
-                chanIdx = chan_idxnb[chan];
-                while (rangeint25cm > range25cm64PRFnb[chanIdx][i]) i++ ;       // find index in table corresponding to range
-                cmoffseti = i + CM_OFFSET_64M_NB ;                              // nearest centimeter correction
-            }
-        }//end of switch
-    } // end else
-
-
-    mOffset = (float) cmoffseti ;                                       // offset result in centimmetres
-
-    mOffset *= 0.01 ;                                                   // convert to metres
-
-    return (mOffset) ;
+    return ts;
 }
