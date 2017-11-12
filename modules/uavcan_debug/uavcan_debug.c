@@ -34,3 +34,14 @@ void uavcan_send_debug_msg(uint8_t debug_level, char* source, const char *fmt, .
     log_msg.level.value = debug_level;
     uavcan_broadcast(0, &uavcan_protocol_debug_LogMessage_descriptor, CANARD_TRANSFER_PRIORITY_HIGH, &log_msg);
 }
+
+void uavcan_send_debug_keyvalue(char* key, float value)
+{
+    struct uavcan_protocol_debug_KeyValue_s log_kv;
+    log_kv.value = value;
+
+    log_kv.key_len = strlen(key);
+    memcpy(log_kv.key, key, log_kv.key_len);
+
+    uavcan_broadcast(0, &uavcan_protocol_debug_KeyValue_descriptor, CANARD_TRANSFER_PRIORITY_HIGH, &log_kv);
+}
