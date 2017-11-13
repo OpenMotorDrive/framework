@@ -74,6 +74,9 @@ BUILDDIR = build/$(BOARD)
 
 MODULE_SEARCH_DIRS += $(FRAMEWORK_DIR)/modules
 
+MODULES_ENABLED_DIR := $(BUILDDIR)/modules/modules
+MODULE_COPY_DIRS := $(patsubst %,$(MODULES_ENABLED_DIR)/%,$(MODULES_ENABLED))
+
 MODULE_DIRS := $(foreach search_dir,$(MODULE_SEARCH_DIRS),$(foreach module,$(MODULES_ENABLED),$(wildcard $(search_dir)/$(module))))
 MODULES_FOUND := $(notdir $(MODULE_DIRS))
 
@@ -95,8 +98,10 @@ ifneq ($(filter-out $(MODULES_FOUND), $(MODULES_ENABLED)),)
 endif
 
 -include $(foreach module_dir,$(MODULE_DIRS),$(module_dir)/module.mk)
-MODULES_CSRC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/*.c))
-MODULES_INC += $(foreach module_dir,$(MODULE_DIRS),$(wildcard $(module_dir)/include))
+
+MODULES_CSRC := $(foreach search_dir,$(MODULE_SEARCH_DIRS),$(foreach module,$(MODULES_ENABLED),$(patsubst $(search_dir)/%,$(MODULES_ENABLED_DIR)/%,$(wildcard $(search_dir)/$(module)/*.c))))
+
+$(foreach search_dir,$(MODULE_SEARCH_DIRS),$(foreach module,$(MODULES_ENABLED),$(foreach module_dir,$(wildcard $(search_dir)/$(module)),$(eval $(MODULES_ENABLED_DIR)/$(module): $(shell find $(module_dir))))))
 
 MODULES_ENABLED_DEFS := $(foreach module,$(MODULES_ENABLED),-DMODULE_$(shell echo $(module) | tr a-z A-Z)_ENABLED)
 
@@ -125,9 +130,7 @@ INCDIR += $(CHIBIOS)/os/license \
           $(CHIBIOS)/community/os/various \
           $(CHIBIOS)/os/various \
           $(COMMON_INC) \
-          $(BUILDDIR)/module_includes
-
-
+          $(BUILDDIR)/modules
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -216,18 +219,14 @@ LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 
 include $(RULESPATH)/rules.mk
 
-MODULE_DIR_PATTERN := $(BUILDDIR)/module_includes/modules/%
-MODULES_INC_COPIES := $(patsubst %,$(MODULE_DIR_PATTERN),$(MODULES_ENABLED))
-
-$(MODULES_INC_COPIES):
+$(MODULE_COPY_DIRS):
 	mkdir -p $(dir $@)
-	cp -R $(wildcard $(addsuffix /$(patsubst $(MODULE_DIR_PATTERN),%,$@),$(MODULE_SEARCH_DIRS))) $@
+	cp -R --preserve $(wildcard $(addsuffix /$(patsubst $(MODULES_ENABLED_DIR)/%,%,$@),$(MODULE_SEARCH_DIRS))) $@
 
-PRE_BUILD_RULE: $(MODULES_INC_COPIES)
+$(MODULES_CSRC): $(MODULE_COPY_DIRS)
 
 .PHONY: PRE_BUILD_RULE
 PRE_BUILD_RULE:
-	cd $(FRAMEWORK_DIR) && git submodule init && git submodule update
 
 # This ensures that PRE_BUILD_RULE is executed first and non-concurrently
 ifneq ($(MAKECMDGOALS),clean)
