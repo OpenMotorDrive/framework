@@ -2,7 +2,7 @@ all:
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Os -ggdb --specs=nosys.specs -lnosys -lm -ffast-math
+  USE_OPT = -O1 -ggdb -std=gnu99 --specs=nano.specs -lm -ffast-math -DCHPRINTF_USE_FLOAT=1
 endif
 
 # C specific options here (added to USE_OPT).
@@ -27,7 +27,7 @@ endif
 
 # Enable this if you want link time optimizations (LTO)
 ifeq ($(USE_LTO),)
-  USE_LTO = yes
+  USE_LTO = no
 endif
 
 # If enabled, this option allows to compile the application in THUMB mode.
@@ -123,10 +123,11 @@ endif
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/hal/lib/streams/streams.mk
 
 INCDIR += $(CHIBIOS)/os/license \
           $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC) \
+          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC)$(STREAMSINC) \
           $(CHIBIOS)/community/os/various \
           $(CHIBIOS)/os/various \
           $(COMMON_INC) \
@@ -143,7 +144,8 @@ CSRC += $(STARTUPSRC) \
         $(BOARD_SRC) \
         $(TESTSRC) \
         $(COMMON_CSRC) \
-        $(MODULES_CSRC)
+        $(MODULES_CSRC) \
+        $(STREAMSSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
