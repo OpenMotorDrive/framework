@@ -29,7 +29,7 @@ float dw1000_get_rx_power(struct dw1000_instance_s* instance, uint16_t cir_pwr, 
         A       = 121.74f;
         corrFac = 1.1667f;
     }
-    float estRxPwr = 10.0f*log10(((float)cir_pwr*(float)twoPower17)/((float)rxpacc*(float)rxpacc))-A;
+    float estRxPwr = 10.0f*log10f(((float)cir_pwr*(float)twoPower17)/((float)rxpacc*(float)rxpacc))-A;
     if(estRxPwr <= -88.0f) {
         return estRxPwr;
     } else {

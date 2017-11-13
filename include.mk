@@ -2,7 +2,7 @@ all:
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O1 -ggdb -std=gnu99 --specs=nano.specs -lm -ffast-math -DCHPRINTF_USE_FLOAT=1
+  USE_OPT = -Os -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -lm -ffast-math
 endif
 
 # C specific options here (added to USE_OPT).
@@ -27,7 +27,7 @@ endif
 
 # Enable this if you want link time optimizations (LTO)
 ifeq ($(USE_LTO),)
-  USE_LTO = no
+  USE_LTO = yes
 endif
 
 # If enabled, this option allows to compile the application in THUMB mode.

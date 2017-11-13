@@ -38,9 +38,7 @@ void dw1000_handle_interrupt(struct dw1000_instance_s* instance) {
 
 //call this method after every subtraction of timestamps
 int64_t dw1000_wrap_timestamp(int64_t ts) {
-    if (ts < 0) {
-        ts += TIMESTAMP_MAX + 1ULL;
-    }
+    return ts & (((uint64_t)1<<40)-1);
 }
 
 void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint32_t ant_delay) {
@@ -327,7 +325,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
 
     // Check if the frame fits in the provided buffer
-    if (rx_finfo.RXFLEN-2 <= buf_len) {
+    if (rx_finfo.RXFLEN >= 2 && (uint32_t)(rx_finfo.RXFLEN-2) <= buf_len) {
         // Read RX_BUFFER
         dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, rx_finfo.RXFLEN-2, buf);
         ret.len = rx_finfo.RXFLEN-2;
