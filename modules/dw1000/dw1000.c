@@ -101,6 +101,7 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
         memset(&sys_cfg, 0, sizeof(sys_cfg));
         sys_cfg.HIRQ_POL = 1;
         sys_cfg.RXAUTR = 1;
+        sys_cfg.PHR_MODE = 0x3; //setup to non standard data length to vary between 0-1023
         dw1000_write(instance, DW1000_SYSTEM_CONFIGURATION_FILE, 0, sizeof(sys_cfg), &sys_cfg);
     }
     // 0x06       5  SYS_TIME    not config
@@ -330,11 +331,11 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     // Read RX_FINFO
     dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
 
+    ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
     // Check if the frame fits in the provided buffer
-    if (rx_finfo.RXFLEN >= 2 && (uint32_t)(rx_finfo.RXFLEN-2) <= buf_len) {
+    if (ret.len >= 0 && ret.len <= buf_len) {
         // Read RX_BUFFER
-        dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, rx_finfo.RXFLEN-2, buf);
-        ret.len = rx_finfo.RXFLEN-2;
+        dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, ret.len, buf);
     } else {
         ret.err_code = DW1000_RX_ERROR_PROVIDED_BUFFER_TOO_SMALL;
     }
@@ -414,7 +415,7 @@ void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void*
         return;
     }
 
-    if (buf_len > 125) {
+    if (buf_len > 1021) {
         return;
     }
 
@@ -426,7 +427,8 @@ void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void*
         struct dw1000_tx_fctrl_s tx_fctrl;
         dw1000_read(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
         tx_fctrl.reserved = 0;
-        tx_fctrl.TFLEN = buf_len+2;
+        tx_fctrl.TFLEN = (buf_len+2) | 0x7F;
+        tx_fctrl.TFLE = ((buf_len+2) >> 7) & 0x7;
         dw1000_write(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
     }
 
@@ -447,7 +449,7 @@ bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t tran
         return false;
     }
 
-    if (buf_len > 125) {
+    if (buf_len > 1021) {
         return false;
     }
 
@@ -458,8 +460,8 @@ bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t tran
     {
         struct dw1000_tx_fctrl_s tx_fctrl;
         dw1000_read(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
-        tx_fctrl.reserved = 0;
-        tx_fctrl.TFLEN = buf_len+2;
+        tx_fctrl.TFLEN = (buf_len+2) | 0x7F;
+        tx_fctrl.TFLE = ((buf_len+2) >> 7) & 0x7;
         dw1000_write(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
     }
 
