@@ -203,7 +203,7 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 CPPWARN = -Wall -Wextra -Wundef
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS)
+UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS) -DCHPRINTF_USE_FLOAT=1
 
 # Define ASM defines here
 UADEFS =
@@ -223,9 +223,9 @@ include $(RULESPATH)/rules.mk
 
 $(MODULE_COPY_DIRS):
 	mkdir -p $(dir $@)
-	cp -R --preserve $(wildcard $(addsuffix /$(patsubst $(MODULES_ENABLED_DIR)/%,%,$@),$(MODULE_SEARCH_DIRS))) $@
+	cp -R -p $(wildcard $(addsuffix /$(patsubst $(MODULES_ENABLED_DIR)/%,%,$@),$(MODULE_SEARCH_DIRS))) $@
 
-$(MODULES_CSRC): $(MODULE_COPY_DIRS)
+$(CSRC): $(MODULE_COPY_DIRS)
 
 .PHONY: PRE_BUILD_RULE
 PRE_BUILD_RULE:
