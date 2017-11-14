@@ -31,10 +31,12 @@ struct __attribute__((packed)) dw1000_rx_finfo_s {
 
 struct __attribute__((packed)) dw1000_rx_fqual_s {
     struct {
-        uint32_t PP_AMPL3:2;    // [0:15]
-        uint32_t CIR_PWR:2;     // [16:31]
-        uint32_t STD_NOISE:2;   // [32:47]
-        uint32_t FP_AMPL2:2;    // [48:63]
+        uint32_t STD_NOISE:16;    // [0:15]
+        uint32_t FP_AMPL2:16;     // [16:31]
+    };
+    struct {
+        uint32_t FP_AMPL3:16;     // [32:47]
+        uint32_t CIR_PWR:16;      // [48:63]
     };
 };
 
@@ -210,6 +212,7 @@ struct __attribute__((packed)) dw1000_chan_ctrl_s {
     };
 };
 
+int8_t dw1000_conf_get_rxpacc_correction(struct dw1000_config_s config);
 uint8_t dw1000_conf_get_default_pcode(struct dw1000_config_s config);
 uint16_t dw1000_conf_lde_repc(struct dw1000_config_s config);
 uint8_t dw1000_conf_dwsfd(struct dw1000_config_s config);

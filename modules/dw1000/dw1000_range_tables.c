@@ -5,6 +5,7 @@
 #include "dw1000.h"
 #include "dw1000_internal.h"
 #include <math.h>
+#include <common/helpers.h>
 
 static const uint8_t BIAS_500_16_ZERO = 10;
 static const uint8_t BIAS_500_64_ZERO = 8;
@@ -17,30 +18,31 @@ static const uint8_t BIAS_500_64[] = {110, 105, 100, 93, 82, 69, 51, 27, 0, 21, 
 static const uint8_t BIAS_900_16[] = {137, 122, 105, 88, 69, 47, 25, 0, 21, 48, 79, 105, 127, 147, 160, 169, 178, 197};
 static const uint8_t BIAS_900_64[] = {147, 133, 117, 99, 75, 50, 29, 0, 24, 45, 63, 76, 87, 98, 116, 122, 132, 142};
 
+float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc) {
+    float A = (instance->config.prf == DW1000_PRF_16MHZ) ? 113.77f : 121.74f;
+    float F1 = fp_ampl1;
+    float F2 = fp_ampl2;
+    float F3 = fp_ampl3;
+    float N = rxpacc;
+    return 10.0f*log10f((SQ(F1) + SQ(F2) + SQ(F3)) / SQ(N)) - A;
+}
 
-float dw1000_get_rx_power(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc)
-{
-    uint32_t twoPower17 = 131072;
-    float    A, corrFac;
-    if(instance->config.prf == DW1000_PRF_16MHZ) {
-        A       = 113.77f;
-        corrFac = 2.3334f;
-    } else {
-        A       = 121.74f;
-        corrFac = 1.1667f;
-    }
-    float estRxPwr = 10.0f*log10f(((float)cir_pwr*(float)twoPower17)/((float)rxpacc*(float)rxpacc))-A;
-    if(estRxPwr <= -88.0f) {
-        return estRxPwr;
-    } else {
+float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc) {
+    float A = (instance->config.prf == DW1000_PRF_16MHZ) ? 113.77f : 121.74f;
+    float C = cir_pwr;
+    float N = rxpacc;
+    float twoPower17 = 131072;
+    float estRxPwr = 10.0f*log10f((C*twoPower17) / SQ(N)) - A;
+
+    if (estRxPwr > -88.0f) {
         // approximation of Fig. 22 in user manual for dbm correction
+        float corrFac = (instance->config.prf == DW1000_PRF_16MHZ) ? 2.3334f : 1.1667f;
         estRxPwr += (estRxPwr+88)*corrFac;
     }
     return estRxPwr;
 }
 
-int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts)
-{
+int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts) {
     // base line dBm, which is -61, 2 dBm steps, total 18 data points (down to -95 dBm)
     float rxPowerBase     = -(estRxPwr+61.0f)*0.5f;
     int16_t   rxPowerBaseLow  = (int16_t)rxPowerBase; // TODO check type

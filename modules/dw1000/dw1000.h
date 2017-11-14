@@ -63,6 +63,14 @@ struct dw1000_rx_frame_info_s {
     int64_t timestamp;
     int32_t rx_ttcko;
     uint32_t rx_ttcki;
+    uint16_t std_noise;
+    uint16_t fp_ampl1;
+    uint16_t fp_ampl2;
+    uint16_t fp_ampl3;
+    uint16_t cir_pwr;
+    uint16_t rxpacc_corrected;
+    float rssi_est;
+    float fp_rssi_est;
 };
 
 struct dw1000_instance_s {
@@ -84,5 +92,6 @@ void dw1000_handle_interrupt(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
 uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
-float dw1000_get_rx_power(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
+float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
+float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc);
 int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);
