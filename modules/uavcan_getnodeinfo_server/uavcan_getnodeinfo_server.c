@@ -34,6 +34,8 @@ static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx)
 
     res.status = *uavcan_nodestatus_publisher_get_nodestatus_message();
 
+    board_get_unique_id(res.hardware_version.unique_id, sizeof(res.hardware_version.unique_id));
+
 #ifdef MODULE_BOOT_MSG_ENABLED
     if (get_boot_msg_valid() && boot_msg_id == SHARED_MSG_BOOT_INFO && boot_msg.boot_info_msg.hw_info) {
         strncpy((char*)res.name, boot_msg.boot_info_msg.hw_info->hw_name, sizeof(res.name));
@@ -49,7 +51,7 @@ static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx)
     res.software_version.optional_field_flags = UAVCAN_PROTOCOL_SOFTWAREVERSION_OPTIONAL_FIELD_FLAG_VCS_COMMIT |
                                                 UAVCAN_PROTOCOL_SOFTWAREVERSION_OPTIONAL_FIELD_FLAG_IMAGE_CRC;
     res.software_version.vcs_commit = shared_app_descriptor.vcs_commit;
-    res.software_version.image_crc = shared_app_descriptor.image_crc;
+    res.software_version.image_crc = *(volatile uint64_t*)&shared_app_descriptor.image_crc;
 #endif
 
     uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
