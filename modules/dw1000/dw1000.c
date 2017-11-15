@@ -298,6 +298,18 @@ void dw1000_rx_enable(struct dw1000_instance_s* instance) {
     dw1000_write(instance, DW1000_SYSTEM_CONTROL_REGISTER_FILE, 0, sizeof(sys_ctrl), &sys_ctrl);
 }
 
+void dw1000_rx_softreset(struct dw1000_instance_s* instance) {
+    uint32_t pmsc_ctrl0;
+    dw1000_read(instance, DW1000_POWER_MANAGEMENT_AND_SYSTEM_CONTROL_FILE, 0, 4, &pmsc_ctrl0);
+    //Clear SOFTRESET for RX
+    pmsc_ctrl0 = (pmsc_ctrl0 & ~(1U<<28));
+    dw1000_write(instance, DW1000_POWER_MANAGEMENT_AND_SYSTEM_CONTROL_FILE, 0, 4, &pmsc_ctrl0);
+    //reenable receiver
+    pmsc_ctrl0 = (pmsc_ctrl0 | (1U<<28));
+    dw1000_write(instance, DW1000_POWER_MANAGEMENT_AND_SYSTEM_CONTROL_FILE, 0, 4, &pmsc_ctrl0);
+}
+
+
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf) {
     struct dw1000_rx_frame_info_s ret;
     memset(&ret,0,sizeof(ret));
@@ -322,6 +334,21 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     // Read SYS_STATUS
     dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
 
+    // Check RXOVRR
+    if (sys_status.RXOVRR) {
+        // Frames must be discarded (do not read frames) due to corrupted registers and TRXOFF command issued
+        dw1000_disable_transceiver(instance);
+        dw1000_swap_rx_buffers(instance);
+        dw1000_rx_softreset(instance);
+    
+        // Receiver must be reset to exit errored state
+        dw1000_rx_enable(instance);
+
+        memset(&ret,0,sizeof(ret));
+        ret.err_code = DW1000_RX_ERROR_RXOVRR;
+        return ret;
+    }
+
     // Check if a good frame is in the buffer
     if (!sys_status.RXFCG) {
         ret.err_code = DW1000_RX_ERROR_NO_FRAME_PRESENT;
@@ -333,7 +360,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
 
     ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
     // Check if the frame fits in the provided buffer
-    if (ret.len >= 0 && ret.len <= buf_len) {
+    if (ret.len > 0 && ret.len <= buf_len) {
         // Read RX_BUFFER
         dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, ret.len, buf);
     } else {
@@ -384,12 +411,13 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
 
     // Read SYS_STATUS
     dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
-
-    // Check RXOVRR
+    // Check RXOVRR Again, We might have received a packet while we were reading data
     if (sys_status.RXOVRR) {
         // Frames must be discarded (do not read frames) due to corrupted registers and TRXOFF command issued
         dw1000_disable_transceiver(instance);
-
+        dw1000_swap_rx_buffers(instance);
+        dw1000_rx_softreset(instance);
+    
         // Receiver must be reset to exit errored state
         dw1000_rx_enable(instance);
 
