@@ -280,9 +280,6 @@
 #define CH_CFG_MEMCORE_SIZE                 0
 #endif
 
-#ifndef CHPRINTF_USE_FLOAT
-#define CHPRINTF_USE_FLOAT TRUE
-#endif
 
 /**
  * @brief   Dynamic Threads APIs.
