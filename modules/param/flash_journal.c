@@ -102,15 +102,15 @@ static bool flash_journal_entry_valid(struct flash_journal_instance_s* instance,
         return false;
     }
 
-    volatile size_t entry_size = flash_journal_entry_size(entry->len);
-    volatile uint16_t crc16_computed = flash_journal_entry_compute_crc16(entry);
-    volatile bool range_in_bounds = flash_journal_range_in_bounds(instance, entry, entry_size);
+    size_t entry_size = flash_journal_entry_size(entry->len);
+    uint16_t crc16_computed = flash_journal_entry_compute_crc16(entry);
+    bool range_in_bounds = flash_journal_range_in_bounds(instance, entry, entry_size);
 
     return range_in_bounds && crc16_computed == entry->crc16;
 }
 
 static bool flash_journal_range_in_bounds(struct flash_journal_instance_s* instance, const void* address, uint32_t len) {
-    return flash_journal_address_in_bounds(instance, address) && flash_journal_address_in_bounds(instance, (uint8_t*)address+len);
+    return flash_journal_address_in_bounds(instance, address) && flash_journal_address_in_bounds(instance, (uint8_t*)address+len-1);
 }
 
 static bool flash_journal_address_in_bounds(struct flash_journal_instance_s* instance, const void* address) {
@@ -118,7 +118,7 @@ static bool flash_journal_address_in_bounds(struct flash_journal_instance_s* ins
         return false;
     }
 
-    return address >= (void*)instance->flash_page_ptr && address < (void*)((uint8_t*)instance->flash_page_ptr+instance->flash_page_size);
+    return (size_t)address >= (size_t)instance->flash_page_ptr && (size_t)address < ((size_t)instance->flash_page_ptr+instance->flash_page_size);
 }
 
 static size_t flash_journal_entry_size(uint8_t len) {
