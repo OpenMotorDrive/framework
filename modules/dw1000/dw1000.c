@@ -2,7 +2,7 @@
 #include "dw1000_internal.h"
 #include <hal.h>
 #include <modules/timing/timing.h>
-#include <modules/uavcan/uavcan.h>
+#include <modules/uavcan_debug/uavcan_debug.h>
 #include <common/bswap.h>
 
 #include <stdio.h>
@@ -101,6 +101,7 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
         memset(&sys_cfg, 0, sizeof(sys_cfg));
         sys_cfg.HIRQ_POL = 1;
         sys_cfg.RXAUTR = 1;
+        sys_cfg.DIS_STXP = 1;
         dw1000_write(instance, DW1000_SYSTEM_CONFIGURATION_FILE, 0, sizeof(sys_cfg), &sys_cfg);
     }
     // 0x06       5  SYS_TIME    not config
@@ -379,7 +380,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     ret.fp_rssi_est = dw1000_get_fp_rssi_est(instance, fp_ampl1, fp_ampl2, fp_ampl3, rxpacc_corrected);
 
     // Correct timestamp
-    ret.timestamp = dw1000_correct_tstamp(instance, ret.rssi_est, ret.timestamp);
+    //ret.timestamp = dw1000_correct_tstamp(instance, ret.rssi_est, ret.timestamp);
 
     // Read SYS_STATUS
     dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);

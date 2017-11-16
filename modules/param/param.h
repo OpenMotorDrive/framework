@@ -58,7 +58,7 @@ struct __attribute__((packed)) _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE) 
 };
 
 #define _PARAM_DEFINE_SCALAR_PARAM_STATIC(HANDLE_NAME, NAME, DEFAULT_VAL, MIN_VAL, MAX_VAL, PARAM_TYPE) \
-static _PARAM_SCALAR_CTYPE(PARAM_TYPE) HANDLE_NAME; \
+static volatile _PARAM_SCALAR_CTYPE(PARAM_TYPE) HANDLE_NAME; \
 static const struct _PARAM_SCALAR_DESCRIPTOR_STRUCT_NAME(PARAM_TYPE) _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME) = {{PARAM_TYPE, 0, NAME, &HANDLE_NAME}, DEFAULT_VAL, MIN_VAL, MAX_VAL}; \
 RUN_AFTER(PARAM_INIT) { \
     param_register((const struct param_descriptor_header_s*)& _PARAM_CONCAT(_param_local_descriptor_structure_, HANDLE_NAME)); \

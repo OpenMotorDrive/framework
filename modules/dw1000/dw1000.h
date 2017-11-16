@@ -84,7 +84,6 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf);
 void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf, bool expect_response);
 bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t transmit_time, uint32_t buf_len, void* buf, bool expect_response);
-void dw1000_try_receive(struct dw1000_instance_s* instance);
 void dw1000_rx_enable(struct dw1000_instance_s* instance);
 void dw1000_disable_transceiver(struct dw1000_instance_s* instance);
 void dw1000_handle_interrupt(struct dw1000_instance_s* instance);

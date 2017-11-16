@@ -192,39 +192,41 @@ uint32_t dw1000_conf_rf_txctrl(struct dw1000_config_s config) {
 }
 
 uint32_t dw1000_conf_tx_power(struct dw1000_config_s config) {
-    switch (config.prf) {
-        case DW1000_PRF_16MHZ:
-            switch (config.channel) {
-                case DW1000_CHANNEL_1:
-                case DW1000_CHANNEL_2:
-                    return 0x15355575;
-                case DW1000_CHANNEL_3:
-                    return 0x0F2F4F6F;
-                case DW1000_CHANNEL_4:
-                    return 0x1F1F3F5F;
-                case DW1000_CHANNEL_5:
-                    return 0x0E082848;
-                case DW1000_CHANNEL_7:
-                    return 0x32527292;
-            }
-            break;
-        case DW1000_PRF_64MHZ:
-            switch (config.channel) {
-                case DW1000_CHANNEL_1:
-                case DW1000_CHANNEL_2:
-                    return 0x07274767;
-                case DW1000_CHANNEL_3:
-                    return 0x2B4B6B8B;
-                case DW1000_CHANNEL_4:
-                    return 0x3A5A7A9A;
-                case DW1000_CHANNEL_5:
-                    return 0x25456585;
-                case DW1000_CHANNEL_7:
-                    return 0x5171B1D1;
-            }
-            break;
-    }
-    return 0;
+    const uint32_t tx_power_octet = 0b11000000;
+    return (tx_power_octet<<8)|(tx_power_octet<<16);
+//     switch (config.prf) {
+//         case DW1000_PRF_16MHZ:
+//             switch (config.channel) {
+//                 case DW1000_CHANNEL_1:
+//                 case DW1000_CHANNEL_2:
+//                     return 0x15355575;
+//                 case DW1000_CHANNEL_3:
+//                     return 0x0F2F4F6F;
+//                 case DW1000_CHANNEL_4:
+//                     return 0x1F1F3F5F;
+//                 case DW1000_CHANNEL_5:
+//                     return 0x0E082848;
+//                 case DW1000_CHANNEL_7:
+//                     return 0x32527292;
+//             }
+//             break;
+//         case DW1000_PRF_64MHZ:
+//             switch (config.channel) {
+//                 case DW1000_CHANNEL_1:
+//                 case DW1000_CHANNEL_2:
+//                     return 0x07274767;
+//                 case DW1000_CHANNEL_3:
+//                     return 0x2B4B6B8B;
+//                 case DW1000_CHANNEL_4:
+//                     return 0x3A5A7A9A;
+//                 case DW1000_CHANNEL_5:
+//                     return 0x25456585;
+//                 case DW1000_CHANNEL_7:
+//                     return 0x5171B1D1;
+//             }
+//             break;
+//     }
+//     return 0;
 }
 
 uint16_t dw1000_conf_drx_tune0b(struct dw1000_config_s config) {

@@ -34,11 +34,11 @@ float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, 
     float twoPower17 = 131072;
     float estRxPwr = 10.0f*log10f((C*twoPower17) / SQ(N)) - A;
 
-    if (estRxPwr > -88.0f) {
-        // approximation of Fig. 22 in user manual for dbm correction
-        float corrFac = (instance->config.prf == DW1000_PRF_16MHZ) ? 2.3334f : 1.1667f;
-        estRxPwr += (estRxPwr+88)*corrFac;
-    }
+//     if (estRxPwr > -88.0f) {
+//         // approximation of Fig. 22 in user manual for dbm correction
+//         float corrFac = (instance->config.prf == DW1000_PRF_16MHZ) ? 2.3334f : 1.1667f;
+//         estRxPwr += (estRxPwr+88)*corrFac;
+//     }
     return estRxPwr;
 }
 
