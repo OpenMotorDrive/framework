@@ -140,6 +140,8 @@ static THD_FUNCTION(worker_thread_func, arg) {
                     worker_thread->next_timer_task = next_timer_task->next;
 
                     // Perform task
+                    // NOTE: as long as the CH_CFG_USE_MUTEXES_RECURSIVE option is enabled, timer tasks
+                    //       are allowed to schedule new timer tasks within their function
                     next_timer_task->task_func(next_timer_task);
                     next_timer_task->last_run_time_ticks = tnow_ticks;
 
@@ -157,13 +159,27 @@ static THD_FUNCTION(worker_thread_func, arg) {
                 break;
             }
 
-            chMtxUnlock(&worker_thread->mtx);
+            chMtxUnlockAll();
             chMtxLock(&worker_thread->mtx);
+
+#ifdef MODULE_PUBSUB_ENABLED
+            // Check for immediately available messages on listener tasks, handle one
+            {
+                struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
+                while (listener_task) {
+                    if (pubsub_listener_handle_one_timeout(listener_task->listener, TIME_IMMEDIATE)) {
+                        break;
+                    }
+                    chDbgCheck(listener_task->next != listener_task);
+                    listener_task = listener_task->next;
+                }
+            }
+#endif
         }
 
 #ifdef MODULE_PUBSUB_ENABLED
         chSysLock();
-        chMtxUnlockS(&worker_thread->mtx);
+        chMtxUnlockAllS();
 
         thread_reference_t trp = NULL;
 
@@ -178,6 +194,7 @@ static THD_FUNCTION(worker_thread_func, arg) {
         chSysUnlock();
 
         if (wake_msg != MSG_TIMEOUT) {
+            chMtxLock(&worker_thread->mtx);
             struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
             while (listener_task) {
                 if (listener_task->listener == (void*)wake_msg) {
@@ -186,10 +203,11 @@ static THD_FUNCTION(worker_thread_func, arg) {
                 chDbgCheck(listener_task->next != listener_task);
                 listener_task = listener_task->next;
             }
+            chMtxUnlockAll();
         }
 #else
         chSysLock();
-        chMtxUnlockS(&worker_thread->mtx);
+        chMtxUnlockAllS();
 
         worker_thread->waiting = true;
         chThdSleepS(timeout);
