@@ -68,7 +68,6 @@ struct uavcan_instance_s {
     thread_t* tx_thread;
     struct transfer_id_map_s transfer_id_map;
     mutex_t canard_mtx;
-    mutex_t tx_mtx;
     binary_semaphore_t tx_thread_semaphore;
     void* outgoing_message_buf;
 
@@ -115,7 +114,6 @@ static void uavcan_init(uint8_t can_dev_idx) {
     memset(instance, 0, sizeof(struct uavcan_instance_s));
     instance->can_dev_idx = can_dev_idx;
     chMtxObjectInit(&instance->canard_mtx);
-    chMtxObjectInit(&instance->tx_mtx);
     chBSemObjectInit(&instance->tx_thread_semaphore, true);
     if (!(instance->outgoing_message_buf = chCoreAllocAligned(UAVCAN_OUTGOING_MESSAGE_BUF_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
     if (!(transfer_id_map_working_area = chCoreAllocAligned(UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
@@ -237,14 +235,12 @@ static void _uavcan_broadcast(struct uavcan_instance_s* instance, const struct u
         return;
     }
 
-    chMtxLock(&instance->tx_mtx);
     chMtxLock(&instance->canard_mtx);
     uint16_t data_type_id = msg_descriptor->default_data_type_id;
     size_t outgoing_message_len = msg_descriptor->serializer_func(msg_data, instance->outgoing_message_buf);
     uint8_t* transfer_id = uavcan_transfer_id_map_retrieve(&instance->transfer_id_map, false, data_type_id, 0);
     canardBroadcast(&instance->canard, msg_descriptor->data_type_signature, data_type_id, transfer_id, priority, instance->outgoing_message_buf, outgoing_message_len);
     chMtxUnlock(&instance->canard_mtx);
-    chMtxUnlock(&instance->tx_mtx);
     uavcan_transmit_frames_async(instance);
 }
 
@@ -257,14 +253,12 @@ static void _uavcan_request(struct uavcan_instance_s* instance, const struct uav
         return;
     }
 
-    chMtxLock(&instance->tx_mtx);
     chMtxLock(&instance->canard_mtx);
     uint16_t data_type_id = msg_descriptor->default_data_type_id;
     size_t outgoing_message_len = msg_descriptor->serializer_func(msg_data, instance->outgoing_message_buf);
     uint8_t* transfer_id = uavcan_transfer_id_map_retrieve(&instance->transfer_id_map, false, data_type_id, 0);
     canardRequestOrRespond(&instance->canard, dest_node_id, msg_descriptor->data_type_signature, data_type_id, transfer_id, priority, CanardRequest, instance->outgoing_message_buf, outgoing_message_len);
     chMtxUnlock(&instance->canard_mtx);
-    chMtxUnlock(&instance->tx_mtx);
     uavcan_transmit_frames_async(instance);
 }
 
@@ -282,13 +276,11 @@ static void _uavcan_respond(struct uavcan_instance_s* instance, const struct uav
     uint8_t transfer_id = req_msg->transfer_id;
     uint8_t dest_node_id = req_msg->source_node_id;
 
-    chMtxLock(&instance->tx_mtx);
     chMtxLock(&instance->canard_mtx);
     uint16_t data_type_id = msg_descriptor->default_data_type_id;
     size_t outgoing_message_len = msg_descriptor->serializer_func(msg_data, instance->outgoing_message_buf);
     canardRequestOrRespond(&instance->canard, dest_node_id, msg_descriptor->data_type_signature, data_type_id, &transfer_id, priority, CanardResponse, instance->outgoing_message_buf, outgoing_message_len);
     chMtxUnlock(&instance->canard_mtx);
-    chMtxUnlock(&instance->tx_mtx);
     uavcan_transmit_frames_async(instance);
 }
 
@@ -326,26 +318,23 @@ static void uavcan_transmit_frames_sync(struct uavcan_instance_s* instance) {
         return;
     }
 
-    chMtxLock(&instance->tx_mtx);
     const CanardCANFrame* canard_frame;
     while (true) {
         chMtxLock(&instance->canard_mtx);
         canard_frame = canardPeekTxQueue(&instance->canard);
-        chMtxUnlock(&instance->canard_mtx);
 
         if (!canard_frame) {
+            chMtxUnlock(&instance->canard_mtx);
             break;
+        } else {
+            canardPopTxQueue(&instance->canard);
+            chMtxUnlock(&instance->canard_mtx);
         }
 
         CANTxFrame chibios_frame = convert_CanardCANFrame_to_CANTxFrame(canard_frame);
 
-        if (can_transmit_timeout(instance->can_dev_idx, CAN_ANY_MAILBOX, &chibios_frame, TIME_INFINITE) == MSG_OK) {
-            chMtxLock(&instance->canard_mtx);
-            canardPopTxQueue(&instance->canard);
-            chMtxUnlock(&instance->canard_mtx);
-        }
+        can_transmit_timeout(instance->can_dev_idx, CAN_ANY_MAILBOX, &chibios_frame, TIME_INFINITE);
     }
-    chMtxUnlock(&instance->tx_mtx);
 }
 
 static THD_FUNCTION(uavcan_rx_thd_func, arg) {
