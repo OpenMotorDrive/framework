@@ -46,6 +46,7 @@ struct dw1000_config_s {
     enum dw1000_data_rate_t data_rate;
     uint8_t pcode;
     uint32_t ant_delay;
+    bool std_data_length;
 };
 
 enum dw1000_rx_frame_err_code_s {

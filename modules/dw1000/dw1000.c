@@ -63,6 +63,7 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
     instance->config.data_rate = DW1000_DATA_RATE_6_8M;
     instance->config.pcode = dw1000_conf_get_default_pcode(instance->config);
     instance->config.ant_delay = ant_delay;
+    instance->config.std_data_length = false;
 
     dw1000_hard_reset(instance);
 
@@ -101,7 +102,9 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
         memset(&sys_cfg, 0, sizeof(sys_cfg));
         sys_cfg.HIRQ_POL = 1;
         sys_cfg.RXAUTR = 1;
-        sys_cfg.PHR_MODE = 0x3; //setup to non standard data length to vary between 0-1023
+        if (!instance->config.std_data_length) {
+            sys_cfg.PHR_MODE = 0x3; //setup to non standard data length to vary between 0-1023
+        }
         dw1000_write(instance, DW1000_SYSTEM_CONFIGURATION_FILE, 0, sizeof(sys_cfg), &sys_cfg);
     }
     // 0x06       5  SYS_TIME    not config
@@ -357,7 +360,9 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
 
     // Read RX_FINFO
     dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
-
+    if (instance->config.std_data_length) {
+        rx_finfo.RXFLE = 0;
+    }
     ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
     // Check if the frame fits in the provided buffer
     if (ret.len > 0 && ret.len <= buf_len) {
@@ -443,7 +448,8 @@ void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void*
         return;
     }
 
-    if (buf_len > 1021) {
+    if ((buf_len > 1021 && !instance->config.std_data_length) || 
+        (buf_len > 125 && instance->config.std_data_length)) {
         return;
     }
 
@@ -477,7 +483,8 @@ bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t tran
         return false;
     }
 
-    if (buf_len > 1021) {
+    if ((buf_len > 1021 && !instance->config.std_data_length) || 
+        (buf_len > 125 && instance->config.std_data_length)) {
         return false;
     }
 
