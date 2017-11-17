@@ -86,8 +86,14 @@ void pubsub_listener_reset(struct pubsub_listener_s* listener) {
     }
 
     chMtxLock(&listener->mtx);
+    chSysLock();
     listener->next_message = NULL;
+    chSysUnlock();
     chMtxUnlock(&listener->mtx);
+}
+
+bool pubsub_listener_has_message(struct pubsub_listener_s* listener) {
+    return listener->next_message != NULL;
 }
 
 void pubsub_copy_writer_func(size_t msg_size, void* msg, void* ctx) {
