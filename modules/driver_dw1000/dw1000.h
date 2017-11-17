@@ -2,11 +2,13 @@
 
 #include <ch.h>
 #include <modules/spi_device/spi_device.h>
+#include <modules/ext_irq/ext_irq.h>
 
 
 #define DW1000_TIME_TO_METERS 0.0046917639786159f
 #define DW1000_METERS_TO_TIME 213.13945f
 #define DW1000_TIMESTAMP_MAX 0xffffffffff
+#define DW1000_IRQ_MASK(x) (1UL<<x)
 
 enum dw1000_prf_t {
     DW1000_PRF_16MHZ,
@@ -31,6 +33,37 @@ enum dw1000_channel_t {
     DW1000_CHANNEL_4 = 4,
     DW1000_CHANNEL_5 = 5,
     DW1000_CHANNEL_7 = 7
+};
+
+enum dw1000_sys_status_t {
+    DW1000_SYS_STATUS_CPLOCK = 1,
+    DW1000_SYS_STATUS_ESYNCR,
+    DW1000_SYS_STATUS_AAT,
+    DW1000_SYS_STATUS_TXFRB,
+    DW1000_SYS_STATUS_TXPRS,
+    DW1000_SYS_STATUS_TXPHS,
+    DW1000_SYS_STATUS_TXFRS,
+    DW1000_SYS_STATUS_RXPRD,
+    DW1000_SYS_STATUS_RXSFDD,
+    DW1000_SYS_STATUS_LDEDON,
+    DW1000_SYS_STATUS_RXPHD,
+    DW1000_SYS_STATUS_RXPHE,
+    DW1000_SYS_STATUS_RXDFR,
+    DW1000_SYS_STATUS_RXFCG,
+    DW1000_SYS_STATUS_RXFCE,
+    DW1000_SYS_STATUS_RXRFSL,
+    DW1000_SYS_STATUS_RXRFTO,
+    DW1000_SYS_STATUS_LDEERR, //18
+    DW1000_SYS_STATUS_RXOVRR = 20, //20
+    DW1000_SYS_STATUS_RXPTO,
+    DW1000_SYS_STATUS_GPIOIRQ,
+    DW1000_SYS_STATUS_SLP2INIT,
+    DW1000_SYS_STATUS_RFPLLLL,
+    DW1000_SYS_STATUS_PLLHILO,
+    DW1000_SYS_STATUS_RXSFDTO,
+    DW1000_SYS_STATUS_HPDWARN,
+    DW1000_SYS_STATUS_TXBERR,
+    DW1000_SYS_STATUS_AFFREJ
 };
 
 enum dw1000_data_rate_t {
@@ -97,3 +130,4 @@ uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
 float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
 float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc);
 int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);
+void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t port, uint8_t pin, uint32_t status_mask, ext_irq_cb rx_irq);

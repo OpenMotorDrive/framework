@@ -279,6 +279,20 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     }
 }
 
+void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t port, uint8_t pin, uint32_t status_mask, ext_irq_cb rx_irq)
+{
+    if (!instance) {
+        return;
+    }
+    enable_ext_irq(port, pin, FW_EXT_IRQ_LOW_LEVEL, rx_irq);
+    dw1000_write32(instance, DW1000_SYSTEM_EVENT_MASK_REGISTER_FILE, 0x00, status_mask);
+}
+
+void dw1000_clear_status(struct dw1000_instance_s* instance, uint32_t status_mask)
+{
+    dw1000_write(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(status_mask), &status_mask);
+}
+
 void dw1000_rx_enable(struct dw1000_instance_s* instance) {
     if (!instance) {
         return;
