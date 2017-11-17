@@ -120,100 +120,100 @@ static void worker_thread_set_listener_thread_references_S(struct worker_thread_
         listener_task = listener_task->next;
     }
 }
+
+static bool worker_thread_get_listener_task_waiting_S(struct worker_thread_s* worker_thread) {
+    struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
+    while (listener_task) {
+        if (pubsub_listener_has_message(listener_task->listener)) {
+            return true;
+        }
+        chDbgCheck(listener_task->next != listener_task);
+        listener_task = listener_task->next;
+    }
+    return false;
+}
 #endif
+
+static systime_t worker_thread_get_ticks_to_next_timer_task(struct worker_thread_s* worker_thread, systime_t tnow_ticks) {
+    struct worker_thread_timer_task_s* next_timer_task = worker_thread->next_timer_task;
+    if (next_timer_task) {
+        systime_t elapsed = tnow_ticks - next_timer_task->last_run_time_ticks;
+        if (elapsed >= next_timer_task->period_ticks) {
+            return TIME_IMMEDIATE;
+        } else {
+            return next_timer_task->period_ticks - elapsed;
+        }
+    } else {
+        return TIME_INFINITE;
+    }
+}
 
 static THD_FUNCTION(worker_thread_func, arg) {
     struct worker_thread_s* worker_thread = arg;
 
     while (true) {
-        systime_t tnow_ticks = chVTGetSystemTimeX();
-        systime_t timeout;
-
-        chMtxLock(&worker_thread->mtx);
-        while (true) {
-            struct worker_thread_timer_task_s* next_timer_task = worker_thread->next_timer_task;
-            if (next_timer_task) {
-                // Check if task is due
-                systime_t elapsed = tnow_ticks - next_timer_task->last_run_time_ticks;
-                if (elapsed >= next_timer_task->period_ticks) {
-                    // Task is due - pop the task off the task list
-                    worker_thread->next_timer_task = next_timer_task->next;
-
-                    // Perform task
-                    // NOTE: as long as the CH_CFG_USE_MUTEXES_RECURSIVE option is enabled, timer tasks
-                    //       are allowed to schedule new timer tasks within their function
-                    next_timer_task->task_func(next_timer_task);
-                    next_timer_task->last_run_time_ticks = tnow_ticks;
-
-                    if (next_timer_task->auto_repeat) {
-                        // Re-insert task
-                        worker_thread_insert_timer_task(worker_thread, next_timer_task);
-                    }
-                } else {
-                    // Task is not due
-                    timeout = next_timer_task->period_ticks - elapsed;
-                    break;
-                }
-            } else {
-                timeout = TIME_INFINITE;
-                break;
-            }
-
-            chMtxUnlockAll();
-            chMtxLock(&worker_thread->mtx);
-
 #ifdef MODULE_PUBSUB_ENABLED
-            // Check for immediately available messages on listener tasks, handle one
-            {
-                struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
-                while (listener_task) {
-                    if (pubsub_listener_handle_one_timeout(listener_task->listener, TIME_IMMEDIATE)) {
-                        break;
-                    }
-                    chDbgCheck(listener_task->next != listener_task);
-                    listener_task = listener_task->next;
-                }
-            }
-#endif
-        }
-
-#ifdef MODULE_PUBSUB_ENABLED
-        chSysLock();
-        chMtxUnlockAllS();
-
-        thread_reference_t trp = NULL;
-
-        worker_thread_set_listener_thread_references_S(worker_thread, &trp);
-
-        worker_thread->waiting = true;
-        msg_t wake_msg = chThdSuspendTimeoutS(&trp, timeout);
-        worker_thread->waiting = false;
-
-        worker_thread_set_listener_thread_references_S(worker_thread, NULL);
-
-        chSysUnlock();
-
-        if (wake_msg != MSG_TIMEOUT) {
+        // Check for immediately available messages on listener tasks, handle one
+        {
             chMtxLock(&worker_thread->mtx);
             struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
             while (listener_task) {
-                if (listener_task->listener == (void*)wake_msg) {
-                    pubsub_listener_handle_one_timeout(listener_task->listener, TIME_IMMEDIATE);
+                if (pubsub_listener_handle_one_timeout(listener_task->listener, TIME_IMMEDIATE)) {
+                    break;
                 }
                 chDbgCheck(listener_task->next != listener_task);
                 listener_task = listener_task->next;
             }
             chMtxUnlockAll();
         }
-#else
-        chSysLock();
-        chMtxUnlockAllS();
-
-        worker_thread->waiting = true;
-        chThdSleepS(timeout);
-        worker_thread->waiting = false;
-
-        chSysUnlock();
 #endif
+
+        chMtxLock(&worker_thread->mtx);
+
+        systime_t tnow_ticks = chVTGetSystemTimeX();
+        systime_t ticks_to_next_timer_task = worker_thread_get_ticks_to_next_timer_task(worker_thread, tnow_ticks);
+        if (ticks_to_next_timer_task == TIME_IMMEDIATE) {
+            // Task is due - pop the task off the task list, run it, reschedule if task is auto-repeat
+            struct worker_thread_timer_task_s* next_timer_task = worker_thread->next_timer_task;
+            worker_thread->next_timer_task = next_timer_task->next;
+
+            chMtxUnlockAll();
+
+            // Perform task
+            next_timer_task->task_func(next_timer_task);
+            next_timer_task->last_run_time_ticks = tnow_ticks;
+
+            if (next_timer_task->auto_repeat) {
+                // Re-insert task
+                chMtxLock(&worker_thread->mtx);
+                worker_thread_insert_timer_task(worker_thread, next_timer_task);
+                chMtxUnlockAll();
+            }
+        } else {
+            // No task due - go to sleep until there is a task
+            chSysLock();
+            chMtxUnlockAllS();
+
+#ifdef MODULE_PUBSUB_ENABLED
+            // If a listener task is due, we should not sleep until we've handled it
+            if (worker_thread_get_listener_task_waiting_S(worker_thread)) {
+                chSysUnlock();
+                continue;
+            }
+
+            thread_reference_t trp = NULL;
+            worker_thread_set_listener_thread_references_S(worker_thread, &trp);
+#endif
+
+            worker_thread->waiting = true;
+            chThdSuspendTimeoutS(&trp, ticks_to_next_timer_task);
+            worker_thread->waiting = false;
+
+#ifdef MODULE_PUBSUB_ENABLED
+            worker_thread_set_listener_thread_references_S(worker_thread, NULL);
+#endif
+
+            chSysUnlock();
+        }
     }
 }
