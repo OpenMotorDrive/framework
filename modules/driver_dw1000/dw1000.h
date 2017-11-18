@@ -4,9 +4,9 @@
 #include <modules/spi_device/spi_device.h>
 
 
-#define TIME_TO_METERS 0.0046917639786159f
-#define METERS_TO_TIME 213.13945f
-#define TIMESTAMP_MAX 0xffffffffff
+#define DW1000_TIME_TO_METERS 0.0046917639786159f
+#define DW1000_METERS_TO_TIME 213.13945f
+#define DW1000_TIMESTAMP_MAX 0xffffffffff
 
 enum dw1000_prf_t {
     DW1000_PRF_16MHZ,
