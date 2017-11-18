@@ -5,7 +5,7 @@
 static THD_FUNCTION(worker_thread_func, arg);
 static void worker_thread_insert_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
 
-void worker_thread_init(struct worker_thread_s* worker_thread, size_t stack_size, tprio_t prio) {
+void worker_thread_init(struct worker_thread_s* worker_thread, const char* name, size_t stack_size, tprio_t prio) {
     if (!worker_thread) {
         return;
     }
@@ -14,6 +14,7 @@ void worker_thread_init(struct worker_thread_s* worker_thread, size_t stack_size
         return;
     }
     worker_thread->thread = chThdCreateStatic(working_area, THD_WORKING_AREA_SIZE(stack_size), prio, worker_thread_func, worker_thread);
+    worker_thread->name = name;
     worker_thread->next_timer_task = NULL;
 #ifdef MODULE_PUBSUB_ENABLED
     worker_thread->listener_task_list_head = NULL;
@@ -150,6 +151,9 @@ static systime_t worker_thread_get_ticks_to_next_timer_task(struct worker_thread
 
 static THD_FUNCTION(worker_thread_func, arg) {
     struct worker_thread_s* worker_thread = arg;
+    if (worker_thread->name) {
+        chRegSetThreadName(worker_thread->name);
+    }
 
     while (true) {
 #ifdef MODULE_PUBSUB_ENABLED
