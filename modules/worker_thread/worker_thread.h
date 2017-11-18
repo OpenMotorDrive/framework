@@ -41,6 +41,7 @@ struct worker_thread_listener_task_s {
 
 struct worker_thread_s {
     thread_t* thread;
+    const char* name;
     bool waiting;
     struct worker_thread_timer_task_s* next_timer_task;
 #ifdef MODULE_PUBSUB_ENABLED
@@ -49,7 +50,7 @@ struct worker_thread_s {
     mutex_t mtx;
 };
 
-void worker_thread_init(struct worker_thread_s* worker_thread, size_t stack_size, tprio_t priority);
+void worker_thread_init(struct worker_thread_s* worker_thread, const char* name, size_t stack_size, tprio_t priority);
 void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, task_handler_func_ptr task_func, void* ctx, systime_t period_ticks, bool auto_repeat);
 void worker_thread_remove_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
 void* worker_thread_task_get_user_context(struct worker_thread_timer_task_s* task);
