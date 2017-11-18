@@ -26,6 +26,8 @@ static void wake_worker_thread(struct worker_thread_s* worker_thread) {
     chSysLock();
     if (worker_thread->waiting) {
         chSchWakeupS(worker_thread->thread, MSG_TIMEOUT);
+        //set waiting to false so that we don't try waking twice
+        worker_thread->waiting = false;
     }
     chSysUnlock();
 }
