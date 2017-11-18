@@ -13,5 +13,5 @@
 struct worker_thread_s lpwork_thread;
 
 RUN_ON(WORKER_THREADS_START) {
-    worker_thread_init(&lpwork_thread, LPWORK_THREAD_STACK_SIZE, LPWORK_THREAD_PRIORITY);
+    worker_thread_init(&lpwork_thread, "lpwork", LPWORK_THREAD_STACK_SIZE, LPWORK_THREAD_PRIORITY);
 }
