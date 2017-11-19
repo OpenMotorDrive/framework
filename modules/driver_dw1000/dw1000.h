@@ -3,7 +3,8 @@
 #include <ch.h>
 #include <modules/spi_device/spi_device.h>
 #include <modules/ext_irq/ext_irq.h>
-
+#include <modules/pubsub/pubsub.h>
+#include <modules/worker_thread/worker_thread.h>
 
 #define DW1000_TIME_TO_METERS 0.0046917639786159f
 #define DW1000_METERS_TO_TIME 213.13945f
@@ -111,6 +112,9 @@ struct dw1000_instance_s {
     struct spi_device_s spi_dev;
     uint32_t reset_line;
     struct dw1000_config_s config;
+    struct pubsub_topic_s *irq_topic;
+    struct pubsub_listener_s irq_listener;
+    struct worker_thread_listener_task_s irq_listener_task;
 };
 
 int64_t dw1000_wrap_timestamp(int64_t ts);
@@ -123,6 +127,8 @@ void dw1000_rx_enable(struct dw1000_instance_s* instance);
 void dw1000_rx_softreset(struct dw1000_instance_s* instance);
 void dw1000_disable_transceiver(struct dw1000_instance_s* instance);
 void dw1000_handle_interrupt(struct dw1000_instance_s* instance);
+void dw1000_clear_status(struct dw1000_instance_s* instance, uint32_t status_mask);
+uint32_t dw1000_get_status(struct dw1000_instance_s* instance);
 
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
@@ -130,4 +136,4 @@ uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
 float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
 float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc);
 int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);
-void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t port, uint8_t pin, uint32_t status_mask, ext_irq_cb rx_irq);
+void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t port, uint8_t pin, uint32_t status_mask);
