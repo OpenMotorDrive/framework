@@ -13,5 +13,6 @@ enum {
     FW_EXT_IRQ_BOTH
 };
 
-void enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, uint8_t mode, ext_irq_cb cb);
+
+struct pubsub_topic_s* enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, uint8_t mode);
 void disable_ext_irq(uint8_t pin_int_num);
