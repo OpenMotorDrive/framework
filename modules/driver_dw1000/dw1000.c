@@ -360,9 +360,6 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
 
     // Read RX_FINFO
     dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
-    if (instance->config.std_data_length) {
-        rx_finfo.RXFLE = 0;
-    }
     ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
     // Check if the frame fits in the provided buffer
     if (ret.len > 0 && ret.len <= buf_len) {
@@ -461,7 +458,7 @@ void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void*
         struct dw1000_tx_fctrl_s tx_fctrl;
         dw1000_read(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
         tx_fctrl.reserved = 0;
-        tx_fctrl.TFLEN = (buf_len+2) | 0x7F;
+        tx_fctrl.TFLEN = (buf_len+2) & 0x7F;
         tx_fctrl.TFLE = ((buf_len+2) >> 7) & 0x7;
         dw1000_write(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
     }
@@ -495,7 +492,7 @@ bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t tran
     {
         struct dw1000_tx_fctrl_s tx_fctrl;
         dw1000_read(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
-        tx_fctrl.TFLEN = (buf_len+2) | 0x7F;
+        tx_fctrl.TFLEN = (buf_len+2) & 0x7F;
         tx_fctrl.TFLE = ((buf_len+2) >> 7) & 0x7;
         dw1000_write(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
     }
