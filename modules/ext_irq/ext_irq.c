@@ -47,13 +47,9 @@ static EXTConfig extcfg = {
     {EXT_CH_MODE_DISABLED, NULL}
   }
 };
-
 MEMORYPOOL_DECL(ext_irq_topic_list_pool, sizeof(struct ext_irq_topic_list_s), chCoreAllocAlignedI);
-MEMORYPOOL_DECL(ext_irq_thd_pool, THD_WORKING_AREA_SIZE(128), chCoreAllocAlignedI);
 
-
-static THD_FUNCTION(ext_irq_thd_func, arg);
-
+static THD_WORKING_AREA(ext_irq_thd_wa, 128);
 static THD_FUNCTION(ext_irq_thd_func, arg) {
     (void)arg;
     struct ext_irq_topic_list_s* ext_irq_list_item;
@@ -89,7 +85,7 @@ static void ext_irq_common_handler(EXTDriver *extp, expchannel_t channel)
 }
 static void ext_irq_init(void);
 
-RUN_BEFORE(INIT_END) {
+RUN_AFTER(CH_SYS_INIT) {
     ext_irq_init();
 }
 
@@ -98,7 +94,7 @@ static void ext_irq_init(void)
     if (!(instance = chCoreAllocAligned(sizeof(struct ext_irq_instance_s), PORT_WORKING_AREA_ALIGN))) { goto fail; }
     memset(instance, 0, sizeof(struct ext_irq_instance_s));
     chMtxObjectInit(&instance->lock);
-    if (!(instance->ext_irq_thd = chThdCreateFromMemoryPool(&ext_irq_thd_pool, "EXT_IRQ", HIGHPRIO-2, ext_irq_thd_func, instance))) { goto fail; }
+    if (!(instance->ext_irq_thd = chThdCreateStatic(ext_irq_thd_wa, sizeof(ext_irq_thd_wa), HIGHPRIO-2, ext_irq_thd_func, instance))) { goto fail; }
     instance->drv = &EXTD1;
     return;
 fail:
@@ -137,7 +133,7 @@ struct pubsub_topic_s* enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, u
         goto start_and_return;
     }
 
-    ext_irq_list_item = chPoolAlloc(&ext_irq_thd_pool);
+    ext_irq_list_item = chPoolAlloc(&ext_irq_topic_list_pool);
     if (!ext_irq_list_item) {
         return NULL;
     }
