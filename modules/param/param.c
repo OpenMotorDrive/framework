@@ -782,7 +782,7 @@ static bool param_journal_iterate_final_values(const struct flash_journal_entry_
 }
 
 static void param_generate_key(uint8_t name_len, const char* name, const enum param_type_t param_type, struct param_key_s* ret) {
-    uint64_t hash;
+    uint64_t hash = FNV_1_OFFSET_BASIS_64;
     const uint8_t param_type_uint8 = (uint8_t)param_type;
     hash_fnv_1a(name_len, (uint8_t*)name, &hash);
     hash_fnv_1a(sizeof(param_type_uint8), &param_type_uint8, &hash);
