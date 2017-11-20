@@ -90,7 +90,7 @@ int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr
     float rangeBias = rangeBiasLow+(rxPowerBase-rxPowerBaseLow)*(rangeBiasHigh-rangeBiasLow);
     // range bias [mm] to timestamp modification value conversion
     // apply correction
-    ts = dw1000_wrap_timestamp(ts - (int16_t)(rangeBias*METERS_TO_TIME*0.001f));
+    ts = dw1000_wrap_timestamp(ts - (int16_t)(rangeBias*DW1000_METERS_TO_TIME*0.001f));
 
     return ts;
 }
