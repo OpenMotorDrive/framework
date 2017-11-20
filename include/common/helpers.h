@@ -30,6 +30,8 @@
 
 #define LEN(x) (sizeof(x)/sizeof(x[0]))
 
+#define FNV_1_OFFSET_BASIS_64 14695981039346656037UL
+
 #define UNUSED(x) ((void)x)
 
 #define LINKED_LIST_APPEND(type, head_ptr, new_item_ptr) { \

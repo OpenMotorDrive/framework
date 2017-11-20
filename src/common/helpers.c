@@ -98,7 +98,6 @@ void transform_alpha_beta_to_d_q(float theta, float alpha, float beta, float* d,
 }
 
 // FNV-1a implementation
-#define FNV_1_OFFSET_BASIS_64 14695981039346656037UL
 #define FNV_1_PRIME_64 1099511628211UL
 
 void hash_fnv_1a(uint32_t len, const uint8_t* buf, uint64_t* hash)
