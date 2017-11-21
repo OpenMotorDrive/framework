@@ -46,7 +46,7 @@ enum dw1000_sys_status_t {
     DW1000_SYS_STATUS_TXFRS,
     DW1000_SYS_STATUS_RXPRD,
     DW1000_SYS_STATUS_RXSFDD,
-    DW1000_SYS_STATUS_LDEDON,
+    DW1000_SYS_STATUS_LDEDONE,
     DW1000_SYS_STATUS_RXPHD,
     DW1000_SYS_STATUS_RXPHE,
     DW1000_SYS_STATUS_RXDFR,
@@ -88,8 +88,8 @@ enum dw1000_rx_frame_err_code_s {
     DW1000_RX_ERROR_NULLPTR,
     DW1000_RX_ERROR_NO_FRAME_PRESENT,
     DW1000_RX_ERROR_PROVIDED_BUFFER_TOO_SMALL,
-    DW1000_RX_ERROR_RXOVRR
-
+    DW1000_RX_ERROR_RXOVRR,
+    DW1000_RX_ERROR_TIMESTAMP_PENDING
 };
 
 struct dw1000_rx_frame_info_s {
@@ -129,6 +129,7 @@ void dw1000_disable_transceiver(struct dw1000_instance_s* instance);
 void dw1000_handle_interrupt(struct dw1000_instance_s* instance);
 void dw1000_clear_status(struct dw1000_instance_s* instance, uint32_t status_mask);
 uint32_t dw1000_get_status(struct dw1000_instance_s* instance);
+void dw1000_swap_rx_buffers(struct dw1000_instance_s* instance);
 
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
