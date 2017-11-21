@@ -18,7 +18,7 @@ struct ext_irq_instance_s {
     struct ext_irq_topic_list_s *ext_irq_list_head;
     mutex_t lock;
     thread_t *ext_irq_thd;
-} *instance = NULL;
+} *exti_instance = NULL;
 
 static EXTConfig extcfg = {
   {
@@ -58,15 +58,15 @@ static THD_FUNCTION(ext_irq_thd_func, arg) {
     while(true) {
         evt_mask = chEvtWaitAny((eventmask_t)0xFFFF);
         irq_cnt++;
-        chMtxLock(&instance->lock);
-        ext_irq_list_item = instance->ext_irq_list_head;
+        chMtxLock(&exti_instance->lock);
+        ext_irq_list_item = exti_instance->ext_irq_list_head;
         while (ext_irq_list_item) {
             if ((1<<ext_irq_list_item->channel) & evt_mask) {
                 pubsub_publish_message(&ext_irq_list_item->topic, 0, NULL, NULL);
             }
             ext_irq_list_item = ext_irq_list_item->next;
         }
-        chMtxUnlock(&instance->lock);
+        chMtxUnlock(&exti_instance->lock);
 
     }
 }
@@ -75,11 +75,11 @@ static void ext_irq_common_handler(EXTDriver *extp, expchannel_t channel)
 {
     (void)extp;
     static volatile uint16_t irq_cnt;
-    if (instance == NULL) {
+    if (exti_instance == NULL) {
         return;
     }
     chSysLockFromISR();
-    chEvtSignalI(instance->ext_irq_thd, 1<<channel);
+    chEvtSignalI(exti_instance->ext_irq_thd, 1<<channel);
     irq_cnt++;
     chSysUnlockFromISR();
 }
@@ -91,11 +91,12 @@ RUN_AFTER(CH_SYS_INIT) {
 
 static void ext_irq_init(void)
 {
-    if (!(instance = chCoreAllocAligned(sizeof(struct ext_irq_instance_s), PORT_WORKING_AREA_ALIGN))) { goto fail; }
-    memset(instance, 0, sizeof(struct ext_irq_instance_s));
-    chMtxObjectInit(&instance->lock);
-    if (!(instance->ext_irq_thd = chThdCreateStatic(ext_irq_thd_wa, sizeof(ext_irq_thd_wa), HIGHPRIO-2, ext_irq_thd_func, instance))) { goto fail; }
-    instance->drv = &EXTD1;
+    exti_instance = chHeapAllocAligned(NULL, sizeof(struct ext_irq_instance_s), 8);
+    if (!(exti_instance = chCoreAllocAligned(sizeof(struct ext_irq_instance_s), PORT_WORKING_AREA_ALIGN))) { goto fail; }
+    memset(exti_instance, 0, sizeof(struct ext_irq_instance_s));
+    chMtxObjectInit(&exti_instance->lock);
+    if (!(exti_instance->ext_irq_thd = chThdCreateStatic(ext_irq_thd_wa, sizeof(ext_irq_thd_wa), HIGHPRIO-2, ext_irq_thd_func, exti_instance))) { goto fail; }
+    exti_instance->drv = &EXTD1;
     return;
 fail:
     chSysHalt("EXT IRQ Init Failed!");
@@ -103,11 +104,11 @@ fail:
 
 struct pubsub_topic_s* enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, uint8_t mode)
 {
-    if(!instance) {
+    if(!exti_instance) {
         return NULL;
     }
-    chMtxLock(&instance->lock);
-    extStop(&EXTD1);
+    chMtxLock(&exti_instance->lock);
+    extStop(exti_instance->drv);
     switch(mode) {
         case FW_EXT_IRQ_LOW_LEVEL:
             extcfg.channels[pin_int_num].mode = EXT_CH_MODE_LOW_LEVEL;
@@ -125,7 +126,7 @@ struct pubsub_topic_s* enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, u
     extcfg.channels[pin_int_num].mode |= EXT_CH_MODE_AUTOSTART | gpio_port;
 
     //Append irq topic request
-    struct ext_irq_topic_list_s* ext_irq_list_item = instance->ext_irq_list_head;
+    struct ext_irq_topic_list_s* ext_irq_list_item = exti_instance->ext_irq_list_head;
     while (ext_irq_list_item && ext_irq_list_item->channel != pin_int_num) {
         ext_irq_list_item = ext_irq_list_item->next;
     }
@@ -141,24 +142,24 @@ struct pubsub_topic_s* enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, u
     ext_irq_list_item->channel = pin_int_num;
     pubsub_init_topic(&ext_irq_list_item->topic, NULL);
 
-    LINKED_LIST_APPEND(struct ext_irq_topic_list_s, instance->ext_irq_list_head, ext_irq_list_item);
+    LINKED_LIST_APPEND(struct ext_irq_topic_list_s, exti_instance->ext_irq_list_head, ext_irq_list_item);
 
-    chMtxUnlock(&instance->lock);
+    chMtxUnlock(&exti_instance->lock);
 
 start_and_return:
     extcfg.channels[pin_int_num].cb = ext_irq_common_handler;
-    extStart(instance->drv, &extcfg);
+    extStart(exti_instance->drv, &extcfg);
     return &ext_irq_list_item->topic;
 }
 
 void disable_ext_irq(uint8_t pin_int_num)
 {
-    if(!instance) {
+    if(!exti_instance) {
         return;
     }
-    extStop(instance->drv);
+    extStop(exti_instance->drv);
     extcfg.channels[pin_int_num].mode = EXT_CH_MODE_DISABLED;
     extcfg.channels[pin_int_num].cb = NULL;
     //TODO: free allocated topic as well
-    extStart(instance->drv, &extcfg);
+    extStart(exti_instance->drv, &extcfg);
 }
