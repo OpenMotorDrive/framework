@@ -24,11 +24,8 @@ struct allocatee_instance_s {
     struct pubsub_listener_s allocation_listener;
 };
 
-struct allocatee_instance_s allocatee;
 
 RUN_AFTER(UAVCAN_INIT) {
-    uint8_t i=0;
-    struct allocatee_instance_s* instance = &allocatee;
      for (uint8_t i=0; i<uavcan_get_num_instances(); i++) {
         if (uavcan_get_node_id(i) != 0) {
             continue;
