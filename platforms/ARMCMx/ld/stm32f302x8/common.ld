@@ -1,7 +1,9 @@
 SECTIONS
 {
-    .params(NOLOAD) : {
-    } >params
+    .param1(NOLOAD) : {
+    } >param1
+    .param2(NOLOAD) : {
+    } >param2
 }
 
 PROVIDE(_app_bl_shared_sec = ORIGIN(app_bl_shared));
