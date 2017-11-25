@@ -46,3 +46,11 @@ msg_t can_receive_timeout(uint8_t can_idx, canmbx_t mailbox, CANRxFrame* crfp, s
 msg_t can_transmit_timeout(uint8_t can_idx, canmbx_t mailbox, const CANTxFrame* ctfp, systime_t timeout) {
     return canTransmitTimeout(can_get_device(can_idx), mailbox, ctfp, timeout);
 }
+
+bool can_try_transmit_I(uint8_t can_idx, canmbx_t mailbox, const CANTxFrame* ctfp) {
+    return canTryTransmitI(can_get_device(can_idx), mailbox, ctfp);
+}
+
+void can_wait_for_tx_empty_S(uint8_t can_idx, systime_t timeout) {
+    canWaitForMailboxEmptyEventS(can_get_device(can_idx), timeout);
+}

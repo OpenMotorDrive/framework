@@ -320,20 +320,27 @@ static void uavcan_transmit_frames_sync(struct uavcan_instance_s* instance) {
 
     const CanardCANFrame* canard_frame;
     while (true) {
-        chMtxLock(&instance->canard_mtx);
+        chSysLock();
+        chMtxLockS(&instance->canard_mtx);
         canard_frame = canardPeekTxQueue(&instance->canard);
 
         if (!canard_frame) {
-            chMtxUnlock(&instance->canard_mtx);
+            chMtxUnlockS(&instance->canard_mtx);
+            chSysUnlock();
             break;
-        } else {
-            canardPopTxQueue(&instance->canard);
-            chMtxUnlock(&instance->canard_mtx);
         }
 
         CANTxFrame chibios_frame = convert_CanardCANFrame_to_CANTxFrame(canard_frame);
 
-        can_transmit_timeout(instance->can_dev_idx, CAN_ANY_MAILBOX, &chibios_frame, TIME_INFINITE);
+        if(!can_try_transmit_I(instance->can_dev_idx, CAN_ANY_MAILBOX_AVOID_PRIORITY_INVERSION, &chibios_frame)) {
+            canardPopTxQueue(&instance->canard);
+        }
+
+        chMtxUnlockS(&instance->canard_mtx);
+
+        can_wait_for_tx_empty_S(instance->can_dev_idx, TIME_INFINITE);
+
+        chSysUnlock();
     }
 }
 

@@ -9,3 +9,5 @@ uint32_t can_get_baudrate(uint8_t can_idx);
 bool can_get_baudrate_confirmed(uint8_t can_idx);
 msg_t can_receive_timeout(uint8_t can_idx, canmbx_t mailbox, CANRxFrame* crfp, systime_t timeout);
 msg_t can_transmit_timeout(uint8_t can_idx, canmbx_t mailbox, const CANTxFrame* ctfp, systime_t timeout);
+bool can_try_transmit_I(uint8_t can_idx, canmbx_t mailbox, const CANTxFrame* ctfp);
+void can_wait_for_tx_empty_S(uint8_t can_idx, systime_t timeout);
