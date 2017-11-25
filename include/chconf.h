@@ -251,7 +251,7 @@
  * @note    Mutexes are recommended.
  */
 #ifndef CH_CFG_USE_HEAP
-#define CH_CFG_USE_HEAP                     TRUE
+#define CH_CFG_USE_HEAP                     FALSE
 #endif
 
 /**

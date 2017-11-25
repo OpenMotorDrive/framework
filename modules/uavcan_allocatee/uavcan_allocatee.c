@@ -24,13 +24,17 @@ struct allocatee_instance_s {
     struct pubsub_listener_s allocation_listener;
 };
 
+struct allocatee_instance_s allocatee;
+
 RUN_AFTER(UAVCAN_INIT) {
-    for (uint8_t i=0; i<uavcan_get_num_instances(); i++) {
+    uint8_t i=0;
+    struct allocatee_instance_s* instance = &allocatee;
+     for (uint8_t i=0; i<uavcan_get_num_instances(); i++) {
         if (uavcan_get_node_id(i) != 0) {
             continue;
         }
 
-        struct allocatee_instance_s* instance = chHeapAlloc(NULL, sizeof(struct allocatee_instance_s));
+        struct allocatee_instance_s* instance = chCoreAllocAligned(sizeof(struct allocatee_instance_s), PORT_WORKING_AREA_ALIGN);
 
         chDbgCheck(instance != NULL);
         if (!instance) {
@@ -51,7 +55,6 @@ static void allocation_stop_and_cleanup(struct allocatee_instance_s* instance) {
     worker_thread_remove_timer_task(&lpwork_thread, &instance->request_transmit_task);
     worker_thread_remove_listener_task(&lpwork_thread, &instance->allocation_listener_task);
     pubsub_listener_unregister(&instance->allocation_listener);
-    chHeapFree(instance);
 }
 
 static void allocation_timer_expired(struct worker_thread_timer_task_s* task) {
