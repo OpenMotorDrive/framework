@@ -16,7 +16,7 @@ extern uint8_t _param2_flash_sec;
 extern uint8_t _param2_flash_sec_end;
 
 #define BOARD_CAN_CONFIG(baudrate, silent) { \
-CAN_MCR_ABOM | CAN_MCR_AWUM | CAN_MCR_TXFP, \
+CAN_MCR_ABOM | CAN_MCR_AWUM, \
 (silent?CAN_BTR_SILM:0) | CAN_BTR_SJW(0) | CAN_BTR_TS2(2-1) | \
 CAN_BTR_TS1(15-1) | CAN_BTR_BRP((STM32_PCLK1/18)/baudrate - 1) \
 }
