@@ -1,6 +1,11 @@
 #include "faults.h"
 #include <common/helpers.h>
 
+#ifdef MODULE_PUBSUB_ENABLED
+#include <modules/pubsub/pubsub.h>
+struct pubsub_topic_s fault_raised_topic;
+#endif
+
 static struct fault_s* faults_head;
 
 void fault_register(struct fault_s* fault, enum fault_level_t level, const char* description) {
@@ -18,9 +23,19 @@ void fault_raise(struct fault_s* fault, systime_t timeout) {
     if (!fault) {
         return;
     }
-
+    
+#ifdef MODULE_PUBSUB_ENABLED
+    bool edge = (fault_get_level(fault) == FAULT_LEVEL_OK);
+#endif
+    
     fault->raised_time = chVTGetSystemTimeX();
     fault->timeout = timeout;
+    
+#ifdef MODULE_PUBSUB_ENABLED
+    if (edge) {
+        pubsub_publish_message(&fault_raised_topic, sizeof(struct fault_s*), pubsub_copy_writer_func, &fault);
+    }
+#endif
 }
 
 void fault_clear(struct fault_s* fault) {

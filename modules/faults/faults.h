@@ -8,6 +8,10 @@ RUN_AFTER(CH_SYS_INIT) { \
     fault_register(&HANDLE_NAME, LEVEL, DESCRIPTION); \
 }
 
+#ifdef MODULE_PUBSUB_ENABLED
+extern struct pubsub_topic_s fault_raised_topic;
+#endif
+
 enum fault_level_t {
     FAULT_LEVEL_OK,
     FAULT_LEVEL_WARNING,
