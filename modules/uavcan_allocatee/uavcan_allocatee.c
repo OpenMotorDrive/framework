@@ -5,7 +5,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <modules/timing/timing.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD
+#define MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD lpwork
+#endif
+
+WORKER_THREAD_DECLARE_EXTERN(MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD)
 
 struct allocatee_instance_s;
 
@@ -43,14 +49,14 @@ RUN_AFTER(UAVCAN_INIT) {
         instance->uavcan_idx = i;
         instance->unique_id_offset = 0;
         pubsub_init_and_register_listener(allocation_topic, &instance->allocation_listener, allocation_message_handler, instance);
-        worker_thread_add_listener_task(&lpwork_thread, &instance->allocation_listener_task, &instance->allocation_listener);
+        worker_thread_add_listener_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->allocation_listener_task, &instance->allocation_listener);
         allocation_start_request_timer(instance);
     }
 }
 
 static void allocation_stop_and_cleanup(struct allocatee_instance_s* instance) {
-    worker_thread_remove_timer_task(&lpwork_thread, &instance->request_transmit_task);
-    worker_thread_remove_listener_task(&lpwork_thread, &instance->allocation_listener_task);
+    worker_thread_remove_timer_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->request_transmit_task);
+    worker_thread_remove_listener_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->allocation_listener_task);
     pubsub_listener_unregister(&instance->allocation_listener);
 }
 
@@ -126,8 +132,8 @@ static void allocation_start_request_timer(struct allocatee_instance_s* instance
 
     float request_delay_ms = UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_REQUEST_PERIOD_MS + (getRandomFloat() * (UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MAX_REQUEST_PERIOD_MS-UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_REQUEST_PERIOD_MS));
 
-    worker_thread_remove_timer_task(&lpwork_thread, &instance->request_transmit_task);
-    worker_thread_add_timer_task(&lpwork_thread, &instance->request_transmit_task, allocation_timer_expired, instance, MS2ST(request_delay_ms), false);
+    worker_thread_remove_timer_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->request_transmit_task);
+    worker_thread_add_timer_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->request_transmit_task, allocation_timer_expired, instance, MS2ST(request_delay_ms), false);
 }
 
 static void allocation_start_followup_timer(struct allocatee_instance_s* instance) {
@@ -138,8 +144,8 @@ static void allocation_start_followup_timer(struct allocatee_instance_s* instanc
 
     float request_delay_ms = UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_FOLLOWUP_DELAY_MS + (getRandomFloat() * (UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MAX_FOLLOWUP_DELAY_MS-UAVCAN_PROTOCOL_DYNAMIC_NODE_ID_ALLOCATION_MIN_FOLLOWUP_DELAY_MS));
 
-    worker_thread_remove_timer_task(&lpwork_thread, &instance->request_transmit_task);
-    worker_thread_add_timer_task(&lpwork_thread, &instance->request_transmit_task, allocation_timer_expired, instance, MS2ST(request_delay_ms), false);
+    worker_thread_remove_timer_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->request_transmit_task);
+    worker_thread_add_timer_task(&MODULE_UAVCAN_ALLOCATEE_WORKER_THREAD, &instance->request_transmit_task, allocation_timer_expired, instance, MS2ST(request_delay_ms), false);
 }
 
 static bool allocation_running(struct allocatee_instance_s* instance) {
