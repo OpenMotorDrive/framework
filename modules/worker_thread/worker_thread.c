@@ -19,6 +19,7 @@ void worker_thread_init(struct worker_thread_s* worker_thread, const char* name,
 #ifdef MODULE_PUBSUB_ENABLED
     worker_thread->listener_task_list_head = NULL;
 #endif
+    worker_thread->interrupt_task_list_head = NULL;
     worker_thread->waiting = false;
     chMtxObjectInit(&worker_thread->mtx);
 }
@@ -33,7 +34,7 @@ static void wake_worker_thread(struct worker_thread_s* worker_thread) {
     chSysUnlock();
 }
 
-void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, task_handler_func_ptr task_func, void* ctx, systime_t period_ticks, bool auto_repeat) {
+void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t period_ticks, bool auto_repeat) {
     task->task_func = task_func;
     task->ctx = ctx;
     task->period_ticks = period_ticks;
@@ -105,6 +106,49 @@ void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, s
 }
 #endif
 
+void worker_thread_add_interrupt_task(struct worker_thread_s* worker_thread, struct worker_thread_interrupt_task_s* task, interrupt_task_handler_func_ptr task_func, void* ctx) {
+    task->triggered = false;
+    task->task_func = task_func;
+    task->ctx = ctx;
+    task->worker_thread = worker_thread;
+
+    chMtxLock(&worker_thread->mtx);
+    LINKED_LIST_APPEND(struct worker_thread_interrupt_task_s, worker_thread->interrupt_task_list_head, task);
+    chMtxUnlock(&worker_thread->mtx);
+}
+
+void worker_thread_remove_interrupt_task(struct worker_thread_s* worker_thread, struct worker_thread_interrupt_task_s* task) {
+    chMtxLock(&worker_thread->mtx);
+    struct worker_thread_interrupt_task_s** remove_ptr = &worker_thread->interrupt_task_list_head;
+    while (*remove_ptr && *remove_ptr != task) {
+        remove_ptr = &(*remove_ptr)->next;
+    }
+    chMtxUnlock(&worker_thread->mtx);
+}
+
+void worker_thread_trigger_interrupt_task_I(struct worker_thread_interrupt_task_s* task) {
+    task->triggered = true;
+
+    if (task->worker_thread->waiting) {
+        task->worker_thread->thread->u.rdymsg = MSG_TIMEOUT;
+        chSchReadyI(task->worker_thread->thread);
+        //set waiting to false so that we don't try waking twice
+        task->worker_thread->waiting = false;
+    }
+}
+
+static bool worker_thread_get_interrupt_task_triggered_S(struct worker_thread_s* worker_thread) {
+    struct worker_thread_interrupt_task_s* interrupt_task = worker_thread->interrupt_task_list_head;
+    while (interrupt_task) {
+        if (interrupt_task->triggered) {
+            return true;
+        }
+        chDbgCheck(interrupt_task->next != interrupt_task);
+        interrupt_task = interrupt_task->next;
+    }
+    return false;
+}
+
 static void worker_thread_insert_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task) {
     systime_t task_run_time = task->last_run_time_ticks + task->period_ticks;
     struct worker_thread_timer_task_s** insert_ptr = &worker_thread->next_timer_task;
@@ -158,6 +202,21 @@ static THD_FUNCTION(worker_thread_func, arg) {
     }
 
     while (true) {
+        // Check for triggered interrupt tasks, handle all
+        {
+            chMtxLock(&worker_thread->mtx);
+            struct worker_thread_interrupt_task_s* interrupt_task = worker_thread->interrupt_task_list_head;
+            while (interrupt_task) {
+                if (interrupt_task->triggered && interrupt_task->task_func) {
+                    interrupt_task->triggered = false;
+                    interrupt_task->task_func(interrupt_task);
+                }
+                chDbgCheck(interrupt_task->next != interrupt_task);
+                interrupt_task = interrupt_task->next;
+            }
+            chMtxUnlockAll();
+        }
+
 #ifdef MODULE_PUBSUB_ENABLED
         // Check for immediately available messages on listener tasks, handle one
         {
@@ -199,6 +258,12 @@ static THD_FUNCTION(worker_thread_func, arg) {
             // No task due - go to sleep until there is a task
             chSysLock();
             chMtxUnlockAllS();
+
+            // If an interrupt task is due, we should not sleep until we've handled it
+            if (worker_thread_get_interrupt_task_triggered_S(worker_thread)) {
+                chSysUnlock();
+                continue;
+            }
 
 #ifdef MODULE_PUBSUB_ENABLED
             // If a listener task is due, we should not sleep until we've handled it
