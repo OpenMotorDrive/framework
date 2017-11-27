@@ -10,6 +10,15 @@
 #define __WORKER_THREAD_CONCAT(a,b) a ## b
 #define _WORKER_THREAD_CONCAT(a,b) __WORKER_THREAD_CONCAT(a,b)
 
+#define WORKER_THREAD_CREATE(NAME, SIZE, PRIO) \
+struct worker_thread_s NAME; \
+RUN_ON(WORKER_THREADS_START) { \
+    worker_thread_init(&NAME, #NAME, SIZE, PRIO); \
+}
+
+#define WORKER_THREAD_DECLARE_EXTERN(NAME) \
+extern struct worker_thread_s NAME;
+
 #define WORKER_THREAD_PERIODIC_TIMER_TASK_AUTOSTART(TASK_NAME, WORKER_THREAD, PERIOD) \
 static struct worker_thread_timer_task_s TASK_NAME; \
 static void _WORKER_THREAD_CONCAT(TASK_NAME,_handler_func)(struct worker_thread_timer_task_s* task); \

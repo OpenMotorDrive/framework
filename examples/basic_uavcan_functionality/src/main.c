@@ -16,7 +16,6 @@
 
 #include <ch.h>
 #include <modules/uavcan_debug/uavcan_debug.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
 #include <modules/param/param.h>
 #include <common/helpers.h>
 #include <string.h>

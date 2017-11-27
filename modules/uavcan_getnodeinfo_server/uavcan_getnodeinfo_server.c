@@ -1,5 +1,11 @@
 #include <modules/uavcan_nodestatus_publisher/uavcan_nodestatus_publisher.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef MODULE_UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD
+#define MODULE_UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD lpwork
+#endif
+
+WORKER_THREAD_DECLARE_EXTERN(MODULE_UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD)
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
 #include <modules/app_descriptor/app_descriptor.h>
@@ -20,7 +26,7 @@ static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx)
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* getnodeinfo_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_GetNodeInfo_req_descriptor);
     pubsub_init_and_register_listener(getnodeinfo_req_topic, &getnodeinfo_req_listener, getnodeinfo_req_handler, NULL);
-    worker_thread_add_listener_task(&lpwork_thread, &getnodeinfo_req_listener_task, &getnodeinfo_req_listener);
+    worker_thread_add_listener_task(&MODULE_UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD, &getnodeinfo_req_listener_task, &getnodeinfo_req_listener);
 }
 
 static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx) {
