@@ -12,14 +12,12 @@
 #endif
 
 static struct worker_thread_timer_task_s delayed_restart_task;
-static struct pubsub_listener_s restart_req_listener;
 static struct worker_thread_listener_task_s restart_req_listener_task;
 static void restart_req_handler(size_t msg_size, const void* buf, void* ctx);
 
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* restart_topic = uavcan_get_message_topic(0, &uavcan_protocol_RestartNode_req_descriptor);
-    pubsub_init_and_register_listener(restart_topic, &restart_req_listener, restart_req_handler, NULL);
-    worker_thread_add_listener_task(&lpwork_thread, &restart_req_listener_task, &restart_req_listener);
+    worker_thread_add_listener_task(&lpwork_thread, &restart_req_listener_task, restart_topic, restart_req_handler, NULL);
 }
 
 static void delayed_restart_func(struct worker_thread_timer_task_s* task) {
