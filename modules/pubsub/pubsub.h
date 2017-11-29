@@ -66,7 +66,7 @@ void pubsub_init_topic(struct pubsub_topic_s* topic, struct pubsub_topic_group_s
 // - Note that while handler_cb is executing, publishers on the listener's topic group can be blocked if they need to deallocate
 //   the message that the handler is handling. This problem can be mitigated by minimizing blocking, allocating more memory to the
 //   topic group, or using a separate topic group.
-void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
+void pubsub_listener_init_and_register(struct pubsub_listener_s* listener, struct pubsub_topic_s* topic, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
 
 // - Sets the handler callback and context variable that it will be called with. Note that the handler callback will not be called
 //   until the listener's owner thread calls one of the following APIs:

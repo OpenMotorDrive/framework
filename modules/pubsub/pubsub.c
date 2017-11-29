@@ -34,7 +34,7 @@ void pubsub_init_topic(struct pubsub_topic_s* topic, struct pubsub_topic_group_s
     topic->listener_list_head = NULL;
 }
 
-void pubsub_init_and_register_listener(struct pubsub_topic_s* topic, struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx) {
+void pubsub_listener_init_and_register(struct pubsub_listener_s* listener, struct pubsub_topic_s* topic, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx) {
     if (!topic || !topic->group || !listener) {
         return;
     }
@@ -67,15 +67,7 @@ void pubsub_listener_unregister(struct pubsub_listener_s* listener) {
     chMtxLock(&listener->topic->group->mtx);
 
     // remove listener from topic's listener list
-    struct pubsub_listener_s** listener_list_next_ptr = &listener->topic->listener_list_head;
-    while (*listener_list_next_ptr && *listener_list_next_ptr != listener) {
-        chDbgCheck((*listener_list_next_ptr)->next != *listener_list_next_ptr); // Circular reference
-        listener_list_next_ptr = &(*listener_list_next_ptr)->next;
-    }
-
-    if (*listener_list_next_ptr) {
-        *listener_list_next_ptr = listener->next;
-    }
+    LINKED_LIST_REMOVE(struct pubsub_listener_s, listener->topic->listener_list_head, listener);
 
     chMtxUnlock(&listener->topic->group->mtx);
 }

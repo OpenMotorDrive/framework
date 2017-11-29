@@ -34,14 +34,26 @@
 
 #define UNUSED(x) ((void)x)
 
-#define LINKED_LIST_APPEND(type, head_ptr, new_item_ptr) { \
-    new_item_ptr->next = NULL; \
-    type** insert_ptr = &head_ptr; \
+#define LINKED_LIST_APPEND(TYPE, HEAD_PTR, NEW_ITEM_PTR) { \
+    NEW_ITEM_PTR->next = NULL; \
+    TYPE** insert_ptr = &HEAD_PTR; \
     while(*insert_ptr) { \
         insert_ptr = &(*insert_ptr)->next; \
     } \
-    *insert_ptr = new_item_ptr; \
+    *insert_ptr = NEW_ITEM_PTR; \
 }
+
+#define LINKED_LIST_REMOVE(TYPE, HEAD_PTR, REMOVE_ITEM_PTR) { \
+    TYPE** remove_ptr = &HEAD_PTR; \
+    while (*remove_ptr && *remove_ptr != REMOVE_ITEM_PTR) { \
+        remove_ptr = &(*remove_ptr)->next; \
+    } \
+    \
+    if (*remove_ptr) { \
+        *remove_ptr = (*remove_ptr)->next; \
+    } \
+}
+
 
 float sinf_fast(float x);
 float cosf_fast(float x);
