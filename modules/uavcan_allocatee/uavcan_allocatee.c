@@ -21,7 +21,6 @@ struct allocatee_instance_s {
     uint32_t unique_id_offset;
     struct worker_thread_timer_task_s request_transmit_task;
     struct worker_thread_listener_task_s allocation_listener_task;
-    struct pubsub_listener_s allocation_listener;
 };
 
 
@@ -42,8 +41,7 @@ RUN_AFTER(UAVCAN_INIT) {
 
         instance->uavcan_idx = i;
         instance->unique_id_offset = 0;
-        pubsub_init_and_register_listener(allocation_topic, &instance->allocation_listener, allocation_message_handler, instance);
-        worker_thread_add_listener_task(&lpwork_thread, &instance->allocation_listener_task, &instance->allocation_listener);
+        worker_thread_add_listener_task(&lpwork_thread, &instance->allocation_listener_task, allocation_topic, allocation_message_handler, instance);
         allocation_start_request_timer(instance);
     }
 }
@@ -51,7 +49,6 @@ RUN_AFTER(UAVCAN_INIT) {
 static void allocation_stop_and_cleanup(struct allocatee_instance_s* instance) {
     worker_thread_remove_timer_task(&lpwork_thread, &instance->request_transmit_task);
     worker_thread_remove_listener_task(&lpwork_thread, &instance->allocation_listener_task);
-    pubsub_listener_unregister(&instance->allocation_listener);
 }
 
 static void allocation_timer_expired(struct worker_thread_timer_task_s* task) {
