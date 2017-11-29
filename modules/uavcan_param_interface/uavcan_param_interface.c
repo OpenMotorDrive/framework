@@ -8,22 +8,18 @@
 #include <uavcan.protocol.param.GetSet.h>
 #include <uavcan.protocol.param.ExecuteOpcode.h>
 
-static struct pubsub_listener_s getset_req_listener;
 static struct worker_thread_listener_task_s getset_req_listener_task;
 static void getset_req_handler(size_t msg_size, const void* buf, void* ctx);
 
-static struct pubsub_listener_s opcode_req_listener;
 static struct worker_thread_listener_task_s opcode_req_listener_task;
 static void opcode_req_handler(size_t msg_size, const void* buf, void* ctx);
 
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* getset_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_param_GetSet_req_descriptor);
-    pubsub_init_and_register_listener(getset_req_topic, &getset_req_listener, getset_req_handler, NULL);
-    worker_thread_add_listener_task(&lpwork_thread, &getset_req_listener_task, &getset_req_listener);
+    worker_thread_add_listener_task(&lpwork_thread, &getset_req_listener_task, getset_req_topic, getset_req_handler, NULL);
 
     struct pubsub_topic_s* opcode_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_param_ExecuteOpcode_req_descriptor);
-    pubsub_init_and_register_listener(opcode_req_topic, &opcode_req_listener, opcode_req_handler, NULL);
-    worker_thread_add_listener_task(&lpwork_thread, &opcode_req_listener_task, &opcode_req_listener);
+    worker_thread_add_listener_task(&lpwork_thread, &opcode_req_listener_task, opcode_req_topic, opcode_req_handler, NULL);
 }
 
 static void getset_req_handler(size_t msg_size, const void* buf, void* ctx) {
