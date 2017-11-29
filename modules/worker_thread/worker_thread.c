@@ -310,6 +310,10 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
     chDbgCheckClassI();
     chDbgCheck(!worker_thread_timer_task_is_registered_I(worker_thread, task));
 
+    if (task->timer_expiration_ticks == TIME_INFINITE) {
+        return;
+    }
+
     systime_t task_run_time = task->timer_begin_systime + task->timer_expiration_ticks;
     struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
     while (*insert_ptr && task_run_time - (*insert_ptr)->timer_begin_systime >= (*insert_ptr)->timer_expiration_ticks) {
@@ -322,7 +326,7 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
 static systime_t worker_thread_get_ticks_to_timer_task_I(struct worker_thread_timer_task_s* task, systime_t tnow_ticks) {
     chDbgCheckClassI();
 
-    if (task) {
+    if (task && task->timer_expiration_ticks != TIME_INFINITE) {
         systime_t elapsed = tnow_ticks - task->timer_begin_systime;
         if (elapsed >= task->timer_expiration_ticks) {
             return TIME_IMMEDIATE;
