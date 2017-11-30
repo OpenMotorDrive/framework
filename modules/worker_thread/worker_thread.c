@@ -161,6 +161,8 @@ bool worker_thread_publisher_task_publish_from_ISR(struct worker_thread_publishe
         return false;
     }
 
+    msg->size = size;
+
     if (writer_cb) {
         writer_cb(size, msg->data, ctx);
     }
