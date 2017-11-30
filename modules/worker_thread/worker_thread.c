@@ -13,8 +13,11 @@ static systime_t worker_thread_get_ticks_to_timer_task_I(struct worker_thread_ti
 static bool worker_thread_timer_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* check_task);
 #ifdef MODULE_PUBSUB_ENABLED
 static bool worker_thread_publisher_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
+static bool worker_thread_publisher_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
+static bool worker_thread_get_any_publisher_task_due(struct worker_thread_s* worker_thread);
 static bool worker_thread_get_any_publisher_task_due_I(struct worker_thread_s* worker_thread);
 static bool worker_thread_listener_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
+static bool worker_thread_listener_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
 static void worker_thread_set_listener_thread_references_S(struct worker_thread_s* worker_thread, thread_reference_t* trpp);
 static bool worker_thread_get_any_listener_task_due_I(struct worker_thread_s* worker_thread);
 #endif
@@ -102,7 +105,7 @@ void* worker_thread_task_get_user_context(struct worker_thread_timer_task_s* tas
 
 #ifdef MODULE_PUBSUB_ENABLED
 void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task, struct pubsub_topic_s* topic, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx) {
-    chDbgCheck(!worker_thread_listener_task_is_registered_I(worker_thread, task));
+    chDbgCheck(!worker_thread_listener_task_is_registered(worker_thread, task));
 
     pubsub_listener_init_and_register(&task->listener, topic, handler_cb, handler_cb_ctx);
 
@@ -123,7 +126,7 @@ void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, s
 }
 
 void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, struct pubsub_topic_s* topic, size_t msg_max_size, size_t msg_queue_depth) {
-    chDbgCheck(!worker_thread_publisher_task_is_registered_I(worker_thread, task));
+    chDbgCheck(!worker_thread_publisher_task_is_registered(worker_thread, task));
     size_t mem_block_size = sizeof(struct worker_thread_publisher_msg_s)+msg_max_size;
 
     task->topic = topic;
@@ -352,6 +355,13 @@ static bool worker_thread_publisher_task_is_registered_I(struct worker_thread_s*
     return false;
 }
 
+static bool worker_thread_publisher_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task) {
+    chSysLock();
+    bool ret = worker_thread_publisher_task_is_registered_I(worker_thread, check_task);
+    chSysUnlock();
+    return ret;
+}
+
 static bool worker_thread_get_any_publisher_task_due_I(struct worker_thread_s* worker_thread) {
     chDbgCheckClassI();
 
@@ -376,6 +386,13 @@ static bool worker_thread_listener_task_is_registered_I(struct worker_thread_s* 
         task = task->next;
     }
     return false;
+}
+
+static bool worker_thread_listener_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task) {
+    chSysLock();
+    bool ret = worker_thread_listener_task_is_registered_I(worker_thread, check_task);
+    chSysUnlock();
+    return ret;
 }
 
 static void worker_thread_set_listener_thread_references_S(struct worker_thread_s* worker_thread, thread_reference_t* trpp) {
