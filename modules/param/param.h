@@ -1,6 +1,6 @@
 #pragma once
 #include <common/ctor.h>
-#include <modules/uavcan/uavcan.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
