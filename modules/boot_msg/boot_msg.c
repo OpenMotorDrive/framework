@@ -26,8 +26,8 @@ void boot_msg_fill_shared_canbus_info(struct shared_canbus_info_s* ret) {
 #ifdef MODULE_UAVCAN_ENABLED
     ret->local_node_id = uavcan_get_node_id(0);
 
-    if (can_get_baudrate_confirmed(0)) {
-        ret->baudrate = can_get_baudrate(0);
+    if (can_get_baudrate_confirmed(can_get_instance(0))) {
+        ret->baudrate = can_get_baudrate(can_get_instance(0));
     }
 #endif
 }
