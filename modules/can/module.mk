@@ -1,1 +1,0 @@
-UDEFS += -DHAL_USE_CAN
