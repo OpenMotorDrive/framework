@@ -14,7 +14,6 @@ static bool worker_thread_timer_task_is_registered_I(struct worker_thread_s* wor
 #ifdef MODULE_PUBSUB_ENABLED
 static bool worker_thread_publisher_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
 static bool worker_thread_publisher_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
-static bool worker_thread_get_any_publisher_task_due(struct worker_thread_s* worker_thread);
 static bool worker_thread_get_any_publisher_task_due_I(struct worker_thread_s* worker_thread);
 static bool worker_thread_listener_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
 static bool worker_thread_listener_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
@@ -57,18 +56,12 @@ void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct 
     chSysUnlock();
 }
 
-void worker_thread_timer_task_reschedule_earlier_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
     chDbgCheckClassI();
 
     systime_t t_now = chVTGetSystemTimeX();
 
-    if (worker_thread_timer_task_is_registered_I(worker_thread, task)) {
-        if (worker_thread_get_ticks_to_timer_task_I(task, t_now) <= timer_expiration_ticks) {
-            return;
-        }
-
-        worker_thread_remove_timer_task_I(worker_thread, task);
-    }
+    worker_thread_remove_timer_task_I(worker_thread, task);
 
     task->timer_expiration_ticks = timer_expiration_ticks;
     task->timer_begin_systime = t_now;
@@ -77,9 +70,9 @@ void worker_thread_timer_task_reschedule_earlier_I(struct worker_thread_s* worke
     worker_thread_wake_I(worker_thread);
 }
 
-void worker_thread_timer_task_reschedule_earlier(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+void worker_thread_timer_task_reschedule(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
     chSysLock();
-    worker_thread_timer_task_reschedule_earlier_I(worker_thread, task, timer_expiration_ticks);
+    worker_thread_timer_task_reschedule_I(worker_thread, task, timer_expiration_ticks);
     worker_thread_reschedule_S(worker_thread);
     chSysUnlock();
 }
@@ -148,14 +141,14 @@ void worker_thread_remove_publisher_task(struct worker_thread_s* worker_thread, 
     chSysUnlock();
 }
 
-bool worker_thread_publisher_task_publish_from_ISR(struct worker_thread_publisher_task_s* task, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx) {
+bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_s* task, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx) {
+    chDbgCheckClassI();
+
     if (size > task->msg_max_size) {
         return false;
     }
 
-    chSysLockFromISR();
     struct worker_thread_publisher_msg_s* msg = chPoolAllocI(&task->pool);
-    chSysUnlockFromISR();
 
     if (!msg) {
         return false;
@@ -167,11 +160,9 @@ bool worker_thread_publisher_task_publish_from_ISR(struct worker_thread_publishe
         writer_cb(size, msg->data, ctx);
     }
 
-    chSysLockFromISR();
     chMBPostI(&task->mailbox, (msg_t)msg);
 
     worker_thread_wake_I(task->worker_thread);
-    chSysUnlockFromISR();
     return true;
 }
 #endif
