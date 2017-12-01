@@ -1,0 +1,27 @@
+set $i=ch.dbg.trace_buffer.ptr-ch.dbg.trace_buffer.buffer-1
+set $start=$i
+while ch.dbg.trace_buffer.buffer[$i].type != 0
+    output $start-$i
+    if ch.dbg.trace_buffer.buffer[$i].type == 1
+        echo \ CH_TRACE_TYPE_SWITCH \ 
+        output ch.dbg.trace_buffer.buffer[$i].u.sw
+    end
+    if ch.dbg.trace_buffer.buffer[$i].type == 2
+        echo \ CH_TRACE_TYPE_ISR_ENTER \ 
+        output ch.dbg.trace_buffer.buffer[$i].u.isr
+    end
+    if ch.dbg.trace_buffer.buffer[$i].type == 3
+        echo \ CH_TRACE_TYPE_ISR_LEAVE \ 
+        output ch.dbg.trace_buffer.buffer[$i].u.isr
+    end
+    if ch.dbg.trace_buffer.buffer[$i].type == 4
+        echo \ CH_TRACE_TYPE_HALT \ 
+        output ch.dbg.trace_buffer.buffer[$i].u.halt
+    end
+    if ch.dbg.trace_buffer.buffer[$i].type == 5
+        echo \ CH_TRACE_TYPE_USER \ 
+        output (char*)ch.dbg.trace_buffer.buffer[$i].u.user.up1
+    end
+    echo \n
+    set $i=($i-1)%ch.dbg.trace_buffer.size
+end
