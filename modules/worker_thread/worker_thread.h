@@ -56,7 +56,6 @@ struct worker_thread_publisher_task_s {
 
 struct worker_thread_s {
     thread_t* thread;
-    const char* name;
     struct worker_thread_timer_task_s* timer_task_list_head;
 #ifdef MODULE_PUBSUB_ENABLED
     struct worker_thread_listener_task_s* listener_task_list_head;
