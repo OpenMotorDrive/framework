@@ -4,6 +4,7 @@
 #include <common/helpers.h>
 #include <string.h>
 #include <modules/can/can.h>
+#include <modules/lpwork_thread/lpwork_thread.h>
 
 #ifdef MODULE_BOOT_MSG_ENABLED
 #include <modules/boot_msg/boot_msg.h>
@@ -64,46 +65,44 @@ struct uavcan_instance_s {
     uint8_t can_dev_idx;
     CanardInstance canard;
     void* canard_memory_pool;
-    thread_t* rx_thread;
-    thread_t* tx_thread;
     struct transfer_id_map_s transfer_id_map;
     mutex_t canard_mtx;
-    binary_semaphore_t tx_thread_semaphore;
     void* outgoing_message_buf;
+
+    struct worker_thread_listener_task_s rx_listener_task;
 
     struct uavcan_rx_list_item_s* rx_list_head;
 
     struct uavcan_instance_s* next;
 };
 
-static THD_FUNCTION(uavcan_rx_thd_func, arg);
-static THD_FUNCTION(uavcan_tx_thd_func, arg);
+static void uavcan_can_rx_handler(size_t msg_size, const void* buf, void* ctx);
 
 static struct uavcan_instance_s* uavcan_get_instance(uint8_t idx);
 static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg);
 static void uavcan_init(uint8_t can_dev_idx);
 static void _uavcan_set_node_id(struct uavcan_instance_s* instance, uint8_t node_id);
 
-static void uavcan_transmit_frames_async(struct uavcan_instance_s* instance);
-static void uavcan_transmit_frames_sync(struct uavcan_instance_s* instance);
-
 static bool uavcan_should_accept_transfer(const CanardInstance* canard, uint64_t* out_data_type_signature, uint16_t data_type_id, CanardTransferType transfer_type, uint8_t source_node_id);
 static void uavcan_on_transfer_rx(CanardInstance* canard, CanardRxTransfer* transfer);
 
-static CanardCANFrame convert_CANRxFrame_to_CanardCANFrame(const CANRxFrame* chibios_frame);
-static CANTxFrame convert_CanardCANFrame_to_CANTxFrame(const CanardCANFrame* canard_frame);
+static void convert_CanardCANFrame_to_can_frame(const CanardCANFrame* canard_frame, struct can_frame_s* ret);
+static CanardCANFrame convert_can_frame_to_CanardCANFrame(const struct can_frame_s* frame);
 
 static void uavcan_transfer_id_map_init(struct transfer_id_map_s* map, size_t map_mem_size, void* map_mem);
 static uint8_t* uavcan_transfer_id_map_retrieve(struct transfer_id_map_s* map, bool service_not_message, uint16_t transfer_id, uint8_t dest_node_id);
 
 MEMORYPOOL_DECL(rx_list_pool, sizeof(struct uavcan_rx_list_item_s), chCoreAllocAlignedI);
-MEMORYPOOL_DECL(tx_thread_pool, THD_WORKING_AREA_SIZE(UAVCAN_TX_THREAD_STACK_SIZE), chCoreAllocAlignedI);
-MEMORYPOOL_DECL(rx_thread_pool, THD_WORKING_AREA_SIZE(UAVCAN_RX_THREAD_STACK_SIZE), chCoreAllocAlignedI);
+
+static void stale_transfer_cleanup_task_func(struct worker_thread_timer_task_s* task);
+static struct worker_thread_timer_task_s stale_transfer_cleanup_task;
 
 static struct uavcan_instance_s* uavcan_instance_list_head;
 
 RUN_ON(UAVCAN_INIT) {
     uavcan_init(0);
+
+    worker_thread_add_timer_task(&lpwork_thread, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
 }
 
 static void uavcan_init(uint8_t can_dev_idx) {
@@ -114,14 +113,15 @@ static void uavcan_init(uint8_t can_dev_idx) {
     memset(instance, 0, sizeof(struct uavcan_instance_s));
     instance->can_dev_idx = can_dev_idx;
     chMtxObjectInit(&instance->canard_mtx);
-    chBSemObjectInit(&instance->tx_thread_semaphore, true);
     if (!(instance->outgoing_message_buf = chCoreAllocAligned(UAVCAN_OUTGOING_MESSAGE_BUF_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
     if (!(transfer_id_map_working_area = chCoreAllocAligned(UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
     uavcan_transfer_id_map_init(&instance->transfer_id_map, UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE, transfer_id_map_working_area);
     if(!(instance->canard_memory_pool = chCoreAllocAligned(UAVCAN_CANARD_MEMORY_POOL_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
     canardInit(&instance->canard, instance->canard_memory_pool, UAVCAN_CANARD_MEMORY_POOL_SIZE, uavcan_on_transfer_rx, uavcan_should_accept_transfer, instance);
-    if (!(instance->tx_thread = chThdCreateFromMemoryPool(&tx_thread_pool, "CANTx", HIGHPRIO-2, uavcan_tx_thd_func, instance))) { goto fail; }
-    if (!(instance->rx_thread = chThdCreateFromMemoryPool(&rx_thread_pool, "CANRx", HIGHPRIO-2, uavcan_rx_thd_func, instance))) { goto fail; }
+    struct pubsub_topic_s* can_rx_topic = can_get_rx_topic(can_get_instance(can_dev_idx));
+    if (!can_rx_topic) { goto fail; }
+    worker_thread_add_listener_task(&lpwork_thread, &instance->rx_listener_task, can_rx_topic, uavcan_can_rx_handler, instance); // TODO configurable thread
+
 
     LINKED_LIST_APPEND(struct uavcan_instance_s, uavcan_instance_list_head, instance);
 
@@ -146,6 +146,20 @@ static void uavcan_init(uint8_t can_dev_idx) {
 
 fail:
     chSysHalt(NULL);
+}
+
+static bool uavcan_iterate_instances(struct uavcan_instance_s** instance_ptr) {
+    if (!instance_ptr) {
+        return false;
+    }
+
+    if (!(*instance_ptr)) {
+        *instance_ptr = uavcan_instance_list_head;
+    } else {
+        *instance_ptr = (*instance_ptr)->next;
+    }
+
+    return *instance_ptr != NULL;
 }
 
 static struct pubsub_topic_s* _uavcan_get_message_topic(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* msg_descriptor) {
@@ -230,9 +244,45 @@ void uavcan_set_node_id(uint8_t uavcan_idx, uint8_t node_id) {
     return _uavcan_set_node_id(uavcan_get_instance(uavcan_idx), node_id);
 }
 
-static void _uavcan_broadcast(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data) {
+static bool uavcan_enqueue_all_tx_frames(struct uavcan_instance_s* instance, systime_t tx_timeout, void* completion_msg) {
+    if (!instance) {
+        return false;
+    }
+
+    struct can_instance_s* can_instance = can_get_instance(instance->can_dev_idx);
+    if (!can_instance) {
+        return false;
+    }
+
+    chSysLock();
+
+    const CanardCANFrame* canard_frame;
+    while ((canard_frame = canardPeekTxQueue(&instance->canard))) {
+        struct can_tx_frame_s* frame = can_allocate_frame_I(can_instance);
+
+        if (!frame) {
+            can_free_staged_frames_I(can_instance);
+            chSysUnlock();
+            while (canardPeekTxQueue(&instance->canard)) {
+                canardPopTxQueue(&instance->canard);
+            }
+            return false;
+        }
+
+        convert_CanardCANFrame_to_can_frame(canard_frame, &frame->content);
+        canardPopTxQueue(&instance->canard);
+        can_stage_frame_I(can_instance, frame);
+    }
+
+    can_send_staged_frames_I(can_instance, tx_timeout, completion_msg);
+
+    chSysUnlock();
+    return true;
+}
+
+static bool _uavcan_broadcast(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data) {
     if (!instance || !instance->outgoing_message_buf || !msg_descriptor || !msg_descriptor->serializer_func || !msg_data) {
-        return;
+        return false;
     }
 
     chMtxLock(&instance->canard_mtx);
@@ -240,17 +290,18 @@ static void _uavcan_broadcast(struct uavcan_instance_s* instance, const struct u
     size_t outgoing_message_len = msg_descriptor->serializer_func(msg_data, instance->outgoing_message_buf);
     uint8_t* transfer_id = uavcan_transfer_id_map_retrieve(&instance->transfer_id_map, false, data_type_id, 0);
     canardBroadcast(&instance->canard, msg_descriptor->data_type_signature, data_type_id, transfer_id, priority, instance->outgoing_message_buf, outgoing_message_len);
+    bool ret = uavcan_enqueue_all_tx_frames(instance, TIME_INFINITE, NULL);
     chMtxUnlock(&instance->canard_mtx);
-    uavcan_transmit_frames_async(instance);
+    return ret;
 }
 
-void uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data) {
+bool uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, void* msg_data) {
     return _uavcan_broadcast(uavcan_get_instance(uavcan_idx), msg_descriptor, priority, msg_data);
 }
 
-static void _uavcan_request(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
+static bool _uavcan_request(struct uavcan_instance_s* instance, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
     if (!instance || !instance->outgoing_message_buf || !msg_descriptor || !msg_descriptor->serializer_func || !msg_data) {
-        return;
+        return false;
     }
 
     chMtxLock(&instance->canard_mtx);
@@ -258,17 +309,18 @@ static void _uavcan_request(struct uavcan_instance_s* instance, const struct uav
     size_t outgoing_message_len = msg_descriptor->serializer_func(msg_data, instance->outgoing_message_buf);
     uint8_t* transfer_id = uavcan_transfer_id_map_retrieve(&instance->transfer_id_map, false, data_type_id, 0);
     canardRequestOrRespond(&instance->canard, dest_node_id, msg_descriptor->data_type_signature, data_type_id, transfer_id, priority, CanardRequest, instance->outgoing_message_buf, outgoing_message_len);
+    bool ret = uavcan_enqueue_all_tx_frames(instance, TIME_INFINITE, NULL);
     chMtxUnlock(&instance->canard_mtx);
-    uavcan_transmit_frames_async(instance);
+    return ret;
 }
 
-void uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
+bool uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* const msg_descriptor, uint8_t priority, uint8_t dest_node_id, void* msg_data) {
     return _uavcan_request(uavcan_get_instance(uavcan_idx), msg_descriptor, priority, dest_node_id, msg_data);
 }
 
-static void _uavcan_respond(struct uavcan_instance_s* instance, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data) {
+static bool _uavcan_respond(struct uavcan_instance_s* instance, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data) {
     if (!instance || !instance->outgoing_message_buf || !req_msg || !req_msg->descriptor || !req_msg->descriptor->resp_descriptor || !req_msg->descriptor->resp_descriptor->serializer_func || !msg_data) {
-        return;
+        return false;
     }
 
     const struct uavcan_message_descriptor_s* msg_descriptor = req_msg->descriptor->resp_descriptor;
@@ -280,96 +332,37 @@ static void _uavcan_respond(struct uavcan_instance_s* instance, const struct uav
     uint16_t data_type_id = msg_descriptor->default_data_type_id;
     size_t outgoing_message_len = msg_descriptor->serializer_func(msg_data, instance->outgoing_message_buf);
     canardRequestOrRespond(&instance->canard, dest_node_id, msg_descriptor->data_type_signature, data_type_id, &transfer_id, priority, CanardResponse, instance->outgoing_message_buf, outgoing_message_len);
+    bool ret = uavcan_enqueue_all_tx_frames(instance, TIME_INFINITE, NULL);
     chMtxUnlock(&instance->canard_mtx);
-    uavcan_transmit_frames_async(instance);
+    return ret;
 }
 
-void uavcan_respond(uint8_t uavcan_idx, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data) {
+bool uavcan_respond(uint8_t uavcan_idx, const struct uavcan_deserialized_message_s* const req_msg, void* msg_data) {
     return _uavcan_respond(uavcan_get_instance(uavcan_idx), req_msg, msg_data);
 }
 
-static THD_FUNCTION(uavcan_tx_thd_func, arg) {
-    (void)arg;
-    struct uavcan_instance_s* instance = (struct uavcan_instance_s*)arg;
+static void uavcan_can_rx_handler(size_t msg_size, const void* msg, void* ctx) {
+    (void) msg_size;
+    struct uavcan_instance_s* instance = ctx;
 
-    if (!instance) {
-        chThdExit(0);
-    }
+    const struct can_rx_frame_s* frame = msg;
 
-    while (true) {
-        chBSemWait(&instance->tx_thread_semaphore);
-        uavcan_transmit_frames_sync(instance);
-    }
+    CanardCANFrame canard_frame = convert_can_frame_to_CanardCANFrame(&frame->content);
 
-    chThdExit(0);
+    chMtxLock(&instance->canard_mtx);
+    uint64_t timestamp = micros64();
+    canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
+    chMtxUnlock(&instance->canard_mtx);
 }
 
-static void uavcan_transmit_frames_async(struct uavcan_instance_s* instance) {
-    if (!instance) {
-        return;
-    }
+static void stale_transfer_cleanup_task_func(struct worker_thread_timer_task_s* task) {
+    (void)task;
+    struct uavcan_instance_s* instance = NULL;
 
-    // TODO: transmit thread should probably inherit calling thread priority
-    chBSemSignal(&instance->tx_thread_semaphore);
-}
-
-static void uavcan_transmit_frames_sync(struct uavcan_instance_s* instance) {
-    if (!instance) {
-        return;
-    }
-
-    const CanardCANFrame* canard_frame;
-    while (true) {
-        chSysLock();
-        chMtxLockS(&instance->canard_mtx);
-        canard_frame = canardPeekTxQueue(&instance->canard);
-
-        if (!canard_frame) {
-            chMtxUnlockS(&instance->canard_mtx);
-            chSysUnlock();
-            break;
-        }
-
-        CANTxFrame chibios_frame = convert_CanardCANFrame_to_CANTxFrame(canard_frame);
-
-        if(!can_try_transmit_I(instance->can_dev_idx, CAN_ANY_MAILBOX_AVOID_PRIORITY_INVERSION, &chibios_frame)) {
-            canardPopTxQueue(&instance->canard);
-        }
-
-        chMtxUnlockS(&instance->canard_mtx);
-
-        can_wait_for_tx_empty_S(instance->can_dev_idx, TIME_INFINITE);
-
-        chSysUnlock();
-    }
-}
-
-static THD_FUNCTION(uavcan_rx_thd_func, arg) {
-    (void)arg;
-    struct uavcan_instance_s* instance = (struct uavcan_instance_s*)arg;
-
-    uint32_t last_cleanup_us;
-    while (true) {
-        CANRxFrame chibios_frame;
-
-        uint32_t tnow_us = micros();
-        uint32_t time_since_cleanup_us = tnow_us-last_cleanup_us;
-        if (time_since_cleanup_us >= CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC) {
-            chMtxLock(&instance->canard_mtx);
-            canardCleanupStaleTransfers(&instance->canard, micros64());
-            chMtxUnlock(&instance->canard_mtx);
-            last_cleanup_us = tnow_us;
-        } else {
-            uint32_t time_until_cleanup_us = CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC-time_since_cleanup_us;
-            if (can_receive_timeout(instance->can_dev_idx, CAN_ANY_MAILBOX, &chibios_frame, US2ST(time_until_cleanup_us)) == MSG_OK) {
-                uint64_t timestamp = micros64();
-                CanardCANFrame canard_frame = convert_CANRxFrame_to_CanardCANFrame(&chibios_frame);
-
-                chMtxLock(&instance->canard_mtx);
-                canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
-                chMtxUnlock(&instance->canard_mtx);
-            }
-        }
+    while (uavcan_iterate_instances(&instance)) {
+        chMtxLock(&instance->canard_mtx);
+        canardCleanupStaleTransfers(&instance->canard, micros64());
+        chMtxUnlock(&instance->canard_mtx);
     }
 }
 
@@ -407,34 +400,32 @@ static uint8_t uavcan_get_idx(struct uavcan_instance_s* instance_arg) {
     return idx;
 }
 
-static CanardCANFrame convert_CANRxFrame_to_CanardCANFrame(const CANRxFrame* chibios_frame) {
-    CanardCANFrame ret;
-    if (chibios_frame->IDE) {
-        ret.id = chibios_frame->EID | CANARD_CAN_FRAME_EFF;
+static void convert_CanardCANFrame_to_can_frame(const CanardCANFrame* canard_frame, struct can_frame_s* ret) {
+    ret->IDE = (canard_frame->id & CANARD_CAN_FRAME_EFF) != 0;
+    ret->RTR = (canard_frame->id & CANARD_CAN_FRAME_RTR) != 0;
+    if (ret->IDE) {
+        ret->EID = canard_frame->id & CANARD_CAN_EXT_ID_MASK;
     } else {
-        ret.id = chibios_frame->SID;
+        ret->SID = canard_frame->id & CANARD_CAN_STD_ID_MASK;
+    }
+    ret->DLC = canard_frame->data_len;
+    memcpy(ret->data, canard_frame->data, ret->DLC);
+}
+
+static CanardCANFrame convert_can_frame_to_CanardCANFrame(const struct can_frame_s* frame) {
+    CanardCANFrame ret;
+    if (frame->IDE) {
+        ret.id = frame->EID | CANARD_CAN_FRAME_EFF;
+    } else {
+        ret.id = frame->SID;
     }
 
-    if (chibios_frame->RTR) {
+    if (frame->RTR) {
         ret.id |= CANARD_CAN_FRAME_RTR;
     }
 
-    ret.data_len = chibios_frame->DLC;
-    memcpy(ret.data, chibios_frame->data8, ret.data_len);
-    return ret;
-}
-
-static CANTxFrame convert_CanardCANFrame_to_CANTxFrame(const CanardCANFrame* canard_frame) {
-    CANTxFrame ret;
-    ret.IDE = (canard_frame->id & CANARD_CAN_FRAME_EFF) != 0;
-    ret.RTR = (canard_frame->id & CANARD_CAN_FRAME_RTR) != 0;
-    if (ret.IDE) {
-        ret.EID = canard_frame->id & CANARD_CAN_EXT_ID_MASK;
-    } else {
-        ret.SID = canard_frame->id & CANARD_CAN_STD_ID_MASK;
-    }
-    ret.DLC = canard_frame->data_len;
-    memcpy(ret.data8, canard_frame->data, ret.DLC);
+    ret.data_len = frame->DLC;
+    memcpy(ret.data, frame->data, ret.data_len);
     return ret;
 }
 
