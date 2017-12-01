@@ -27,16 +27,24 @@ void worker_thread_init(struct worker_thread_s* worker_thread, const char* name,
         return;
     }
     void* working_area = chCoreAllocAligned(THD_WORKING_AREA_SIZE(stack_size), PORT_WORKING_AREA_ALIGN);
-    if (!working_area) {
-        return;
-    }
-    worker_thread->thread = chThdCreateStatic(working_area, THD_WORKING_AREA_SIZE(stack_size), prio, worker_thread_func, worker_thread);
-    worker_thread->name = name;
+    chDbgCheck(working_area != NULL);
+
     worker_thread->timer_task_list_head = NULL;
 #ifdef MODULE_PUBSUB_ENABLED
     worker_thread->listener_task_list_head = NULL;
     worker_thread->publisher_task_list_head = NULL;
 #endif
+    
+    const thread_descriptor_t thread_descriptor = {
+        name,
+        THD_WORKING_AREA_BASE(working_area),
+        THD_WORKING_AREA_BASE(working_area) + THD_WORKING_AREA_SIZE(stack_size)/sizeof(stkalign_t),
+        prio,
+        worker_thread_func,
+        worker_thread
+    };
+    
+    worker_thread->thread = chThdCreate(&thread_descriptor);
 }
 
 void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
@@ -169,10 +177,6 @@ bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_
 
 static THD_FUNCTION(worker_thread_func, arg) {
     struct worker_thread_s* worker_thread = arg;
-    if (worker_thread->name) {
-        chRegSetThreadName(worker_thread->name);
-    }
-
     while (true) {
 #ifdef MODULE_PUBSUB_ENABLED
         // Handle publisher tasks
