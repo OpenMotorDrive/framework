@@ -222,6 +222,7 @@ LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 include $(RULESPATH)/rules.mk
 
 $(MODULE_COPY_DIRS):
+	rm -rf $@
 	mkdir -p $(dir $@)
 	cp -R -p $(wildcard $(addsuffix /$(patsubst $(MODULES_ENABLED_DIR)/%,%,$@),$(MODULE_SEARCH_DIRS))) $@
 
