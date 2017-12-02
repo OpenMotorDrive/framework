@@ -3,6 +3,7 @@
 #include <ch.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <modules/pubsub/pubsub.h>
 
 typedef uint32_t can_frame_priority_t;
 
@@ -29,6 +30,6 @@ struct can_tx_frame_s {
     struct can_frame_s content;
     systime_t creation_systime;
     systime_t tx_timeout;
-    void* completion_msg;
+    struct pubsub_topic_s* completion_topic;
     struct can_tx_frame_s* next;
 };

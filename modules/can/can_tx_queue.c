@@ -43,15 +43,20 @@ void can_tx_queue_free(struct can_tx_queue_s* instance, struct can_tx_frame_s* f
 
 void can_tx_queue_stage_push_I(struct can_tx_queue_s* instance, struct can_tx_frame_s* push_frame) {
     chDbgCheckClassI();
+    
+#if CH_DBG_ENABLE_CHECKS
     chDbgCheck(!can_tx_queue_frame_exists(instance, push_frame));
+#endif
 
     LINKED_LIST_APPEND(struct can_tx_frame_s, instance->stage_head, push_frame);
 }
 
 void can_tx_queue_push_ahead_I(struct can_tx_queue_s* instance, struct can_tx_frame_s* push_frame) {
     chDbgCheckClassI();
-
+    
+#if CH_DBG_ENABLE_CHECKS
     chDbgCheck(!can_tx_queue_frame_exists(instance, push_frame));
+#endif
 
     struct can_tx_frame_s** insert_ptr = &instance->head;
 
@@ -106,7 +111,9 @@ bool can_tx_stage_iterate_I(struct can_tx_queue_s* instance, struct can_tx_frame
 
 void can_tx_queue_remove_I(struct can_tx_queue_s* instance, struct can_tx_frame_s* frame) {
     chDbgCheckClassI();
+#if CH_DBG_ENABLE_CHECKS
     chDbgCheck(can_tx_queue_frame_exists_in_queue(instance, frame));
+#endif
 
     LINKED_LIST_REMOVE(struct can_tx_frame_s, instance->head, frame);
 }
@@ -148,7 +155,9 @@ void can_tx_queue_commit_staged_pushes_I(struct can_tx_queue_s* instance) {
         struct can_tx_frame_s* push_frame = instance->stage_head;
         instance->stage_head = instance->stage_head->next;
 
+#if CH_DBG_ENABLE_CHECKS
         chDbgCheck(!can_tx_queue_frame_exists_in_queue(instance, push_frame));
+#endif
 
         can_frame_priority_t push_frame_prio = can_get_tx_frame_priority_X(push_frame);
 

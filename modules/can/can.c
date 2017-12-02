@@ -44,7 +44,6 @@ struct can_instance_s {
     struct pubsub_topic_s rx_topic;
     struct worker_thread_publisher_task_s rx_publisher_task;
 
-    struct pubsub_topic_s tx_completion_topic;
     struct worker_thread_publisher_task_s tx_publisher_task;
 
     struct worker_thread_timer_task_s expire_timer_task;
@@ -91,15 +90,6 @@ struct pubsub_topic_s* can_get_rx_topic(struct can_instance_s* instance) {
     }
 
     return &instance->rx_topic;
-}
-
-struct pubsub_topic_s* can_get_tx_completion_topic(struct can_instance_s* instance) {
-    chDbgCheck(instance != NULL);
-    if (!instance) {
-        return NULL;
-    }
-
-    return &instance->tx_completion_topic;
 }
 
 uint32_t can_get_baudrate(struct can_instance_s* instance) {
@@ -217,7 +207,7 @@ void can_stage_frame_I(struct can_instance_s* instance, struct can_tx_frame_s* f
     can_tx_queue_stage_push_I(&instance->tx_queue, frame);
 }
 
-void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_timeout, void* completion_msg) {
+void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
     chDbgCheckClassI();
 
     if (!instance) {
@@ -230,7 +220,7 @@ void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_time
         frame->creation_systime = t_now;
         frame->tx_timeout = tx_timeout;
         if (!frame->next) {
-            frame->completion_msg = completion_msg;
+            frame->completion_topic = completion_topic;
         }
     }
 
@@ -251,7 +241,7 @@ void can_free_staged_frames_I(struct can_instance_s* instance) {
     can_tx_queue_free_staged_pushes_I(&instance->tx_queue);
 }
 
-bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, void* completion_msg) {
+bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
     chDbgCheckClassI();
 
     if (!instance) {
@@ -266,13 +256,13 @@ bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, syst
     tx_frame->content = *frame;
 
     can_stage_frame_I(instance, tx_frame);
-    can_send_staged_frames_I(instance, tx_timeout, completion_msg);
+    can_send_staged_frames_I(instance, tx_timeout, completion_topic);
     return true;
 }
 
-bool can_send(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, void* completion_msg) {
+bool can_send(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
     chSysLock();
-    bool ret = can_send_I(instance, frame, tx_timeout, completion_msg);
+    bool ret = can_send_I(instance, frame, tx_timeout, completion_topic);
     chSysUnlock();
     return ret;
 }
@@ -311,10 +301,9 @@ struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, co
     can_tx_queue_init(&instance->tx_queue, CAN_TX_QUEUE_LEN);
 
     pubsub_init_topic(&instance->rx_topic, NULL); // TODO specific/configurable topic group
-    worker_thread_add_publisher_task(&lpwork_thread, &instance->rx_publisher_task, &instance->rx_topic, sizeof(struct can_rx_frame_s), num_rx_mailboxes*rx_fifo_depth);
+    worker_thread_add_publisher_task(&lpwork_thread, &instance->rx_publisher_task, sizeof(struct can_rx_frame_s), num_rx_mailboxes*rx_fifo_depth);
 
-    pubsub_init_topic(&instance->tx_completion_topic, NULL); // TODO specific/configurable topic group
-    worker_thread_add_publisher_task(&lpwork_thread, &instance->tx_publisher_task, &instance->tx_completion_topic, sizeof(struct can_transmit_completion_msg_s), num_tx_mailboxes);
+    worker_thread_add_publisher_task(&lpwork_thread, &instance->tx_publisher_task, sizeof(struct can_transmit_completion_msg_s), num_tx_mailboxes);
 
     worker_thread_add_timer_task(&lpwork_thread, &instance->expire_timer_task, can_expire_handler, instance, TIME_INFINITE, false);
 
@@ -400,17 +389,17 @@ static void can_reschedule_expire_timer(struct can_instance_s* instance) {
 static void can_tx_frame_completed_I(struct can_instance_s* instance, struct can_tx_frame_s* frame, bool success, systime_t completion_systime) {
     chDbgCheckClassI();
 
-    if (frame->completion_msg) {
-        struct can_transmit_completion_msg_s msg = {frame->completion_msg, success, completion_systime};
-        worker_thread_publisher_task_publish_I(&instance->tx_publisher_task, sizeof(struct can_transmit_completion_msg_s), pubsub_copy_writer_func, &msg);
+    if (frame->completion_topic) {
+        struct can_transmit_completion_msg_s msg = { success, completion_systime };
+        worker_thread_publisher_task_publish_I(&instance->tx_publisher_task, frame->completion_topic, sizeof(struct can_transmit_completion_msg_s), pubsub_copy_writer_func, &msg);
     }
     can_tx_queue_free_I(&instance->tx_queue, frame);
 }
 
 static void can_tx_frame_completed(struct can_instance_s* instance, struct can_tx_frame_s* frame, bool success, systime_t completion_systime) {
-    if (frame->completion_msg) {
-        struct can_transmit_completion_msg_s msg = {frame->completion_msg, success, completion_systime};
-        pubsub_publish_message(&instance->tx_completion_topic, sizeof(struct can_transmit_completion_msg_s), pubsub_copy_writer_func, &msg);
+    if (frame->completion_topic) {
+        struct can_transmit_completion_msg_s msg = { success, completion_systime };
+        pubsub_publish_message(frame->completion_topic, sizeof(struct can_transmit_completion_msg_s), pubsub_copy_writer_func, &msg);
     }
     can_tx_queue_free(&instance->tx_queue, frame);
 }
@@ -481,6 +470,6 @@ void can_driver_rx_frame_received_I(struct can_instance_s* instance, uint8_t mb_
     chDbgCheckClassI();
 
     struct can_fill_rx_frame_params_s can_fill_rx_frame_params = {rx_systime, frame};
-    worker_thread_publisher_task_publish_I(&instance->rx_publisher_task, sizeof(struct can_rx_frame_s), can_fill_rx_frame_I, &can_fill_rx_frame_params);
+    worker_thread_publisher_task_publish_I(&instance->rx_publisher_task, &instance->rx_topic, sizeof(struct can_rx_frame_s), can_fill_rx_frame_I, &can_fill_rx_frame_params);
     instance->baudrate_confirmed = true;
 }

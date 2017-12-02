@@ -9,7 +9,6 @@
 struct can_instance_s;
 
 struct can_transmit_completion_msg_s {
-    void* ctx;
     systime_t completion_systime;
     bool transmit_success;
 };
@@ -25,7 +24,6 @@ void can_stop_I(struct can_instance_s* instance);
 void can_stop(struct can_instance_s* instance);
 
 struct pubsub_topic_s* can_get_rx_topic(struct can_instance_s* instance);
-struct pubsub_topic_s* can_get_tx_completion_topic(struct can_instance_s* instance);
 
 void can_set_silent_mode(struct can_instance_s* instance, bool silent);
 void can_set_auto_retransmit_mode(struct can_instance_s* instance, bool auto_retransmit);
@@ -35,8 +33,8 @@ bool can_get_baudrate_confirmed(struct can_instance_s* instance);
 
 struct can_tx_frame_s* can_allocate_frame_I(struct can_instance_s* instance);
 void can_stage_frame_I(struct can_instance_s* instance, struct can_tx_frame_s* frame);
-void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_timeout, void* completion_msg);
+void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);
 void can_free_staged_frames_I(struct can_instance_s* instance);
 
-bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, void* completion_msg);
-bool can_send(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, void* publish_ctx);
+bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);
+bool can_send(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);
