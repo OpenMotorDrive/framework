@@ -248,7 +248,7 @@ void uavcan_set_node_id(uint8_t uavcan_idx, uint8_t node_id) {
     return _uavcan_set_node_id(uavcan_get_instance(uavcan_idx), node_id);
 }
 
-static bool uavcan_enqueue_all_tx_frames(struct uavcan_instance_s* instance, systime_t tx_timeout, void* completion_msg) {
+static bool uavcan_enqueue_all_tx_frames(struct uavcan_instance_s* instance, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
     if (!instance) {
         return false;
     }
@@ -273,7 +273,7 @@ static bool uavcan_enqueue_all_tx_frames(struct uavcan_instance_s* instance, sys
         can_stage_frame_I(instance->can_instance, frame);
     }
 
-    can_send_staged_frames_I(instance->can_instance, tx_timeout, completion_msg);
+    can_send_staged_frames_I(instance->can_instance, tx_timeout, completion_topic);
 
     chSysUnlock();
     return true;
