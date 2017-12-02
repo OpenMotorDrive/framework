@@ -126,11 +126,10 @@ void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, s
     chSysUnlock();
 }
 
-void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, struct pubsub_topic_s* topic, size_t msg_max_size, size_t msg_queue_depth) {
+void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth) {
     chDbgCheck(!worker_thread_publisher_task_is_registered(worker_thread, task));
     size_t mem_block_size = sizeof(struct worker_thread_publisher_msg_s)+msg_max_size;
 
-    task->topic = topic;
     task->msg_max_size = msg_max_size;
     chPoolObjectInit(&task->pool, mem_block_size, NULL);
     chMBObjectInit(&task->mailbox, chCoreAllocAligned(sizeof(msg_t)*msg_queue_depth, PORT_WORKING_AREA_ALIGN), msg_queue_depth);
@@ -149,7 +148,7 @@ void worker_thread_remove_publisher_task(struct worker_thread_s* worker_thread, 
     chSysUnlock();
 }
 
-bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_s* task, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx) {
+bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_s* task, struct pubsub_topic_s* topic, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx) {
     chDbgCheckClassI();
 
     if (size > task->msg_max_size) {
@@ -158,10 +157,11 @@ bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_
 
     struct worker_thread_publisher_msg_s* msg = chPoolAllocI(&task->pool);
 
-    if (!msg) {
+    if (!msg || !topic) {
         return false;
     }
 
+    msg->topic = topic;
     msg->size = size;
 
     if (writer_cb) {
@@ -187,7 +187,7 @@ static THD_FUNCTION(worker_thread_func, arg) {
             while (task) {
                 struct worker_thread_publisher_msg_s* msg;
                 while (chMBFetch(&task->mailbox, (msg_t*)&msg, TIME_IMMEDIATE) == MSG_OK) {
-                    pubsub_publish_message(task->topic, msg->size, pubsub_copy_writer_func, msg->data);
+                    pubsub_publish_message(msg->topic, msg->size, pubsub_copy_writer_func, msg->data);
                     chPoolFree(&task->pool, msg);
                 }
                 chSysLock();
