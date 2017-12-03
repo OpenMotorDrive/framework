@@ -31,10 +31,11 @@ void can_set_baudrate(struct can_instance_s* instance, uint32_t baudrate);
 uint32_t can_get_baudrate(struct can_instance_s* instance);
 bool can_get_baudrate_confirmed(struct can_instance_s* instance);
 
-struct can_tx_frame_s* can_allocate_frame_I(struct can_instance_s* instance);
-void can_stage_frame_I(struct can_instance_s* instance, struct can_tx_frame_s* frame);
-void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);
-void can_free_staged_frames_I(struct can_instance_s* instance);
+struct can_tx_frame_s* can_allocate_tx_frame_and_append_I(struct can_instance_s* instance, struct can_tx_frame_s** frame_list);
+struct can_tx_frame_s* can_allocate_tx_frame_and_append(struct can_instance_s* instance, struct can_tx_frame_s** frame_list);
+struct can_tx_frame_s* can_allocate_tx_frames(struct can_instance_s* instance, size_t num_frames);
+void can_enqueue_tx_frames(struct can_instance_s* instance, struct can_tx_frame_s** frame_list, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);
+void can_free_tx_frames(struct can_instance_s* instance, struct can_tx_frame_s** frame_list);
 
 bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);
 bool can_send(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic);

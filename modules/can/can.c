@@ -39,6 +39,7 @@ struct can_instance_s {
     struct can_tx_mailbox_s tx_mailbox[MAX_NUM_TX_MAILBOXES];
     uint8_t num_tx_mailboxes;
 
+    memory_pool_t frame_pool;
     struct can_tx_queue_s tx_queue;
 
     struct pubsub_topic_s rx_topic;
@@ -188,83 +189,79 @@ void can_stop(struct can_instance_s* instance) {
     chSysUnlock();
 }
 
-struct can_tx_frame_s* can_allocate_frame_I(struct can_instance_s* instance) {
+struct can_tx_frame_s* can_allocate_tx_frame_and_append_I(struct can_instance_s* instance, struct can_tx_frame_s** frame_list) {
     chDbgCheckClassI();
+    
+    if (!instance || !frame_list) {
+        return NULL;
+    }
+    
+    struct can_tx_frame_s* new_frame = chPoolAlloc(&instance->frame_pool);
+    if (!new_frame) {
+        return NULL;
+    }
+    
+    LINKED_LIST_APPEND(struct can_tx_frame_s, *frame_list, new_frame);
 
+    return new_frame;
+}
+
+struct can_tx_frame_s* can_allocate_tx_frame_and_append(struct can_instance_s* instance, struct can_tx_frame_s** frame_list) {
+    chSysLock();
+    struct can_tx_frame_s* ret = can_allocate_tx_frame_and_append_I(instance, frame_list);
+    chSysUnlock();
+    return ret;
+}
+
+struct can_tx_frame_s* can_allocate_tx_frames(struct can_instance_s* instance, size_t num_frames) {
     if (!instance) {
         return NULL;
     }
-
-    return can_tx_queue_allocate_I(&instance->tx_queue);
+    
+    struct can_tx_frame_s* ret = NULL;
+    for (size_t i=0; i<num_frames; i++) {
+        if (!can_allocate_tx_frame_and_append(instance, &ret)) {
+            can_free_tx_frames(instance, &ret);
+            return NULL;
+        }
+    }
+    return ret;
 }
-void can_stage_frame_I(struct can_instance_s* instance, struct can_tx_frame_s* frame) {
-    chDbgCheckClassI();
 
+void can_enqueue_tx_frames(struct can_instance_s* instance, struct can_tx_frame_s** frame_list, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
     if (!instance) {
         return;
     }
-
-    can_tx_queue_stage_push_I(&instance->tx_queue, frame);
-}
-
-void can_send_staged_frames_I(struct can_instance_s* instance, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
-    chDbgCheckClassI();
-
-    if (!instance) {
-        return;
-    }
-
+    
     systime_t t_now = chVTGetSystemTimeX();
-    struct can_tx_frame_s* frame = NULL;
-    while (can_tx_stage_iterate_I(&instance->tx_queue, &frame)) {
+
+    for (struct can_tx_frame_s* frame = *frame_list; frame != NULL; frame = frame->next) {
         frame->creation_systime = t_now;
         frame->tx_timeout = tx_timeout;
         if (!frame->next) {
             frame->completion_topic = completion_topic;
+        } else {
+            frame->completion_topic = NULL;
         }
+        can_tx_queue_push(&instance->tx_queue, frame);
     }
 
-    can_tx_queue_commit_staged_pushes_I(&instance->tx_queue);
-    
-    can_try_enqueue_waiting_frame_I(instance);
+    *frame_list = NULL;
 
+    can_try_enqueue_waiting_frame_I(instance);
     can_reschedule_expire_timer_I(instance);
 }
 
-void can_free_staged_frames_I(struct can_instance_s* instance) {
-    chDbgCheckClassI();
-
+void can_free_tx_frames(struct can_instance_s* instance, struct can_tx_frame_s** frame_list) {
     if (!instance) {
         return;
     }
-
-    can_tx_queue_free_staged_pushes_I(&instance->tx_queue);
-}
-
-bool can_send_I(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
-    chDbgCheckClassI();
-
-    if (!instance) {
-        return false;
+    
+    for (struct can_tx_frame_s* frame = *frame_list; frame != NULL; frame = frame->next) {
+        chPoolFree(&instance->frame_pool, frame);
     }
-
-    struct can_tx_frame_s* tx_frame = can_allocate_frame_I(instance);
-    if (!tx_frame) {
-        return false;
-    }
-
-    tx_frame->content = *frame;
-
-    can_stage_frame_I(instance, tx_frame);
-    can_send_staged_frames_I(instance, tx_timeout, completion_topic);
-    return true;
-}
-
-bool can_send(struct can_instance_s* instance, struct can_frame_s* frame, systime_t tx_timeout, struct pubsub_topic_s* completion_topic) {
-    chSysLock();
-    bool ret = can_send_I(instance, frame, tx_timeout, completion_topic);
-    chSysUnlock();
-    return ret;
+    
+    *frame_list = NULL;
 }
 
 struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, const struct can_driver_iface_s* driver_iface, uint8_t num_tx_mailboxes, uint8_t num_rx_mailboxes, uint8_t rx_fifo_depth) {
@@ -274,7 +271,13 @@ struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, co
 
     struct can_instance_s* instance = chPoolAlloc(&can_instance_pool);
 
-    if (instance == NULL) {
+    if (!instance) {
+        return NULL;
+    }
+    
+    void* tx_queue_mem = chCoreAllocAligned(CAN_TX_QUEUE_LEN*sizeof(struct can_tx_frame_s), PORT_WORKING_AREA_ALIGN);
+    
+    if (!tx_queue_mem) {
         return NULL;
     }
 
@@ -297,8 +300,11 @@ struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, co
         instance->tx_mailbox[i].state = CAN_TX_MAILBOX_EMPTY;
     }
     instance->num_tx_mailboxes = num_tx_mailboxes;
+    
+    chPoolObjectInit(&instance->frame_pool, sizeof(struct can_tx_frame_s), NULL);
+    chPoolLoadArray(&instance->frame_pool, tx_queue_mem, CAN_TX_QUEUE_LEN);
 
-    can_tx_queue_init(&instance->tx_queue, CAN_TX_QUEUE_LEN);
+    can_tx_queue_init(&instance->tx_queue);
 
     pubsub_init_topic(&instance->rx_topic, NULL); // TODO specific/configurable topic group
     worker_thread_add_publisher_task(&lpwork_thread, &instance->rx_publisher_task, sizeof(struct can_rx_frame_s), num_rx_mailboxes*rx_fifo_depth);
@@ -393,7 +399,7 @@ static void can_tx_frame_completed_I(struct can_instance_s* instance, struct can
         struct can_transmit_completion_msg_s msg = { success, completion_systime };
         worker_thread_publisher_task_publish_I(&instance->tx_publisher_task, frame->completion_topic, sizeof(struct can_transmit_completion_msg_s), pubsub_copy_writer_func, &msg);
     }
-    can_tx_queue_free_I(&instance->tx_queue, frame);
+    chPoolFreeI(&instance->frame_pool, frame);
 }
 
 static void can_tx_frame_completed(struct can_instance_s* instance, struct can_tx_frame_s* frame, bool success, systime_t completion_systime) {
@@ -401,7 +407,7 @@ static void can_tx_frame_completed(struct can_instance_s* instance, struct can_t
         struct can_transmit_completion_msg_s msg = { success, completion_systime };
         pubsub_publish_message(frame->completion_topic, sizeof(struct can_transmit_completion_msg_s), pubsub_copy_writer_func, &msg);
     }
-    can_tx_queue_free(&instance->tx_queue, frame);
+    chPoolFree(&instance->frame_pool, frame);
 }
 
 static void can_expire_handler(struct worker_thread_timer_task_s* task) {
@@ -419,16 +425,8 @@ static void can_expire_handler(struct worker_thread_timer_task_s* task) {
     }
 
     // Abort expired queue items
-    struct can_tx_frame_s* frame = NULL;
-    while (true) {
-        chSysLock();
-        if (!can_tx_queue_iterate_I(&instance->tx_queue, &frame) || !can_tx_frame_expired_X(frame)) {
-            chSysUnlock();
-            break;
-        }
-
-        can_tx_queue_remove_I(&instance->tx_queue, frame);
-        chSysUnlock();
+    struct can_tx_frame_s* frame;
+    while ((frame = can_tx_queue_pop_expired(&instance->tx_queue)) != NULL) {
         can_tx_frame_completed(instance, frame, false, chVTGetSystemTimeX());
     }
 
