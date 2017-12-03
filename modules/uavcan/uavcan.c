@@ -252,16 +252,17 @@ static bool uavcan_enqueue_all_tx_frames(struct uavcan_instance_s* instance, sys
     if (!instance) {
         return false;
     }
-
-    chSysLock();
+    
+    // Must own the mutex
+    chDbgCheck(instance->canard_mtx.owner == chThdGetSelfX());
 
     const CanardCANFrame* canard_frame;
+    struct can_tx_frame_s* frame_list = NULL;
     while ((canard_frame = canardPeekTxQueue(&instance->canard))) {
-        struct can_tx_frame_s* frame = can_allocate_frame_I(instance->can_instance);
+        struct can_tx_frame_s* frame = can_allocate_tx_frame_and_append(instance->can_instance, &frame_list);
 
         if (!frame) {
-            can_free_staged_frames_I(instance->can_instance);
-            chSysUnlock();
+            can_free_tx_frames(instance->can_instance, &frame_list);
             while (canardPeekTxQueue(&instance->canard)) {
                 canardPopTxQueue(&instance->canard);
             }
@@ -270,12 +271,10 @@ static bool uavcan_enqueue_all_tx_frames(struct uavcan_instance_s* instance, sys
 
         convert_CanardCANFrame_to_can_frame(canard_frame, &frame->content);
         canardPopTxQueue(&instance->canard);
-        can_stage_frame_I(instance->can_instance, frame);
     }
 
-    can_send_staged_frames_I(instance->can_instance, tx_timeout, completion_topic);
+    can_enqueue_tx_frames(instance->can_instance, &frame_list, tx_timeout, completion_topic);
 
-    chSysUnlock();
     return true;
 }
 
@@ -291,6 +290,7 @@ static bool _uavcan_broadcast(struct uavcan_instance_s* instance, const struct u
     canardBroadcast(&instance->canard, msg_descriptor->data_type_signature, data_type_id, transfer_id, priority, instance->outgoing_message_buf, outgoing_message_len);
     bool ret = uavcan_enqueue_all_tx_frames(instance, TIME_INFINITE, NULL);
     chMtxUnlock(&instance->canard_mtx);
+
     return ret;
 }
 
