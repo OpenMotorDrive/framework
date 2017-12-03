@@ -26,26 +26,26 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
-#define SIGN(x) ( x>=0 ? 1 : -1 )
+#define SIGN(x) ( (x)>=0 ? 1 : -1 )
 
 #define LEN(x) (sizeof(x)/sizeof(x[0]))
 
 #define FNV_1_OFFSET_BASIS_64 14695981039346656037UL
 
-#define UNUSED(x) ((void)x)
+#define UNUSED(x) ((void)(x))
 
 #define LINKED_LIST_APPEND(TYPE, HEAD_PTR, NEW_ITEM_PTR) { \
-    NEW_ITEM_PTR->next = NULL; \
-    TYPE** insert_ptr = &HEAD_PTR; \
+    (NEW_ITEM_PTR)->next = NULL; \
+    TYPE** insert_ptr = &(HEAD_PTR); \
     while(*insert_ptr) { \
         insert_ptr = &(*insert_ptr)->next; \
     } \
-    *insert_ptr = NEW_ITEM_PTR; \
+    *insert_ptr = (NEW_ITEM_PTR); \
 }
 
 #define LINKED_LIST_REMOVE(TYPE, HEAD_PTR, REMOVE_ITEM_PTR) { \
-    TYPE** remove_ptr = &HEAD_PTR; \
-    while (*remove_ptr && *remove_ptr != REMOVE_ITEM_PTR) { \
+    TYPE** remove_ptr = &(HEAD_PTR); \
+    while (*remove_ptr && *remove_ptr != (REMOVE_ITEM_PTR)) { \
         remove_ptr = &(*remove_ptr)->next; \
     } \
     \
