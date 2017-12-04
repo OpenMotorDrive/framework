@@ -13,7 +13,6 @@ pubsub \
 flash \
 param \
 worker_thread \
-lpwork_thread \
 can_driver_stm32 \
 can \
 can_autobaud \
