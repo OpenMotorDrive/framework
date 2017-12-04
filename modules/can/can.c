@@ -8,7 +8,7 @@
 #include <modules/lpwork_thread/lpwork_thread.h> // TODO: use high priority worker thread for CAN
 
 #ifndef CAN_TX_QUEUE_LEN
-#define CAN_TX_QUEUE_LEN 30
+#define CAN_TX_QUEUE_LEN 64
 #endif
 
 #define MAX_NUM_TX_MAILBOXES 3
@@ -235,7 +235,10 @@ void can_enqueue_tx_frames(struct can_instance_s* instance, struct can_tx_frame_
     
     systime_t t_now = chVTGetSystemTimeX();
 
-    for (struct can_tx_frame_s* frame = *frame_list; frame != NULL; frame = frame->next) {
+    struct can_tx_frame_s* frame = *frame_list;
+    while (frame != NULL) {
+        struct can_tx_frame_s* next_frame = frame->next;
+
         frame->creation_systime = t_now;
         frame->tx_timeout = tx_timeout;
         if (!frame->next) {
@@ -244,6 +247,8 @@ void can_enqueue_tx_frames(struct can_instance_s* instance, struct can_tx_frame_
             frame->completion_topic = NULL;
         }
         can_tx_queue_push(&instance->tx_queue, frame);
+
+        frame = next_frame;
     }
 
     *frame_list = NULL;

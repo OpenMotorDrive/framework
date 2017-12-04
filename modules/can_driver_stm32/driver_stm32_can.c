@@ -181,12 +181,12 @@ static void stm32_can_tx_handler(struct can_driver_stm32_instance_s* instance) {
     }
 
     if ((instance->can->TSR & CAN_TSR_RQCP1) != 0) {
-        can_driver_tx_request_complete_I(instance->frontend, 1, (instance->can->TSR & CAN_TSR_TXOK0) != 0, t_now);
+        can_driver_tx_request_complete_I(instance->frontend, 1, (instance->can->TSR & CAN_TSR_TXOK1) != 0, t_now);
         instance->can->TSR = CAN_TSR_RQCP1;
     }
 
     if ((instance->can->TSR & CAN_TSR_RQCP2) != 0) {
-        can_driver_tx_request_complete_I(instance->frontend, 2, (instance->can->TSR & CAN_TSR_TXOK0) != 0, t_now);
+        can_driver_tx_request_complete_I(instance->frontend, 2, (instance->can->TSR & CAN_TSR_TXOK2) != 0, t_now);
         instance->can->TSR = CAN_TSR_RQCP2;
     }
     chSysUnlockFromISR();
