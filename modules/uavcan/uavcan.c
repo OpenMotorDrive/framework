@@ -4,7 +4,7 @@
 #include <common/helpers.h>
 #include <string.h>
 #include <modules/can/can.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
 
 #ifdef MODULE_BOOT_MSG_ENABLED
 #include <modules/boot_msg/boot_msg.h>
@@ -41,6 +41,14 @@
 #ifndef UAVCAN_OUTGOING_MESSAGE_BUF_SIZE
 #define UAVCAN_OUTGOING_MESSAGE_BUF_SIZE 512
 #endif
+
+#ifndef UAVCAN_RX_WORKER_THREAD
+#error Please define UAVCAN_RX_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT_RX UAVCAN_RX_WORKER_THREAD
+
+WORKER_THREAD_DECLARE_EXTERN(WT_RX)
 
 struct __attribute__((packed)) map_entry_s {
     uint32_t key : 17;
@@ -102,7 +110,7 @@ static struct uavcan_instance_s* uavcan_instance_list_head;
 RUN_ON(UAVCAN_INIT) {
     uavcan_init(0);
 
-    worker_thread_add_timer_task(&lpwork_thread, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
+    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
 }
 
 static void uavcan_init(uint8_t can_dev_idx) {
@@ -122,7 +130,7 @@ static void uavcan_init(uint8_t can_dev_idx) {
     canardInit(&instance->canard, instance->canard_memory_pool, UAVCAN_CANARD_MEMORY_POOL_SIZE, uavcan_on_transfer_rx, uavcan_should_accept_transfer, instance);
     struct pubsub_topic_s* can_rx_topic = can_get_rx_topic(instance->can_instance);
     if (!can_rx_topic) { goto fail; }
-    worker_thread_add_listener_task(&lpwork_thread, &instance->rx_listener_task, can_rx_topic, uavcan_can_rx_handler, instance); // TODO configurable thread
+    worker_thread_add_listener_task(&WT_RX, &instance->rx_listener_task, can_rx_topic, uavcan_can_rx_handler, instance); // TODO configurable thread
 
     can_set_auto_retransmit_mode(instance->can_instance, false);
 

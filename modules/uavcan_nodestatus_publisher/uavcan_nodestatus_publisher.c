@@ -1,7 +1,14 @@
 #include "uavcan_nodestatus_publisher.h"
 #include <modules/uavcan/uavcan.h>
 #include <common/ctor.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef UAVCAN_NODESTATUS_PUBLISHER_WORKER_THREAD
+#error Please define UAVCAN_NODESTATUS_PUBLISHER_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT UAVCAN_NODESTATUS_PUBLISHER_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
 static struct uavcan_protocol_NodeStatus_s node_status;
 static struct worker_thread_timer_task_s node_status_publisher_task;
@@ -21,7 +28,7 @@ RUN_AFTER(UAVCAN_INIT) {
     node_status.sub_mode = 0;
     node_status.vendor_specific_status_code = 0;
 
-    worker_thread_add_timer_task(&lpwork_thread, &node_status_publisher_task, node_status_publisher_task_func, NULL, S2ST(1), true);
+    worker_thread_add_timer_task(&WT, &node_status_publisher_task, node_status_publisher_task_func, NULL, S2ST(1), true);
 }
 
 static void node_status_publisher_task_func(struct worker_thread_timer_task_s* task) {

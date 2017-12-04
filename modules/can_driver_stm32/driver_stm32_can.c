@@ -1,8 +1,5 @@
 #include <common/ctor.h>
 #include <hal.h>
-#include <modules/pubsub/pubsub.h>
-#include <modules/worker_thread/worker_thread.h>
-#include <modules/lpwork_thread/lpwork_thread.h> // TODO: use high priority worker thread for CAN
 #include <modules/can/can_driver.h>
 
 #if !defined(CAN1) && defined(CAN)

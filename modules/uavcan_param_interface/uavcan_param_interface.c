@@ -3,7 +3,14 @@
 #include <common/ctor.h>
 #include <modules/param/param.h>
 #include <string.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef UAVCAN_PARAM_INTERFACE_WORKER_THREAD
+#error Please define UAVCAN_PARAM_INTERFACE_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT UAVCAN_PARAM_INTERFACE_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
 #include <uavcan.protocol.param.GetSet.h>
 #include <uavcan.protocol.param.ExecuteOpcode.h>
@@ -16,10 +23,10 @@ static void opcode_req_handler(size_t msg_size, const void* buf, void* ctx);
 
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* getset_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_param_GetSet_req_descriptor);
-    worker_thread_add_listener_task(&lpwork_thread, &getset_req_listener_task, getset_req_topic, getset_req_handler, NULL);
+    worker_thread_add_listener_task(&WT, &getset_req_listener_task, getset_req_topic, getset_req_handler, NULL);
 
     struct pubsub_topic_s* opcode_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_param_ExecuteOpcode_req_descriptor);
-    worker_thread_add_listener_task(&lpwork_thread, &opcode_req_listener_task, opcode_req_topic, opcode_req_handler, NULL);
+    worker_thread_add_listener_task(&WT, &opcode_req_listener_task, opcode_req_topic, opcode_req_handler, NULL);
 }
 
 static void getset_req_handler(size_t msg_size, const void* buf, void* ctx) {

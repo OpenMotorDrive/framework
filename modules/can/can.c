@@ -5,7 +5,20 @@
 #include "string.h"
 #include <common/helpers.h>
 #include <modules/pubsub/pubsub.h>
-#include <modules/lpwork_thread/lpwork_thread.h> // TODO: use high priority worker thread for CAN
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef CAN_TRX_WORKER_THREAD
+#error Please define CAN_TRX_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#ifndef CAN_EXPIRE_WORKER_THREAD
+#error Please define CAN_EXPIRE_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT_TRX CAN_TRX_WORKER_THREAD
+#define WT_EXPIRE CAN_EXPIRE_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT_TRX)
+WORKER_THREAD_DECLARE_EXTERN(WT_EXPIRE)
 
 #ifndef CAN_TX_QUEUE_LEN
 #define CAN_TX_QUEUE_LEN 64
@@ -312,11 +325,11 @@ struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, co
     can_tx_queue_init(&instance->tx_queue);
 
     pubsub_init_topic(&instance->rx_topic, NULL); // TODO specific/configurable topic group
-    worker_thread_add_publisher_task(&lpwork_thread, &instance->rx_publisher_task, sizeof(struct can_rx_frame_s), num_rx_mailboxes*rx_fifo_depth);
+    worker_thread_add_publisher_task(&WT_TRX, &instance->rx_publisher_task, sizeof(struct can_rx_frame_s), num_rx_mailboxes*rx_fifo_depth);
 
-    worker_thread_add_publisher_task(&lpwork_thread, &instance->tx_publisher_task, sizeof(struct can_transmit_completion_msg_s), num_tx_mailboxes);
+    worker_thread_add_publisher_task(&WT_TRX, &instance->tx_publisher_task, sizeof(struct can_transmit_completion_msg_s), num_tx_mailboxes);
 
-    worker_thread_add_timer_task(&lpwork_thread, &instance->expire_timer_task, can_expire_handler, instance, TIME_INFINITE, false);
+    worker_thread_add_timer_task(&WT_EXPIRE, &instance->expire_timer_task, can_expire_handler, instance, TIME_INFINITE, false);
 
     LINKED_LIST_APPEND(struct can_instance_s, can_instance_list_head, instance);
 
@@ -388,7 +401,7 @@ static void can_reschedule_expire_timer_I(struct can_instance_s* instance) {
         }
     }
 
-    worker_thread_timer_task_reschedule_I(&lpwork_thread, &instance->expire_timer_task, min_ticks_to_expire);
+    worker_thread_timer_task_reschedule_I(&WT_EXPIRE, &instance->expire_timer_task, min_ticks_to_expire);
 }
 
 static void can_reschedule_expire_timer(struct can_instance_s* instance) {

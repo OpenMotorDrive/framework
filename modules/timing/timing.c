@@ -16,7 +16,14 @@
 #include <common/ctor.h>
 #include "timing.h"
 #include <ch.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef TIMING_WORKER_THREAD
+#error Please define TIMING_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT TIMING_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
 static struct {
     uint64_t update_seconds;
@@ -30,7 +37,7 @@ static struct worker_thread_timer_task_s timing_state_update_task;
 static void timing_state_update_task_func(struct worker_thread_timer_task_s* task);
 
 RUN_AFTER(WORKER_THREADS_START) {
-    worker_thread_add_timer_task(&lpwork_thread, &timing_state_update_task, timing_state_update_task_func, NULL, S2ST(10), true);
+    worker_thread_add_timer_task(&WT, &timing_state_update_task, timing_state_update_task_func, NULL, S2ST(10), true);
 }
 
 uint32_t millis(void) {

@@ -1,5 +1,5 @@
 #include <modules/uavcan_nodestatus_publisher/uavcan_nodestatus_publisher.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
 #include <modules/app_descriptor/app_descriptor.h>
@@ -8,6 +8,13 @@
 #ifdef MODULE_BOOT_MSG_ENABLED
 #include <modules/boot_msg/boot_msg.h>
 #endif
+
+#ifndef UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD
+#error Please define UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT UAVCAN_GETNODEINFO_SERVER_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
 #include <string.h>
 
@@ -18,7 +25,7 @@ static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx)
 
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* getnodeinfo_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_GetNodeInfo_req_descriptor);
-    worker_thread_add_listener_task(&lpwork_thread, &getnodeinfo_req_listener_task, getnodeinfo_req_topic, getnodeinfo_req_handler, NULL);
+    worker_thread_add_listener_task(&WT, &getnodeinfo_req_listener_task, getnodeinfo_req_topic, getnodeinfo_req_handler, NULL);
 }
 
 static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx) {

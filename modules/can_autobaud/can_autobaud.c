@@ -1,6 +1,6 @@
 #include <common/helpers.h>
 #include <modules/can/can.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
+#include <modules/worker_thread/worker_thread.h>
 
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
 #include <modules/app_descriptor/app_descriptor.h>
@@ -9,6 +9,13 @@
 #ifdef MODULE_BOOT_MSG_ENABLED
 #include <modules/boot_msg/boot_msg.h>
 #endif
+
+#ifndef CAN_AUTOBAUD_WORKER_THREAD
+#error Please define CAN_AUTOBAUD_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT CAN_AUTOBAUD_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
 #define CAN_AUTOBAUD_SWITCH_INTERVAL_US 1000000
 
@@ -63,7 +70,7 @@ RUN_AFTER(CAN_INIT) {
     }
 
     if (canbus_autobaud_enable) {
-        worker_thread_add_timer_task(&lpwork_thread, &autobaud_timer_task, autobaud_timer_task_func, NULL, TIME_IMMEDIATE, false);
+        worker_thread_add_timer_task(&WT, &autobaud_timer_task, autobaud_timer_task_func, NULL, TIME_IMMEDIATE, false);
     }
 }
 
@@ -82,6 +89,6 @@ static void autobaud_timer_task_func(struct worker_thread_timer_task_s* task) {
     }
 
     if (!autobaud_complete) {
-        worker_thread_timer_task_reschedule(&lpwork_thread, task, US2ST(CAN_AUTOBAUD_SWITCH_INTERVAL_US));
+        worker_thread_timer_task_reschedule(&WT, task, US2ST(CAN_AUTOBAUD_SWITCH_INTERVAL_US));
     }
 }

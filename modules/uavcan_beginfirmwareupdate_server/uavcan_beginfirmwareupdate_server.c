@@ -1,9 +1,16 @@
 #include <modules/uavcan/uavcan.h>
 #include <uavcan.protocol.file.BeginFirmwareUpdate.h>
-#include <modules/lpwork_thread/lpwork_thread.h>
 #include <modules/system/system.h>
 #include <modules/boot_msg/boot_msg.h>
 #include <string.h>
+#include <modules/worker_thread/worker_thread.h>
+
+#ifndef UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD
+#error Please define UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD in worker_threads_conf.h.
+#endif
+
+#define WT UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
 #ifndef UAVCAN_RESTART_DELAY_MS
 #define UAVCAN_RESTART_DELAY_MS 10
@@ -15,7 +22,7 @@ static void beginfirmwareupdate_req_handler(size_t msg_size, const void* buf, vo
 
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* beginfirmwareupdate_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_file_BeginFirmwareUpdate_req_descriptor);
-    worker_thread_add_listener_task(&lpwork_thread, &beginfirmwareupdate_req_listener_task, beginfirmwareupdate_req_topic, beginfirmwareupdate_req_handler, NULL);
+    worker_thread_add_listener_task(&WT, &beginfirmwareupdate_req_listener_task, beginfirmwareupdate_req_topic, beginfirmwareupdate_req_handler, NULL);
 }
 
 static void delayed_restart_func(struct worker_thread_timer_task_s* task) {
@@ -56,7 +63,7 @@ static void beginfirmwareupdate_req_handler(size_t msg_size, const void* buf, vo
 
         shared_msg_finalize_and_write(SHARED_MSG_CANBUS_INFO, &new_boot_msg);
 
-        worker_thread_add_timer_task(&lpwork_thread, &delayed_restart_task, delayed_restart_func, NULL, MS2ST(UAVCAN_RESTART_DELAY_MS), false);
+        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, MS2ST(UAVCAN_RESTART_DELAY_MS), false);
     }
 
     uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
