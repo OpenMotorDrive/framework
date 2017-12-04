@@ -12,10 +12,21 @@
 #define __WORKER_THREAD_CONCAT(a,b) a ## b
 #define _WORKER_THREAD_CONCAT(a,b) __WORKER_THREAD_CONCAT(a,b)
 
-#define WORKER_THREAD_CREATE(NAME, SIZE, PRIO) \
+#define WORKER_THREAD_SPAWN(NAME, PRIO, SIZE) \
 struct worker_thread_s NAME; \
-RUN_ON(WORKER_THREADS_START) { \
-    worker_thread_init(&NAME, #NAME, SIZE, PRIO); \
+RUN_ON(WORKER_THREADS_INIT) { \
+    worker_thread_init(&NAME, #NAME, PRIO); \
+    worker_thread_start(&NAME, SIZE); \
+}
+
+#define WORKER_THREAD_TAKEOVER_MAIN(NAME, PRIO) \
+struct worker_thread_s NAME; \
+RUN_ON(WORKER_THREADS_INIT) { \
+    worker_thread_init(&NAME, #NAME, PRIO); \
+} \
+int main(void) { \
+    worker_thread_takeover(&NAME); \
+    return 0; \
 }
 
 #define WORKER_THREAD_DECLARE_EXTERN(NAME) \
@@ -66,6 +77,8 @@ struct worker_thread_publisher_task_s {
 #endif
 
 struct worker_thread_s {
+    const char* name;
+    tprio_t priority;
     thread_t* thread;
     struct worker_thread_timer_task_s* timer_task_list_head;
 #ifdef MODULE_PUBSUB_ENABLED
@@ -74,7 +87,9 @@ struct worker_thread_s {
 #endif
 };
 
-void worker_thread_init(struct worker_thread_s* worker_thread, const char* name, size_t stack_size, tprio_t priority);
+void worker_thread_init(struct worker_thread_s* worker_thread, const char* name, tprio_t priority);
+void worker_thread_start(struct worker_thread_s* worker_thread, size_t stack_size);
+void worker_thread_takeover(struct worker_thread_s* worker_thread);
 void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat);
 void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat);
 void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks);

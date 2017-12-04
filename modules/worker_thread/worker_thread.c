@@ -21,25 +21,32 @@ static void worker_thread_set_listener_thread_references_S(struct worker_thread_
 static bool worker_thread_get_any_listener_task_due_I(struct worker_thread_s* worker_thread);
 #endif
 
+void worker_thread_init(struct worker_thread_s* worker_thread, const char* name, tprio_t priority) {
+    chDbgCheck(worker_thread != NULL);
 
-void worker_thread_init(struct worker_thread_s* worker_thread, const char* name, size_t stack_size, tprio_t prio) {
-    if (!worker_thread) {
-        return;
-    }
-    void* working_area = chCoreAllocAligned(THD_WORKING_AREA_SIZE(stack_size), PORT_WORKING_AREA_ALIGN);
-    chDbgCheck(working_area != NULL);
+    worker_thread->name = name;
+    worker_thread->priority = priority;
 
     worker_thread->timer_task_list_head = NULL;
 #ifdef MODULE_PUBSUB_ENABLED
     worker_thread->listener_task_list_head = NULL;
     worker_thread->publisher_task_list_head = NULL;
 #endif
+
+    worker_thread->thread = NULL;
+}
+
+void worker_thread_start(struct worker_thread_s* worker_thread, size_t stack_size) {
+    chDbgCheck(worker_thread != NULL);
+
+    void* working_area = chCoreAllocAligned(THD_WORKING_AREA_SIZE(stack_size), PORT_WORKING_AREA_ALIGN);
+    chDbgCheck(working_area != NULL);
     
     const thread_descriptor_t thread_descriptor = {
-        name,
+        worker_thread->name,
         THD_WORKING_AREA_BASE(working_area),
         THD_WORKING_AREA_BASE(working_area) + THD_WORKING_AREA_SIZE(stack_size)/sizeof(stkalign_t),
-        prio,
+        worker_thread->priority,
         worker_thread_func,
         worker_thread
     };
@@ -175,8 +182,11 @@ bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_
 }
 #endif
 
-static THD_FUNCTION(worker_thread_func, arg) {
-    struct worker_thread_s* worker_thread = arg;
+void worker_thread_takeover(struct worker_thread_s* worker_thread) {
+    chRegSetThreadName(worker_thread->name);
+    chThdSetPriority(worker_thread->priority);
+    worker_thread->thread = chThdGetSelfX();
+
     while (true) {
 #ifdef MODULE_PUBSUB_ENABLED
         // Handle publisher tasks
@@ -261,10 +271,15 @@ static THD_FUNCTION(worker_thread_func, arg) {
     }
 }
 
+static THD_FUNCTION(worker_thread_func, arg) {
+    struct worker_thread_s* worker_thread = arg;
+    worker_thread_takeover(worker_thread);
+}
+
 static void worker_thread_wake_I(struct worker_thread_s* worker_thread) {
     chDbgCheckClassI();
 
-    if (worker_thread->thread->state == CH_STATE_SUSPENDED) {
+    if (worker_thread->thread && worker_thread->thread->state == CH_STATE_SUSPENDED) {
         worker_thread->thread->u.rdymsg = MSG_TIMEOUT;
         chSchReadyI(worker_thread->thread);
     }
@@ -273,7 +288,7 @@ static void worker_thread_wake_I(struct worker_thread_s* worker_thread) {
 static void worker_thread_reschedule_S(struct worker_thread_s* worker_thread) {
     chDbgCheckClassS();
 
-    if (worker_thread->thread->state == CH_STATE_READY && chThdGetPriorityX() < worker_thread->thread->prio) {
+    if (worker_thread->thread && worker_thread->thread->state == CH_STATE_READY && chThdGetPriorityX() < worker_thread->thread->prio) {
         chSchRescheduleS();
     }
 }
