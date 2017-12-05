@@ -131,7 +131,9 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
 
         chSysLock();
         if (listener->waiting_thread_reference_ptr) {
-            chThdResumeI(listener->waiting_thread_reference_ptr, (msg_t)listener);
+            if((*listener->waiting_thread_reference_ptr)->state == CH_STATE_SUSPENDED) {
+                chThdResumeI(listener->waiting_thread_reference_ptr, (msg_t)listener);
+            }
         }
         chSysUnlock();
 

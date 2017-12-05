@@ -81,6 +81,7 @@ struct worker_thread_s {
     tprio_t priority;
     thread_t* thread;
     struct worker_thread_timer_task_s* timer_task_list_head;
+    bool ignore_wake;       //flag to ensure that sleep is not broken by unintended thread/interrupt during ChibiOS Sync operations when enabled
 #ifdef MODULE_PUBSUB_ENABLED
     struct worker_thread_listener_task_s* listener_task_list_head;
     struct worker_thread_publisher_task_s* publisher_task_list_head;
@@ -97,6 +98,10 @@ void worker_thread_timer_task_reschedule(struct worker_thread_s* worker_thread, 
 void worker_thread_remove_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
 void worker_thread_remove_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
 void* worker_thread_task_get_user_context(struct worker_thread_timer_task_s* task);
+
+void worker_thread_ignore_wake(struct worker_thread_s* worker_thread);
+void worker_thread_accept_wake(struct worker_thread_s* worker_thread);
+
 #ifdef MODULE_PUBSUB_ENABLED
 void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task, struct pubsub_topic_s* topic, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
 void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task);
