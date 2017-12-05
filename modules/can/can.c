@@ -345,7 +345,7 @@ static void can_try_enqueue_waiting_frame_I(struct can_instance_s* instance) {
     bool have_empty_mailbox = false;
     uint8_t empty_mailbox_idx;
     bool have_pending_mailbox = false;
-    can_frame_priority_t highest_prio_pending;
+    can_frame_priority_t highest_prio_pending = 0;
     
     for (uint8_t i=0; i < instance->num_tx_mailboxes; i++) {
         if (instance->tx_mailbox[i].state == CAN_TX_MAILBOX_EMPTY) {
