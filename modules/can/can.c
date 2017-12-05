@@ -71,7 +71,9 @@ static struct can_instance_s* can_instance_list_head;
 
 static void can_expire_handler(struct worker_thread_timer_task_s* task);
 static void can_reschedule_expire_timer_I(struct can_instance_s* instance);
+static void can_reschedule_expire_timer(struct can_instance_s* instance);
 static void can_try_enqueue_waiting_frame_I(struct can_instance_s* instance);
+static void can_try_enqueue_waiting_frame(struct can_instance_s* instance);
 
 bool can_iterate_instances(struct can_instance_s** instance_ptr) {
     if (!instance_ptr) {
@@ -209,7 +211,7 @@ struct can_tx_frame_s* can_allocate_tx_frame_and_append_I(struct can_instance_s*
         return NULL;
     }
     
-    struct can_tx_frame_s* new_frame = chPoolAlloc(&instance->frame_pool);
+    struct can_tx_frame_s* new_frame = chPoolAllocI(&instance->frame_pool);
     if (!new_frame) {
         return NULL;
     }
@@ -266,8 +268,8 @@ void can_enqueue_tx_frames(struct can_instance_s* instance, struct can_tx_frame_
 
     *frame_list = NULL;
 
-    can_try_enqueue_waiting_frame_I(instance);
-    can_reschedule_expire_timer_I(instance);
+    can_try_enqueue_waiting_frame(instance);
+    can_reschedule_expire_timer(instance);
 }
 
 void can_free_tx_frames(struct can_instance_s* instance, struct can_tx_frame_s** frame_list) {
