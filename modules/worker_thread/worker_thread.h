@@ -80,6 +80,7 @@ struct worker_thread_s {
     const char* name;
     tprio_t priority;
     thread_t* thread;
+    thread_t* suspend_trp;
     struct worker_thread_timer_task_s* timer_task_list_head;
 #ifdef MODULE_PUBSUB_ENABLED
     struct worker_thread_listener_task_s* listener_task_list_head;

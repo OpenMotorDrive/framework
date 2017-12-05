@@ -5,7 +5,6 @@
 static THD_FUNCTION(worker_thread_func, arg);
 
 static void worker_thread_wake_I(struct worker_thread_s* worker_thread);
-static void worker_thread_reschedule_S(struct worker_thread_s* worker_thread);
 static void worker_thread_wake(struct worker_thread_s* worker_thread);
 static void worker_thread_init_timer_task(struct worker_thread_timer_task_s* task, systime_t timer_begin_systime, systime_t timer_expiration_ticks, bool auto_repeat, timer_task_handler_func_ptr task_func, void* ctx);
 static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
@@ -17,7 +16,6 @@ static bool worker_thread_publisher_task_is_registered(struct worker_thread_s* w
 static bool worker_thread_get_any_publisher_task_due_I(struct worker_thread_s* worker_thread);
 static bool worker_thread_listener_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
 static bool worker_thread_listener_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
-static void worker_thread_set_listener_thread_references_S(struct worker_thread_s* worker_thread, thread_reference_t* trpp);
 static bool worker_thread_get_any_listener_task_due_I(struct worker_thread_s* worker_thread);
 #endif
 
@@ -34,6 +32,7 @@ void worker_thread_init(struct worker_thread_s* worker_thread, const char* name,
 #endif
 
     worker_thread->thread = NULL;
+    worker_thread->suspend_trp = NULL;
 }
 
 void worker_thread_start(struct worker_thread_s* worker_thread, size_t stack_size) {
@@ -54,11 +53,17 @@ void worker_thread_start(struct worker_thread_s* worker_thread, size_t stack_siz
     worker_thread->thread = chThdCreate(&thread_descriptor);
 }
 
-void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
+static void _worker_thread_add_timer_task_no_wake_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
     chDbgCheckClassI();
 
     worker_thread_init_timer_task(task, chVTGetSystemTimeX(), timer_expiration_ticks, auto_repeat, task_func, ctx);
     worker_thread_insert_timer_task_I(worker_thread, task);
+}
+
+void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
+    chDbgCheckClassI();
+
+    _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_ticks, auto_repeat);
 
     // Wake worker thread to process tasks
     worker_thread_wake_I(worker_thread);
@@ -66,12 +71,14 @@ void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struc
 
 void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
     chSysLock();
-    worker_thread_add_timer_task_I(worker_thread, task, task_func, ctx, timer_expiration_ticks, auto_repeat);
-    worker_thread_reschedule_S(worker_thread);
+    _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_ticks, auto_repeat);
     chSysUnlock();
+
+    // Wake worker thread to process tasks
+    worker_thread_wake(worker_thread);
 }
 
-void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+static void _worker_thread_timer_task_reschedule_no_wake_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
     chDbgCheckClassI();
 
     systime_t t_now = chVTGetSystemTimeX();
@@ -82,14 +89,23 @@ void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread
     task->timer_begin_systime = t_now;
 
     worker_thread_insert_timer_task_I(worker_thread, task);
+}
+
+void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+    chDbgCheckClassI();
+    _worker_thread_timer_task_reschedule_no_wake_I(worker_thread, task, timer_expiration_ticks);
+
+    // Wake worker thread to process tasks
     worker_thread_wake_I(worker_thread);
 }
 
 void worker_thread_timer_task_reschedule(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
     chSysLock();
-    worker_thread_timer_task_reschedule_I(worker_thread, task, timer_expiration_ticks);
-    worker_thread_reschedule_S(worker_thread);
+    _worker_thread_timer_task_reschedule_no_wake_I(worker_thread, task, timer_expiration_ticks);
     chSysUnlock();
+
+    // Wake worker thread to process tasks
+    worker_thread_wake(worker_thread);
 }
 
 void worker_thread_remove_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task) {
@@ -116,6 +132,7 @@ void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, stru
     chDbgCheck(!worker_thread_listener_task_is_registered(worker_thread, task));
 
     pubsub_listener_init_and_register(&task->listener, topic, handler_cb, handler_cb_ctx);
+    pubsub_listener_set_waiting_thread_reference(&task->listener, &worker_thread->suspend_trp);
 
     chSysLock();
     LINKED_LIST_APPEND(struct worker_thread_listener_task_s, worker_thread->listener_task_list_head, task);
@@ -254,17 +271,10 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
                 chSysUnlock();
                 continue;
             }
-
-            thread_reference_t trp = NULL;
-            worker_thread_set_listener_thread_references_S(worker_thread, &trp);
 #endif
 
             // No task due - go to sleep until there is a task
-            chThdSuspendTimeoutS(&trp, ticks_to_next_timer_task);
-
-#ifdef MODULE_PUBSUB_ENABLED
-            worker_thread_set_listener_thread_references_S(worker_thread, NULL);
-#endif
+            chThdSuspendTimeoutS(&worker_thread->suspend_trp, ticks_to_next_timer_task);
 
             chSysUnlock();
         }
@@ -279,25 +289,11 @@ static THD_FUNCTION(worker_thread_func, arg) {
 static void worker_thread_wake_I(struct worker_thread_s* worker_thread) {
     chDbgCheckClassI();
 
-    if (worker_thread->thread && worker_thread->thread->state == CH_STATE_SUSPENDED) {
-        worker_thread->thread->u.rdymsg = MSG_TIMEOUT;
-        chSchReadyI(worker_thread->thread);
-    }
-}
-
-static void worker_thread_reschedule_S(struct worker_thread_s* worker_thread) {
-    chDbgCheckClassS();
-
-    if (worker_thread->thread && worker_thread->thread->state == CH_STATE_READY && chThdGetPriorityX() < worker_thread->thread->prio) {
-        chSchRescheduleS();
-    }
+    chThdResumeI(&worker_thread->suspend_trp, MSG_TIMEOUT);
 }
 
 static void worker_thread_wake(struct worker_thread_s* worker_thread) {
-    chSysLock();
-    worker_thread_wake_I(worker_thread);
-    worker_thread_reschedule_S(worker_thread);
-    chSysUnlock();
+    chThdResume(&worker_thread->suspend_trp, MSG_TIMEOUT);
 }
 
 static void worker_thread_init_timer_task(struct worker_thread_timer_task_s* task, systime_t timer_begin_systime, systime_t timer_expiration_ticks, bool auto_repeat, timer_task_handler_func_ptr task_func, void* ctx) {
@@ -405,16 +401,6 @@ static bool worker_thread_listener_task_is_registered(struct worker_thread_s* wo
     bool ret = worker_thread_listener_task_is_registered_I(worker_thread, check_task);
     chSysUnlock();
     return ret;
-}
-
-static void worker_thread_set_listener_thread_references_S(struct worker_thread_s* worker_thread, thread_reference_t* trpp) {
-    chDbgCheckClassS();
-
-    struct worker_thread_listener_task_s* listener_task = worker_thread->listener_task_list_head;
-    while (listener_task) {
-        pubsub_listener_set_waiting_thread_reference_S(&listener_task->listener, trpp);
-        listener_task = listener_task->next;
-    }
 }
 
 static bool worker_thread_get_any_listener_task_due_I(struct worker_thread_s* worker_thread) {
