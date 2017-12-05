@@ -1,5 +1,7 @@
 #pragma once
 
+#include <framework_conf.h>
+
 #define _CHIBIOS_RT_CONF_
 
 /**
