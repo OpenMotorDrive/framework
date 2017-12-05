@@ -110,6 +110,6 @@ void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct 
 // - Sets the listener's waiting thread reference to the provided reference. The caller can then suspend the thread with chThdSuspendS or
 //   chThdSuspendTimeoutS. Once the listener recieves a message, the thread will be resumed, and the return value of chThdSuspendS will be
 //   a pointer to the listener with the new message.
-void pubsub_listener_set_waiting_thread_reference_S(struct pubsub_listener_s* listener, thread_reference_t* trpp);
+void pubsub_listener_set_waiting_thread_reference(struct pubsub_listener_s* listener, thread_reference_t* trpp);
 
 bool pubsub_listener_has_message(struct pubsub_listener_s* listener);

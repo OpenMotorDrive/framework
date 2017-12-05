@@ -131,7 +131,7 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
 
         chSysLock();
         if (listener->waiting_thread_reference_ptr) {
-            chThdResumeI(listener->waiting_thread_reference_ptr, (msg_t)listener);
+            chThdResumeS(listener->waiting_thread_reference_ptr, (msg_t)listener);
         }
         chSysUnlock();
 
@@ -201,8 +201,7 @@ void pubsub_multiple_listener_handle_until_timeout(size_t num_listeners, struct 
     } while(elapsed < timeout);
 }
 
-void pubsub_listener_set_waiting_thread_reference_S(struct pubsub_listener_s* listener, thread_reference_t* trpp) {
-    chDbgCheckClassS();
+void pubsub_listener_set_waiting_thread_reference(struct pubsub_listener_s* listener, thread_reference_t* trpp) {
     if (!listener) {
         return;
     }
