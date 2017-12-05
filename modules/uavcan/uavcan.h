@@ -5,7 +5,9 @@
 #include <hal.h>
 #include <modules/pubsub/pubsub.h>
 
-typedef uint32_t (*uavcan_serializer_func_ptr_t)(void* msg_struct, void* buffer);
+typedef void (*uavcan_serializer_chunk_cb_ptr_t)(uint8_t* chunk, size_t bitlen, void* ctx);
+typedef void (*uavcan_serializer_func_ptr_t)(void* msg_struct, uavcan_serializer_chunk_cb_ptr_t chunk_cb, void* ctx);
+
 typedef uint32_t (*uavcan_deserializer_func_ptr_t)(CanardRxTransfer* transfer, void* msg_struct);
 
 struct uavcan_message_descriptor_s {

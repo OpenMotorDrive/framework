@@ -7,8 +7,8 @@
 #include <string.h>
 
 @[  if msg_default_dtid is not None]@
-static uint32_t encode_func(void* buffer, void* msg) {
-    return encode_@(msg_underscored_name)(buffer, msg);
+static void encode_func(void* msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, void* ctx) {
+    encode_@(msg_underscored_name)(msg, chunk_cb, ctx);
 }
 
 static uint32_t decode_func(CanardRxTransfer* transfer, void* msg) {
@@ -37,11 +37,9 @@ const struct uavcan_message_descriptor_s @(msg_underscored_name)_descriptor = {
 };
 @[  end if]@
 
-uint32_t encode_@(msg_underscored_name)(@(msg_c_type)* msg, uint8_t* buffer) {
-    uint32_t bit_ofs = 0;
-    memset(buffer, 0, @(msg_underscored_name.upper())_MAX_PACK_SIZE);
-    _encode_@(msg_underscored_name)(buffer, &bit_ofs, msg, true);
-    return (bit_ofs+7)/8;
+void encode_@(msg_underscored_name)(@(msg_c_type)* msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, void* ctx) {
+    uint8_t buffer[8];
+    _encode_@(msg_underscored_name)(buffer, msg, chunk_cb, ctx, true);
 }
 
 uint32_t decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, @(msg_c_type)* msg) {
@@ -50,17 +48,17 @@ uint32_t decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, @(msg_
     return (bit_ofs+7)/8;
 }
 
-void _encode_@(msg_underscored_name)(uint8_t* buffer, uint32_t* bit_ofs, @(msg_c_type)* msg, bool tao) {
+void _encode_@(msg_underscored_name)(uint8_t* buffer, @(msg_c_type)* msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, void* ctx, bool tao) {
 @{indent += 1}@{ind = '    '*indent}@
 @(ind)(void)buffer;
-@(ind)(void)bit_ofs;
 @(ind)(void)msg;
 @(ind)(void)tao;
 
 @[  if msg_union]@
 @(ind)@(union_msg_tag_uint_type_from_num_fields(len(msg_fields))) @(msg_underscored_name)_type = msg->@(msg_underscored_name)_type;
-@(ind)canardEncodeScalar(buffer, *bit_ofs, @(union_msg_tag_bitlen_from_num_fields(len(msg_fields))), &@(msg_underscored_name)_type);
-@(ind)*bit_ofs += @(union_msg_tag_bitlen_from_num_fields(len(msg_fields)));
+@(ind)memset(buffer,0,8);
+@(ind)canardEncodeScalar(buffer, 0, @(union_msg_tag_bitlen_from_num_fields(len(msg_fields))), &@(msg_underscored_name)_type);
+@(ind)chunk_cb(buffer, @(union_msg_tag_bitlen_from_num_fields(len(msg_fields))), ctx);
 
 @(ind)switch(msg->@(msg_underscored_name)_type) {
 @{indent += 1}@{ind = '    '*indent}@
@@ -71,18 +69,20 @@ void _encode_@(msg_underscored_name)(uint8_t* buffer, uint32_t* bit_ofs, @(msg_c
 @{indent += 1}@{ind = '    '*indent}@
 @[      end if]@
 @[      if field.type.category == field.type.CATEGORY_COMPOUND]@
-@(ind)_encode_@(underscored_name(field.type))(buffer, bit_ofs, &msg->@(field.name), @('tao' if field == msg_fields[-1] else 'false'));
+@(ind)_encode_@(underscored_name(field.type))(buffer, &msg->@(field.name), chunk_cb, ctx, @('tao' if field == msg_fields[-1] else 'false'));
 @[      elif field.type.category == field.type.CATEGORY_PRIMITIVE]@
-@(ind)canardEncodeScalar(buffer, *bit_ofs, @(field.type.bitlen), &msg->@(field.name));
-@(ind)*bit_ofs += @(field.type.bitlen);
+@(ind)memset(buffer,0,8);
+@(ind)canardEncodeScalar(buffer, 0, @(field.type.bitlen), &msg->@(field.name));
+@(ind)chunk_cb(buffer, @(field.type.bitlen), ctx);
 @[      elif field.type.category == field.type.CATEGORY_ARRAY]@
 @[        if field.type.mode == field.type.MODE_DYNAMIC]@
 @[          if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() >= 8]@
 @(ind)if (!tao) {
 @{indent += 1}@{ind = '    '*indent}@
 @[          end if]@
-@(ind)canardEncodeScalar(buffer, *bit_ofs, @(array_len_field_bitlen(field.type)), &msg->@(field.name)_len);
-@(ind)*bit_ofs += @(array_len_field_bitlen(field.type));
+@(ind)memset(buffer,0,8);
+@(ind)canardEncodeScalar(buffer, 0, @(array_len_field_bitlen(field.type)), &msg->@(field.name)_len);
+@(ind)chunk_cb(buffer, @(array_len_field_bitlen(field.type)), ctx);
 @[          if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() >= 8]@
 @{indent -= 1}@{ind = '    '*indent}@
 @(ind)}
@@ -93,15 +93,16 @@ void _encode_@(msg_underscored_name)(uint8_t* buffer, uint32_t* bit_ofs, @(msg_c
 @[        end if]@
 @{indent += 1}@{ind = '    '*indent}@
 @[        if field.type.value_type.category == field.type.value_type.CATEGORY_PRIMITIVE]@
-@(ind)    canardEncodeScalar(buffer, *bit_ofs, @(field.type.value_type.bitlen), &msg->@(field.name)[i]);
-@(ind)    *bit_ofs += @(field.type.value_type.bitlen);
+@(ind)    memset(buffer,0,8);
+@(ind)    canardEncodeScalar(buffer, 0, @(field.type.value_type.bitlen), &msg->@(field.name)[i]);
+@(ind)    chunk_cb(buffer, @(field.type.value_type.bitlen), ctx);
 @[        elif field.type.value_type.category == field.type.value_type.CATEGORY_COMPOUND]@
-@(ind)    _encode_@(underscored_name(field.type.value_type))(buffer, bit_ofs, &msg->@(field.name)[i], @[if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() < 8]tao && i==msg->@(field.name)_len@[else]false@[end if]@);
+@(ind)    _encode_@(underscored_name(field.type.value_type))(buffer, &msg->@(field.name)[i], chunk_cb, ctx, @[if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() < 8]tao && i==msg->@(field.name)_len@[else]false@[end if]@);
 @[        end if]@
 @{indent -= 1}@{ind = '    '*indent}@
 @(ind)}
 @[      elif field.type.category == field.type.CATEGORY_VOID]@
-@(ind)*bit_ofs += @(field.type.bitlen);
+@(ind)chunk_cb(NULL, @(field.type.bitlen), ctx);
 @[      end if]@
 @[      if msg_union]@
 @(ind)break;

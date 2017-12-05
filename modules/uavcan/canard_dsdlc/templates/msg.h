@@ -57,7 +57,7 @@ enum @(msg_underscored_name)_type_t {
 extern const struct uavcan_message_descriptor_s @(msg_underscored_name)_descriptor;
 @[  end if]@
 
-uint32_t encode_@(msg_underscored_name)(@(msg_c_type)* msg, uint8_t* buffer);
+void encode_@(msg_underscored_name)(@(msg_c_type)* msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, void* ctx);
 uint32_t decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, @(msg_c_type)* msg);
-void _encode_@(msg_underscored_name)(uint8_t* buffer, uint32_t* bit_ofs, @(msg_c_type)* msg, bool tao);
+void _encode_@(msg_underscored_name)(uint8_t* buffer, @(msg_c_type)* msg, uavcan_serializer_chunk_cb_ptr_t chunk_cb, void* ctx, bool tao);
 void _decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, uint32_t* bit_ofs, @(msg_c_type)* msg, bool tao);
