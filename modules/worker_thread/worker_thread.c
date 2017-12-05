@@ -32,7 +32,7 @@ void worker_thread_init(struct worker_thread_s* worker_thread, const char* name,
     worker_thread->listener_task_list_head = NULL;
     worker_thread->publisher_task_list_head = NULL;
 #endif
-
+    worker_thread->ignore_wake = false;
     worker_thread->thread = NULL;
 }
 
@@ -186,7 +186,7 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
     chRegSetThreadName(worker_thread->name);
     chThdSetPriority(worker_thread->priority);
     worker_thread->thread = chThdGetSelfX();
-
+    worker_thread->ignore_wake = true;
     while (true) {
 #ifdef MODULE_PUBSUB_ENABLED
         // Handle publisher tasks
@@ -260,7 +260,9 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
 #endif
 
             // No task due - go to sleep until there is a task
+            worker_thread->ignore_wake = false; //this is a sleep kickstarted by us
             chThdSuspendTimeoutS(&trp, ticks_to_next_timer_task);
+            worker_thread->ignore_wake = true; //any sleep outside of above should not be in our control
 
 #ifdef MODULE_PUBSUB_ENABLED
             worker_thread_set_listener_thread_references_S(worker_thread, NULL);
@@ -276,10 +278,20 @@ static THD_FUNCTION(worker_thread_func, arg) {
     worker_thread_takeover(worker_thread);
 }
 
+void worker_thread_ignore_wake(struct worker_thread_s* worker_thread)
+{
+    worker_thread->ignore_wake = true;
+}
+
+void worker_thread_accept_wake(struct worker_thread_s* worker_thread)
+{
+    worker_thread->ignore_wake = false;
+}
+
 static void worker_thread_wake_I(struct worker_thread_s* worker_thread) {
     chDbgCheckClassI();
 
-    if (worker_thread->thread && worker_thread->thread->state == CH_STATE_SUSPENDED) {
+    if (worker_thread->thread && worker_thread->thread->state == CH_STATE_SUSPENDED && !worker_thread->ignore_wake) {
         worker_thread->thread->u.rdymsg = MSG_TIMEOUT;
         chSchReadyI(worker_thread->thread);
     }

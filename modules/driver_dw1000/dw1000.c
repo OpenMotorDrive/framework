@@ -13,7 +13,6 @@ static void dw1000_read(struct dw1000_instance_s* instance, uint8_t regfile, uin
 static void dw1000_hard_reset(struct dw1000_instance_s* instance);
 static void dw1000_clear_double_buffered_status_bits_and_optionally_disable_transceiver(struct dw1000_instance_s* instance, bool transceiver_disable);
 static void dw1000_clear_double_buffered_status_bits(struct dw1000_instance_s* instance);
-static void dw1000_swap_rx_buffers(struct dw1000_instance_s* instance);
 static void dw1000_write8(struct dw1000_instance_s* instance, uint8_t regfile, uint16_t reg, uint8_t val);
 static void dw1000_write16(struct dw1000_instance_s* instance, uint8_t regfile, uint16_t reg, uint16_t val);
 static void dw1000_write32(struct dw1000_instance_s* instance, uint8_t regfile, uint16_t reg, uint32_t val);
@@ -279,6 +278,28 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     }
 }
 
+void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t port, uint8_t pin, uint32_t status_mask)
+{
+    if (!instance) {
+        return;
+    }
+    instance->irq_topic = enable_ext_irq(port, pin, FW_EXT_IRQ_RISING);
+    dw1000_write32(instance, DW1000_SYSTEM_EVENT_MASK_REGISTER_FILE, 0, status_mask);
+    dw1000_clear_status(instance, status_mask);
+}
+
+void dw1000_clear_status(struct dw1000_instance_s* instance, uint32_t status_mask)
+{
+    dw1000_write(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(status_mask), &status_mask);
+}
+
+uint32_t dw1000_get_status(struct dw1000_instance_s* instance)
+{
+    uint32_t sys_status = 0;
+    dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
+    return sys_status;
+}
+
 void dw1000_rx_enable(struct dw1000_instance_s* instance) {
     if (!instance) {
         return;
@@ -358,15 +379,9 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
         return ret;
     }
 
-    // Read RX_FINFO
-    dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
-    ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
-    // Check if the frame fits in the provided buffer
-    if (ret.len > 0 && ret.len <= buf_len) {
-        // Read RX_BUFFER
-        dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, ret.len, buf);
-    } else {
-        ret.err_code = DW1000_RX_ERROR_PROVIDED_BUFFER_TOO_SMALL;
+    if (!sys_status.LDEDONE) {
+        ret.err_code = DW1000_RX_ERROR_TIMESTAMP_PENDING;
+        return ret;
     }
 
     // Read RXPACC_NOSAT
@@ -382,6 +397,18 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     dw1000_read(instance, 0x15, 0, 5, &ret.timestamp);
     dw1000_read(instance, 0x13, 0, 4, &ret.rx_ttcki);
     dw1000_read(instance, 0x14, 0, 4, &ret.rx_ttcko);
+
+    // Read RX_FINFO
+    dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
+    ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
+    // Check if the frame fits in the provided buffer
+    if (ret.len > 0 && ret.len <= buf_len) {
+        // Read RX_BUFFER
+        dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, ret.len, buf);
+    } else {
+        ret.err_code = DW1000_RX_ERROR_PROVIDED_BUFFER_TOO_SMALL;
+    }
+
     ret.rx_ttcko &= ((1<<19)-1);
     if (((ret.rx_ttcko>>18)&1) != 0) {
         // extend the sign bit
@@ -659,7 +686,7 @@ void dw1000_disable_transceiver(struct dw1000_instance_s* instance) {
     dw1000_clear_double_buffered_status_bits_and_optionally_disable_transceiver(instance, true);
 }
 
-static void dw1000_swap_rx_buffers(struct dw1000_instance_s* instance) {
+void dw1000_swap_rx_buffers(struct dw1000_instance_s* instance) {
     // Issue the HRBPT command
     struct dw1000_sys_ctrl_s sys_ctrl;
     memset(&sys_ctrl,0,sizeof(sys_ctrl));

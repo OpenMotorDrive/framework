@@ -2,7 +2,7 @@ all:
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Os -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -lm -ffast-math
+  USE_OPT = -Os -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -lm -ffast-math
 endif
 
 # C specific options here (added to USE_OPT).
@@ -203,7 +203,7 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 CPPWARN = -Wall -Wextra -Wundef
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS) -DCHPRINTF_USE_FLOAT=1
+UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS)
 
 # Define ASM defines here
 UADEFS =
