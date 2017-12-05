@@ -50,34 +50,13 @@ static EXTConfig extcfg = {
 };
 MEMORYPOOL_DECL(ext_irq_topic_list_pool, sizeof(struct ext_irq_topic_list_s), chCoreAllocAlignedI);
 
-struct worker_thread_s ext_irq_thread;
+#ifndef EXT_INTERRUPT_WORKER_THREAD
+#error Please define EXT_INTERRUPT_WORKER_THREAD in worker_threads_conf.h.
+#endif
 
-RUN_ON(WORKER_THREADS_START) {
-    worker_thread_init(&ext_irq_thread,"ext_irq_publisher", 128, NORMALPRIO);
-}
+#define WT EXT_INTERRUPT_WORKER_THREAD
+WORKER_THREAD_DECLARE_EXTERN(WT)
 
-/*static THD_WORKING_AREA(ext_irq_thd_wa, 128);
-static THD_FUNCTION(ext_irq_thd_func, arg) {
-    (void)arg;
-    struct ext_irq_topic_list_s* ext_irq_list_item;
-    uint32_t evt_mask;   
-    static volatile uint16_t irq_cnt;
-    while(true) {
-        evt_mask = chEvtWaitAny((eventmask_t)0xFFFF);
-        irq_cnt++;
-        chMtxLock(&exti_instance->lock);
-        ext_irq_list_item = exti_instance->ext_irq_list_head;
-        while (ext_irq_list_item) {
-            if ((1<<ext_irq_list_item->channel) & evt_mask) {
-                pubsub_publish_message(&ext_irq_list_item->topic, 0, NULL, NULL);
-            }
-            ext_irq_list_item = ext_irq_list_item->next;
-        }
-        chMtxUnlock(&exti_instance->lock);
-
-    }
-}
-*/
 static void ext_irq_common_handler(EXTDriver *extp, expchannel_t channel)
 {
     (void)extp;
@@ -154,7 +133,7 @@ struct pubsub_topic_s* enable_ext_irq(uint32_t gpio_port, uint8_t pin_int_num, u
     ext_irq_list_item->channel = pin_int_num;
     pubsub_init_topic(&ext_irq_list_item->topic, NULL);
 
-    worker_thread_add_publisher_task(&ext_irq_thread, &ext_irq_list_item->task, &ext_irq_list_item->topic, 0, 2);
+    worker_thread_add_publisher_task(&WT, &ext_irq_list_item->task, 0, 2);
 
     LINKED_LIST_APPEND(struct ext_irq_topic_list_s, exti_instance->ext_irq_list_head, ext_irq_list_item);
 
