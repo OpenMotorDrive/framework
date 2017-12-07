@@ -2,6 +2,7 @@
 
 #include <framework_conf.h>
 
+#define bkpt() __asm volatile("BKPT #0\n")
 #define _CHIBIOS_RT_CONF_
 
 /**
