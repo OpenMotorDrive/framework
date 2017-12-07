@@ -37,7 +37,7 @@ RUN_AFTER(UAVCAN_INIT) {
             continue;
         }
 
-        struct allocatee_instance_s* instance = chCoreAllocAligned(sizeof(struct allocatee_instance_s), PORT_WORKING_AREA_ALIGN);
+        struct allocatee_instance_s* instance = chCoreAlloc(sizeof(struct allocatee_instance_s));
 
         chDbgCheck(instance != NULL);
         if (!instance) {
