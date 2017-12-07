@@ -156,10 +156,10 @@ void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, str
 
     task->msg_max_size = msg_max_size;
     chPoolObjectInit(&task->pool, mem_block_size, NULL);
-    chMBObjectInit(&task->mailbox, chCoreAllocAligned(sizeof(msg_t)*msg_queue_depth, PORT_WORKING_AREA_ALIGN), msg_queue_depth);
+    chMBObjectInit(&task->mailbox, chCoreAlloc(sizeof(msg_t)*msg_queue_depth), msg_queue_depth);
     task->worker_thread = worker_thread;
 
-    chPoolLoadArray(&task->pool, chCoreAllocAligned(mem_block_size*msg_queue_depth, PORT_WORKING_AREA_ALIGN), msg_queue_depth);
+    chPoolLoadArray(&task->pool, chCoreAlloc(mem_block_size*msg_queue_depth), msg_queue_depth);
 
     chSysLock();
     LINKED_LIST_APPEND(struct worker_thread_publisher_task_s, worker_thread->publisher_task_list_head, task);
