@@ -295,7 +295,7 @@ struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, co
         return NULL;
     }
     
-    void* tx_queue_mem = chCoreAllocAligned(CAN_TX_QUEUE_LEN*sizeof(struct can_tx_frame_s), PORT_WORKING_AREA_ALIGN);
+    void* tx_queue_mem = chCoreAlloc(CAN_TX_QUEUE_LEN*sizeof(struct can_tx_frame_s));
     
     if (!tx_queue_mem) {
         return NULL;
