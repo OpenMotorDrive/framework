@@ -105,13 +105,13 @@ static void uavcan_init(uint8_t can_dev_idx) {
     void* transfer_id_map_working_area;
 
     if (!(can_instance = can_get_instance(can_dev_idx))) { goto fail; }
-    if (!(instance = chCoreAllocAligned(sizeof(struct uavcan_instance_s), PORT_WORKING_AREA_ALIGN))) { goto fail; }
+    if (!(instance = chCoreAlloc(sizeof(struct uavcan_instance_s)))) { goto fail; }
     memset(instance, 0, sizeof(struct uavcan_instance_s));
     instance->can_instance = can_instance;
     chMtxObjectInit(&instance->canard_mtx);
-    if (!(transfer_id_map_working_area = chCoreAllocAligned(UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
+    if (!(transfer_id_map_working_area = chCoreAlloc(UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE))) { goto fail; }
     uavcan_transfer_id_map_init(&instance->transfer_id_map, UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE, transfer_id_map_working_area);
-    if(!(instance->canard_memory_pool = chCoreAllocAligned(UAVCAN_CANARD_MEMORY_POOL_SIZE, PORT_WORKING_AREA_ALIGN))) { goto fail; }
+    if(!(instance->canard_memory_pool = chCoreAlloc(UAVCAN_CANARD_MEMORY_POOL_SIZE))) { goto fail; }
     canardInit(&instance->canard, instance->canard_memory_pool, UAVCAN_CANARD_MEMORY_POOL_SIZE, uavcan_on_transfer_rx, uavcan_should_accept_transfer, instance);
     struct pubsub_topic_s* can_rx_topic = can_get_rx_topic(instance->can_instance);
     if (!can_rx_topic) { goto fail; }
