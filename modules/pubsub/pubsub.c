@@ -78,9 +78,7 @@ void pubsub_listener_reset(struct pubsub_listener_s* listener) {
     }
 
     chMtxLock(&listener->mtx);
-    chSysLock();
     listener->next_message = NULL;
-    chSysUnlock();
     chMtxUnlock(&listener->mtx);
 }
 
@@ -163,12 +161,12 @@ bool pubsub_listener_handle_one_timeout(struct pubsub_listener_s* listener, syst
 static struct pubsub_listener_s* pubsub_multiple_listener_wait_timeout_S(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout);
 
 bool pubsub_multiple_listener_handle_one_timeout(size_t num_listeners, struct pubsub_listener_s** listeners, systime_t timeout) {
-    syssts_t sts = chSysGetStatusAndLockX();
+    chSysLock();
     struct pubsub_listener_s* listener_with_message = pubsub_multiple_listener_wait_timeout_S(num_listeners, listeners, timeout);
 
     if (listener_with_message) {
         chMtxLockS(&listener_with_message->mtx);
-        chSysRestoreStatusX(sts);
+        chSysUnlock();
 
         struct pubsub_message_s* message = listener_with_message->next_message;
 
@@ -183,7 +181,7 @@ bool pubsub_multiple_listener_handle_one_timeout(size_t num_listeners, struct pu
         chMtxUnlock(&listener_with_message->mtx);
         return true;
     } else {
-        chSysRestoreStatusX(sts);
+        chSysUnlock();
         return false;
     }
 }
@@ -259,13 +257,13 @@ static void pubsub_delete_handler(void* delete_block) {
 
     struct pubsub_listener_s* listener = message_to_delete->topic->listener_list_head;
     while (listener) {
-        chSysLock();
         if (listener->next_message == message_to_delete) {
-            chMtxLockS(&listener->mtx);
-            listener->next_message = message_to_delete->next_in_topic;
-            chMtxUnlockS(&listener->mtx);
+            chMtxLock(&listener->mtx);
+            if (listener->next_message == message_to_delete) {
+                listener->next_message = message_to_delete->next_in_topic;
+            }
+            chMtxUnlock(&listener->mtx);
         }
-        chSysUnlock();
         listener = listener->next;
     }
 
