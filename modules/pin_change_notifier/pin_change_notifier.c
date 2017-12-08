@@ -57,7 +57,7 @@ bool pin_change_publisher_enable_pin(uint32_t line, enum pin_change_type_t mode,
         return false;
     }
 
-    struct pin_change_publisher_topic_s* irq_topic = chPoolAlloc(&pin_change_publisher_topic_list_pool);
+    struct pin_change_publisher_topic_s* irq_topic = chPoolAllocI(&pin_change_publisher_topic_list_pool);
     if (!irq_topic) {
         chSysUnlock();
         return false;
