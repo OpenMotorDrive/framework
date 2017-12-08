@@ -23,7 +23,8 @@ uavcan_beginfirmwareupdate_server \
 uavcan_debug \
 uavcan_param_interface \
 uavcan_allocatee \
-uavcan_restart
+uavcan_restart \
+pin_change_notifier
 
 MESSAGES_ENABLED = \
 uavcan.protocol.debug.LogMessage

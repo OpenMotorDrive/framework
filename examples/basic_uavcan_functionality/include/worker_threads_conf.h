@@ -8,6 +8,7 @@
 #define UAVCAN_RESTART_WORKER_THREAD                    lpwork_thread
 #define UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD lpwork_thread
 #define UAVCAN_ALLOCATEE_WORKER_THREAD                  lpwork_thread
+#define PIN_CHANGE_PUBLISHER_WORKER_THREAD              lpwork_thread
 
 #define CAN_TRX_WORKER_THREAD                           can_thread
 #define CAN_EXPIRE_WORKER_THREAD                        can_thread
