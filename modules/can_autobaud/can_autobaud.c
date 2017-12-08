@@ -19,7 +19,7 @@ WORKER_THREAD_DECLARE_EXTERN(WT)
 
 #define CAN_AUTOBAUD_SWITCH_INTERVAL_US 1000000
 
-static uint32_t valid_baudrates[] = {1000000, 500000, 250000, 125000};
+static const uint32_t valid_baudrates[] = {1000000, 500000, 250000, 125000};
 
 static uint8_t baudrate_idx = 0;
 static void autobaud_timer_task_func(struct worker_thread_timer_task_s* task);
