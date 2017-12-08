@@ -150,19 +150,27 @@ void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, s
     chSysUnlock();
 }
 
-void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth) {
+void worker_thread_add_publisher_task_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth) {
+    chDbgCheckClassI();
     chDbgCheck(!worker_thread_publisher_task_is_registered(worker_thread, task));
+
     size_t mem_block_size = sizeof(struct worker_thread_publisher_msg_s)+msg_max_size;
 
     task->msg_max_size = msg_max_size;
     chPoolObjectInit(&task->pool, mem_block_size, NULL);
-    chMBObjectInit(&task->mailbox, chCoreAlloc(sizeof(msg_t)*msg_queue_depth), msg_queue_depth);
+    chMBObjectInit(&task->mailbox, chCoreAllocI(sizeof(msg_t)*msg_queue_depth), msg_queue_depth);
     task->worker_thread = worker_thread;
 
-    chPoolLoadArray(&task->pool, chCoreAlloc(mem_block_size*msg_queue_depth), msg_queue_depth);
+    for (size_t i = 0; i < msg_queue_depth; i++) {
+        chPoolAddI(&task->pool, chCoreAllocI(mem_block_size));
+    }
 
-    chSysLock();
     LINKED_LIST_APPEND(struct worker_thread_publisher_task_s, worker_thread->publisher_task_list_head, task);
+}
+
+void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth) {
+    chSysLock();
+    worker_thread_add_publisher_task_I(worker_thread, task, msg_max_size, msg_queue_depth);
     chSysUnlock();
 }
 

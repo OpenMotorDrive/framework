@@ -101,6 +101,7 @@ void* worker_thread_task_get_user_context(struct worker_thread_timer_task_s* tas
 #ifdef MODULE_PUBSUB_ENABLED
 void worker_thread_add_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task, struct pubsub_topic_s* topic, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx);
 void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* task);
+void worker_thread_add_publisher_task_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth);
 void worker_thread_add_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth);
 void worker_thread_remove_publisher_task(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task);
 bool worker_thread_publisher_task_publish_I(struct worker_thread_publisher_task_s* task, struct pubsub_topic_s* topic, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx);
