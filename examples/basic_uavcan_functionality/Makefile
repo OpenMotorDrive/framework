@@ -24,7 +24,7 @@ uavcan_debug \
 uavcan_param_interface \
 uavcan_allocatee \
 uavcan_restart \
-pin_change_notifier
+pin_change_publisher
 
 MESSAGES_ENABLED = \
 uavcan.protocol.debug.LogMessage

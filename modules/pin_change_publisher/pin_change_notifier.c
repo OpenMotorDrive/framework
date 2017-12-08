@@ -1,4 +1,4 @@
-#include "pin_change_notifier.h"
+#include "pin_change_publisher.h"
 #include <common/ctor.h>
 #include <common/helpers.h>
 #include <modules/worker_thread/worker_thread.h>
