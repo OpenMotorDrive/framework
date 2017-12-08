@@ -152,7 +152,7 @@ void worker_thread_remove_listener_task(struct worker_thread_s* worker_thread, s
 
 void worker_thread_add_publisher_task_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* task, size_t msg_max_size, size_t msg_queue_depth) {
     chDbgCheckClassI();
-    chDbgCheck(!worker_thread_publisher_task_is_registered(worker_thread, task));
+    chDbgCheck(!worker_thread_publisher_task_is_registered_I(worker_thread, task));
 
     size_t mem_block_size = sizeof(struct worker_thread_publisher_msg_s)+msg_max_size;
 
