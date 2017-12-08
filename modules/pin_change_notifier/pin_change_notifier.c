@@ -30,7 +30,7 @@ static struct pin_change_publisher_topic_s *irq_topic_list_head;
 
 static EXTConfig extcfg;
 
-RUN_AFTER(CH_SYS_INIT) {
+RUN_ON(PUBSUB_TOPIC_INIT) {
     extStart(&EXTD1, &extcfg);
     worker_thread_add_publisher_task(&WT, &publisher_task, 0, PIN_CHANGE_PUBLISHER_QUEUE_DEPTH);
 }
