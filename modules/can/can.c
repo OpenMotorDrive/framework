@@ -409,6 +409,7 @@ static void can_reschedule_expire_timer_I(struct can_instance_s* instance) {
 static void can_reschedule_expire_timer(struct can_instance_s* instance) {
     chSysLock();
     can_reschedule_expire_timer_I(instance);
+    chSchRescheduleS();
     chSysUnlock();
 }
 
