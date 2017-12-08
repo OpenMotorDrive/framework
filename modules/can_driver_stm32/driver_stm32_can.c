@@ -65,7 +65,7 @@ static void can_driver_stm32_start(void* ctx, bool silent, bool auto_retransmit,
 
     instance->can->MCR = CAN_MCR_INRQ;
     while((instance->can->MSR & CAN_MSR_INAK) == 0) {
-        chThdSleep(MS2ST(1));
+        __asm__("nop");
     }
 
     instance->can->BTR = (silent?CAN_BTR_SILM:0) | CAN_BTR_SJW(0) | CAN_BTR_TS2(2-1) | CAN_BTR_TS1(15-1) | CAN_BTR_BRP((STM32_PCLK1/18)/baudrate - 1);
