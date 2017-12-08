@@ -23,7 +23,9 @@ uavcan_beginfirmwareupdate_server \
 uavcan_debug \
 uavcan_param_interface \
 uavcan_allocatee \
-uavcan_restart
+uavcan_restart \
+faults \
+uavcan_fault_reporter
 
 MESSAGES_ENABLED = \
 uavcan.protocol.debug.LogMessage

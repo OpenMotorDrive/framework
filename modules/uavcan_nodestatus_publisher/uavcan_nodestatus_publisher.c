@@ -10,6 +10,10 @@
 #define WT UAVCAN_NODESTATUS_PUBLISHER_WORKER_THREAD
 WORKER_THREAD_DECLARE_EXTERN(WT)
 
+#ifdef MODULE_FAULTS_ENABLED
+#include <modules/faults/faults.h>
+#endif
+
 static struct uavcan_protocol_NodeStatus_s node_status;
 static struct worker_thread_timer_task_s node_status_publisher_task;
 
@@ -33,7 +37,10 @@ RUN_AFTER(UAVCAN_INIT) {
 
 static void node_status_publisher_task_func(struct worker_thread_timer_task_s* task) {
     (void)task;
-
+    
+#ifdef MODULE_FAULTS_ENABLED
+    node_status.health = fault_get_level(fault_get_worst_fault());
+#endif
     node_status.uptime_sec++;
     uavcan_broadcast(0, &uavcan_protocol_NodeStatus_descriptor, CANARD_TRANSFER_PRIORITY_LOW, &node_status);
 }
