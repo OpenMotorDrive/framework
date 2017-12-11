@@ -5,6 +5,10 @@
 #include <modules/uavcan/uavcan.h>
 #include <common/bswap.h>
 
+#ifndef DW1000_LEDS_ENABLED
+#define DW1000_LEDS_ENABLED FALSE
+#endif
+
 #include <stdio.h>
 
 static void dw1000_config(struct dw1000_instance_s* instance);
@@ -194,6 +198,12 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     }
     // 0x25    4064  ACC_MEM     not config
     // 0x26      44  GPIO_CTRL   TODO
+    {
+#if DW1000_LEDS_ENABLED
+        dw1000_write16(instance, 0x26, 0x00, (uint16_t)0b01010101<<6);
+        dw1000_write8(instance, 0x26, 0x08, 0xf0);
+#endif
+    }
     // 0x27      44  DRX_CONF    -
     {
         // [0x00:0x01] reserved
@@ -269,12 +279,19 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     // 0x36      48  PMSC        -
     {
         // [0x00:0x03] PMSC_CTRL0
+#if DW1000_LEDS_ENABLED
+        dw1000_write8(instance, 0x36, 0x02, 0b10111111);
+#endif
         // [0x04:0x07] PMSC_CTRL1
         // [0x08:0x0B] reserved
         // [0x0C] PMSC_SNOZT
         // [0x10:0x25] reserved
         // [0x26:0x27] PMSC_TXFSEQ
         // [0x28:0x2B] PMSC_LEDC
+#if DW1000_LEDS_ENABLED
+        dw1000_write8(instance, 0x36, 0x28, 1);
+        dw1000_write8(instance, 0x36, 0x29, 1);
+#endif
     }
 }
 
