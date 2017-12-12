@@ -2,8 +2,10 @@ all:
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Os -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -lm -ffast-math
+  USE_OPT = -Os -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -ffast-math
 endif
+
+USE_OPT += -Wl,--wrap=log10f
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
@@ -215,7 +217,7 @@ UINCDIR =
 ULIBDIR =
 
 # List all user libraries here
-ULIBS =
+ULIBS = -lm
 
 LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
 
