@@ -30,7 +30,7 @@ void uavcan_send_debug_msg(uint8_t debug_level, char* source, const char *fmt, .
 
     log_msg.level.value = debug_level;
 
-    uavcan_broadcast(0, &uavcan_protocol_debug_LogMessage_descriptor, CANARD_TRANSFER_PRIORITY_LOW, &log_msg);
+    uavcan_broadcast(0, &uavcan_protocol_debug_LogMessage_descriptor, CANARD_TRANSFER_PRIORITY_LOWEST, &log_msg);
 }
 
 void uavcan_send_debug_keyvalue(char* key, float value)
@@ -41,5 +41,5 @@ void uavcan_send_debug_keyvalue(char* key, float value)
     log_kv.key_len = strnlen(key, sizeof(log_kv.key));
     memcpy(log_kv.key, key, log_kv.key_len);
 
-    uavcan_broadcast(0, &uavcan_protocol_debug_KeyValue_descriptor, CANARD_TRANSFER_PRIORITY_LOW, &log_kv);
+    uavcan_broadcast(0, &uavcan_protocol_debug_KeyValue_descriptor, CANARD_TRANSFER_PRIORITY_LOWEST, &log_kv);
 }
