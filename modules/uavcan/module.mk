@@ -10,9 +10,9 @@ DSDL_NAMESPACE_DIRS += $(DSDL_NAMESPACE_DIR_UAVCAN)
 
 INCDIR += $(BUILDDIR)/dsdlc/include
 
-$(BUILDDIR)/dsdlc.mk: $(shell find $(DSDL_NAMESPACE_DIRS))
+$(BUILDDIR)/dsdlc.mk: $(shell find $(DSDL_NAMESPACE_DIRS)) $(shell find $(VENDOR_DSDL_NAMESPACE_DIRS))
 	rm -rf $(BUILDDIR)/dsdlc
-	python $(UAVCAN_MODULE_DIR)/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
+	python $(UAVCAN_MODULE_DIR)/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(VENDOR_DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
 	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $(BUILDDIR)/dsdlc.mk
 
 ifneq ($(MAKECMDGOALS),clean)
