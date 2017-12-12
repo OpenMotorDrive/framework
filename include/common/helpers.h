@@ -68,5 +68,5 @@ void transform_d_q_to_alpha_beta(float theta, float d, float q, float* alpha, fl
 void transform_alpha_beta_to_d_q(float theta, float alpha, float beta, float* d, float* q);
 
 void hash_fnv_1a(uint32_t len, const uint8_t* buf, uint64_t* hash);
-uint16_t crc16_ccitt(const uint8_t* buf, uint32_t len, uint16_t crc);
+uint16_t crc16_ccitt(const void *buf, size_t len, uint16_t crc);
 uint32_t crc32(const uint8_t *buf, uint32_t len, uint32_t crc);
