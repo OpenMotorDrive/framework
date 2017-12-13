@@ -24,7 +24,8 @@ uavcan_debug \
 uavcan_param_interface \
 uavcan_allocatee \
 uavcan_restart \
-pin_change_publisher
+pin_change_publisher \
+freemem_check
 
 MESSAGES_ENABLED = \
 uavcan.protocol.debug.LogMessage
