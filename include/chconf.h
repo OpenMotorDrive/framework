@@ -523,3 +523,7 @@
 /* Trace code here.*/                                                     \
 }
 #endif
+
+#ifndef CH_CFG_CORE_ALLOCATOR_FAILURE_HOOK
+#define CH_CFG_CORE_ALLOCATOR_FAILURE_HOOK() {}
+#endif
