@@ -44,7 +44,7 @@ int64_t dw1000_wrap_timestamp(int64_t ts) {
     return ts & (((uint64_t)1<<40)-1);
 }
 
-void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint32_t ant_delay) {
+void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint16_t ant_delay) {
     if (!instance) {
         return;
     }
@@ -587,6 +587,15 @@ uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance) {
     uint16_t ret = 0;
     dw1000_read(instance, 0x18, 0, 2, &ret);
     return ret;
+}
+
+
+void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay)
+{
+    // [0x00:0x01] TX_ANTD
+    dw1000_write16(instance, 0x18, 0, ant_delay);
+    // [0x1804:0x1805] LDE_RXANTD
+    dw1000_write16(instance, 0x2E, 0x1804, ant_delay);    
 }
 
 static void dw1000_clock_force_sys_xti(struct dw1000_instance_s* instance) {
