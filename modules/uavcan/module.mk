@@ -12,7 +12,7 @@ INCDIR += $(BUILDDIR)/dsdlc/include
 
 $(BUILDDIR)/dsdlc.mk: $(foreach dsdl_dir,$(wildcard $(DSDL_NAMESPACE_DIRS)),$(shell find $(dsdl_dir)))
 	rm -rf $(BUILDDIR)/dsdlc
-	python $(UAVCAN_MODULE_DIR)/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(VENDOR_DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
+	python $(UAVCAN_MODULE_DIR)/canard_dsdlc/canard_dsdlc.py $(addprefix --build=,$(MESSAGES_ENABLED)) $(DSDL_NAMESPACE_DIRS) $(BUILDDIR)/dsdlc
 	find $(BUILDDIR)/dsdlc/src -name "*.c" | xargs echo CSRC += > $(BUILDDIR)/dsdlc.mk
 
 ifneq ($(MAKECMDGOALS),clean)
