@@ -20,7 +20,6 @@ WORKER_THREAD_DECLARE_EXTERN(WT)
 
 struct pin_change_publisher_topic_s {
     expchannel_t channel;
-    systime_t timestamp;
     struct pubsub_topic_s* topic;
     struct pin_change_publisher_topic_s* next;
 };
@@ -106,11 +105,6 @@ static struct pin_change_publisher_topic_s* pin_change_publisher_find_irq_topic(
     return NULL;
 }
 
-static void pin_change_timestamp_writer(size_t msg_size, void* msg, void* ctx)
-{
-    memcpy(msg, ctx, sizeof(struct pin_change_msg_s));
-}
-
 static void pin_change_publisher_common_handler(EXTDriver *extp, expchannel_t channel) {
     (void)extp;
     struct pin_change_publisher_topic_s* irq_topic = pin_change_publisher_find_irq_topic(channel);
@@ -118,7 +112,7 @@ static void pin_change_publisher_common_handler(EXTDriver *extp, expchannel_t ch
     if (irq_topic) {
         chSysLockFromISR();
         struct pin_change_msg_s msg = {chVTGetSystemTimeX()};
-        worker_thread_publisher_task_publish_I(&publisher_task, irq_topic->topic, sizeof(struct pin_change_msg_s), pin_change_timestamp_writer, &msg);
+        worker_thread_publisher_task_publish_I(&publisher_task, irq_topic->topic, sizeof(struct pin_change_msg_s), pubsub_copy_writer_func, &msg);
         chSysUnlockFromISR();
     }
 }
