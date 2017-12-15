@@ -583,6 +583,29 @@ uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance) {
     return ret;
 }
 
+systime_t dw1000_ticks_to_systicks(uint64_t dw1000_ticks) {
+    const uint32_t attoseconds_per_dw1000_tick = 15650040;
+    const uint64_t attoseconds_per_systick = 1000000000000000000/CH_CFG_ST_FREQUENCY;
+
+    return (systime_t)((dw1000_ticks*attoseconds_per_dw1000_tick)/attoseconds_per_systick);
+}
+
+uint64_t systicks_to_dw1000_ticks(systime_t systicks) {
+    const uint32_t attoseconds_per_dw1000_tick = 15650040;
+    const uint64_t attoseconds_per_systick = 1000000000000000000/CH_CFG_ST_FREQUENCY;
+
+    return ((uint64_t)systicks*attoseconds_per_systick)/attoseconds_per_dw1000_tick;
+}
+
+systime_t dw1000_timestamp_to_systime(struct dw1000_instance_s* instance, uint64_t dw1000_timestamp) {
+    // TODO ideally do these together in a critical section
+    uint64_t dw1000_tnow = dw1000_get_sys_time(instance);
+    systime_t tnow_systicks = chVTGetSystemTimeX();
+
+    systime_t tdiff_systicks = dw1000_ticks_to_systicks(dw1000_wrap_timestamp(dw1000_tnow-dw1000_timestamp));
+    return tnow_systicks-tdiff_systicks;
+}
+
 uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance) {
     uint16_t ret = 0;
     dw1000_read(instance, 0x18, 0, 2, &ret);

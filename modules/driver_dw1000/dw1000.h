@@ -124,6 +124,9 @@ void dw1000_handle_interrupt(struct dw1000_instance_s* instance);
 void dw1000_clear_status(struct dw1000_instance_s* instance, uint32_t status_mask);
 uint32_t dw1000_get_status(struct dw1000_instance_s* instance);
 void dw1000_swap_rx_buffers(struct dw1000_instance_s* instance);
+systime_t dw1000_timestamp_to_systime(struct dw1000_instance_s* instance, uint64_t dw1000_timestamp);
+systime_t dw1000_ticks_to_systicks(uint64_t dw1000_ticks);
+uint64_t systicks_to_dw1000_ticks(systime_t systicks);
 
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
 uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
