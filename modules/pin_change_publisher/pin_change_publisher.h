@@ -12,5 +12,9 @@ enum pin_change_type_t {
 };
 
 
+struct pin_change_msg_s {
+    uint64_t timestamp;
+};
+
 bool pin_change_publisher_enable_pin(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic);
 void pin_change_publisher_disable_pin(uint32_t line);
