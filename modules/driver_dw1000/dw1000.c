@@ -376,7 +376,7 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
 
     // Check RXOVRR
-    if (sys_status.RXOVRR) {
+    if (sys_status.RXOVRR || sys_status.LDEERR || sys_status.RXFCE || sys_status.RXPTO || sys_status.RXSFDTO || sys_status.RXPHE || sys_status.RXRFSL || sys_status.RXRFTO) {
         // Frames must be discarded (do not read frames) due to corrupted registers and TRXOFF command issued
         dw1000_disable_transceiver(instance);
         dw1000_swap_rx_buffers(instance);
