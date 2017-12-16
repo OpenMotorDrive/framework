@@ -63,7 +63,7 @@ static void beginfirmwareupdate_req_handler(size_t msg_size, const void* buf, vo
 
         shared_msg_finalize_and_write(SHARED_MSG_CANBUS_INFO, &new_boot_msg);
 
-        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, MS2ST(UAVCAN_RESTART_DELAY_MS), false);
+        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, LL_MS2ST(UAVCAN_RESTART_DELAY_MS), false);
     }
 
     uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);

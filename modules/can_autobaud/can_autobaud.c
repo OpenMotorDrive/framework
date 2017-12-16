@@ -89,6 +89,6 @@ static void autobaud_timer_task_func(struct worker_thread_timer_task_s* task) {
     }
 
     if (!autobaud_complete) {
-        worker_thread_timer_task_reschedule(&WT, task, US2ST(CAN_AUTOBAUD_SWITCH_INTERVAL_US));
+        worker_thread_timer_task_reschedule(&WT, task, LL_US2ST(CAN_AUTOBAUD_SWITCH_INTERVAL_US));
     }
 }

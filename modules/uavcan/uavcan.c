@@ -96,7 +96,7 @@ static struct uavcan_instance_s* uavcan_instance_list_head;
 RUN_ON(UAVCAN_INIT) {
     uavcan_init(0);
 
-    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
+    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, LL_US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
 }
 
 static void uavcan_init(uint8_t can_dev_idx) {
