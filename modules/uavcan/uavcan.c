@@ -367,7 +367,7 @@ static bool _uavcan_send(struct uavcan_instance_s* instance, const struct uavcan
     }
 
     if (_uavcan_get_node_id(instance) == 0) {
-        can_id |= crc16_ccitt(tx_state.frame_list_head->content.data, 7, 0xffff);
+        can_id |= (uint32_t)(crc16_ccitt(tx_state.frame_list_head->content.data, 7, 0xffff) & 0xfffc)<<8;
     }
 
     can_id |= _uavcan_get_node_id(instance);
