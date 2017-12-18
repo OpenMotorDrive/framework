@@ -419,7 +419,9 @@ bool uavcan_broadcast(uint8_t uavcan_idx, const struct uavcan_message_descriptor
     }
 
     uint16_t data_type_id = msg_descriptor->default_data_type_id;
+    chSysLock();
     uint8_t* transfer_id = uavcan_transfer_id_map_retrieve(&instance->transfer_id_map, false, data_type_id, 0);
+    chSysUnlock();
     if(_uavcan_send(instance, msg_descriptor, data_type_id, priority, *transfer_id, 0, msg_data)) {
         (*transfer_id)++;
         return true;
@@ -435,7 +437,9 @@ bool uavcan_request(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s
     }
 
     uint16_t data_type_id = msg_descriptor->default_data_type_id;
+    chSysLock();
     uint8_t* transfer_id = uavcan_transfer_id_map_retrieve(&instance->transfer_id_map, false, data_type_id, 0);
+    chSysUnlock();
     if(_uavcan_send(instance, msg_descriptor, data_type_id, priority, *transfer_id, dest_node_id, msg_data)) {
         (*transfer_id)++;
         return true;
