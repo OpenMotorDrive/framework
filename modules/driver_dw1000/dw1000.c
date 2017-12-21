@@ -577,8 +577,8 @@ uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance) {
     return ret;
 }
 
-uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance) {
-    uint64_t ret = 0;
+int64_t dw1000_get_sys_time(struct dw1000_instance_s* instance) {
+    int64_t ret = 0;
     dw1000_read(instance, 0x06, 0, 5, &ret);
     return ret;
 }
