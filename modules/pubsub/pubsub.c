@@ -108,15 +108,15 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
     message->topic = topic;
     message->next_in_topic = NULL;
 
+    if (writer_cb) {
+        writer_cb(size, message->data, ctx);
+    }
+
     if (topic->message_list_tail) {
         chDbgCheck(topic->message_list_tail != message); // Circular reference
         topic->message_list_tail->next_in_topic = message;
     }
     topic->message_list_tail = message;
-
-    if (writer_cb) {
-        writer_cb(size, message->data, ctx);
-    }
 
     struct pubsub_listener_s* listener = topic->listener_list_head;
     while (listener) {
@@ -169,14 +169,13 @@ bool pubsub_multiple_listener_handle_one_timeout(size_t num_listeners, struct pu
         chSysUnlock();
 
         struct pubsub_message_s* message = listener_with_message->next_message;
+        listener_with_message->next_message = message->next_in_topic;
 
         if (listener_with_message->handler_cb) {
             size_t message_size = fifoallocator_get_block_size(message)-sizeof(struct pubsub_message_s);
 
             listener_with_message->handler_cb(message_size, message->data, listener_with_message->handler_cb_ctx);
         }
-
-        listener_with_message->next_message = message->next_in_topic;
 
         chMtxUnlock(&listener_with_message->mtx);
         return true;
