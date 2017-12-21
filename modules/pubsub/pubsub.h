@@ -3,16 +3,20 @@
 #include <stddef.h>
 #include <modules/pubsub/fifoallocator.h>
 #include <ch.h>
+#include <pubsub_conf.h>
 
 #define __PUBSUB_CONCAT(a,b) a ## b
 #define _PUBSUB_CONCAT(a,b) __PUBSUB_CONCAT(a,b)
 
-#define PUBSUB_DECLARE_TOPIC_GROUP_STATIC(HANDLE_NAME, SIZE) \
-static struct pubsub_topic_group_s HANDLE_NAME; \
+#define PUBSUB_TOPIC_GROUP_CREATE(HANDLE_NAME, SIZE) \
+struct pubsub_topic_group_s HANDLE_NAME; \
 static uint8_t _PUBSUB_CONCAT(_pubsub_topic_group_memory_, HANDLE_NAME)[SIZE]; \
 RUN_BEFORE(PUBSUB_TOPIC_INIT) { \
     pubsub_create_topic_group(&HANDLE_NAME, SIZE, _PUBSUB_CONCAT(_pubsub_topic_group_memory_, HANDLE_NAME)); \
 }
+
+#define PUBSUB_TOPIC_GROUP_DECLARE_EXTERN(HANDLE_NAME) \
+extern struct pubsub_topic_group_s HANDLE_NAME;
 
 typedef void (*pubsub_message_writer_func_ptr)(size_t msg_size, void* msg, void* ctx);
 typedef void (*pubsub_message_handler_func_ptr)(size_t msg_size, const void* msg, void* ctx);

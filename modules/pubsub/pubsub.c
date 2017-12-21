@@ -3,11 +3,11 @@
 #include <common/ctor.h>
 #include <string.h>
 
-#ifndef PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE
-#define PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE 512
+#ifndef PUBSUB_DEFAULT_TOPIC_GROUP
+#error Please define PUBSUB_DEFAULT_TOPIC_GROUP in pubsub_conf.h.
 #endif
 
-PUBSUB_DECLARE_TOPIC_GROUP_STATIC(default_topic_group, PUBSUB_DEFAULT_ALLOCATOR_POOL_SIZE)
+PUBSUB_TOPIC_GROUP_DECLARE_EXTERN(PUBSUB_DEFAULT_TOPIC_GROUP);
 
 static void pubsub_delete_handler(void* delete_block);
 
@@ -26,7 +26,7 @@ void pubsub_init_topic(struct pubsub_topic_s* topic, struct pubsub_topic_group_s
     }
 
     if (!topic_group) {
-        topic_group = &default_topic_group;
+        topic_group = &PUBSUB_DEFAULT_TOPIC_GROUP;
     }
 
     topic->message_list_tail = NULL;
