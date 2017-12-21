@@ -129,7 +129,7 @@ systime_t dw1000_ticks_to_systicks(uint64_t dw1000_ticks);
 uint64_t systicks_to_dw1000_ticks(systime_t systicks);
 
 uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
-uint64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
+int64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
 uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
 void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay);
 float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
