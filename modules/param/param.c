@@ -7,8 +7,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifndef PARAM_MAX_NUM_PARAMS
 #define PARAM_MAX_NUM_PARAMS 50
-#define PARAM_STORAGE_SIZE 1024
+#endif
 
 #define PARAM_FORMAT_VERSION 1
 
