@@ -172,12 +172,14 @@ static struct pubsub_topic_s* _uavcan_get_message_topic(struct uavcan_instance_s
     }
 
     if (rx_list_item) {
+        chMtxUnlock(&instance->canard_mtx);
         return &rx_list_item->topic;
     }
 
     // create new item in receive list
     rx_list_item = chPoolAlloc(&rx_list_pool);
     if (!rx_list_item) {
+        chMtxUnlock(&instance->canard_mtx);
         return NULL;
     }
 
