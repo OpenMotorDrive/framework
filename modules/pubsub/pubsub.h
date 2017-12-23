@@ -38,6 +38,7 @@ struct pubsub_listener_s {
     thread_reference_t* waiting_thread_reference_ptr;
     pubsub_message_handler_func_ptr handler_cb;
     void* handler_cb_ctx;
+    uint32_t misses;
     mutex_t mtx;
     struct pubsub_listener_s* next;
 };

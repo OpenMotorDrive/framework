@@ -47,6 +47,7 @@ void pubsub_listener_init_and_register(struct pubsub_listener_s* listener, struc
     listener->handler_cb_ctx = handler_cb_ctx;
     chMtxObjectInit(&listener->mtx);
     listener->next = NULL;
+    listener->misses = 0;
 
     // lock topic group
     chMtxLock(&topic->group->mtx);
@@ -260,6 +261,7 @@ static void pubsub_delete_handler(void* delete_block) {
             chMtxLock(&listener->mtx);
             if (listener->next_message == message_to_delete) {
                 listener->next_message = message_to_delete->next_in_topic;
+                listener->misses++;
             }
             chMtxUnlock(&listener->mtx);
         }
