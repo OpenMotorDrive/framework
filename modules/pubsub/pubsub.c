@@ -83,6 +83,11 @@ void pubsub_copy_writer_func(size_t msg_size, void* msg, void* ctx) {
 
 static void pubsub_delete_message_S(struct pubsub_message_s* message_to_delete) {
     struct pubsub_listener_s* listener = message_to_delete->topic->listener_list_head;
+
+    if (message_to_delete->topic->message_list_tail == message_to_delete) {
+        message_to_delete->topic->message_list_tail = NULL;
+    }
+
     while (listener) {
         if (listener->next_message == message_to_delete) {
             chMtxLockS(&listener->mtx);
@@ -93,10 +98,6 @@ static void pubsub_delete_message_S(struct pubsub_message_s* message_to_delete) 
             chMtxUnlockS(&listener->mtx);
         }
         listener = listener->next;
-    }
-
-    if (message_to_delete->topic->message_list_tail == message_to_delete) {
-        message_to_delete->topic->message_list_tail = NULL;
     }
 }
 
