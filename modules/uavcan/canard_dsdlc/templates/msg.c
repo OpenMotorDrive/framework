@@ -72,7 +72,14 @@ void _encode_@(msg_underscored_name)(uint8_t* buffer, @(msg_c_type)* msg, uavcan
 @(ind)_encode_@(underscored_name(field.type))(buffer, &msg->@(field.name), chunk_cb, ctx, @('tao' if field == msg_fields[-1] else 'false'));
 @[      elif field.type.category == field.type.CATEGORY_PRIMITIVE]@
 @(ind)memset(buffer,0,8);
+@[        if field.type.kind == field.type.KIND_FLOAT and field.type.bitlen == 16]@
+@(ind){
+@(ind)    uint16_t float16_val = canardConvertNativeFloatToFloat16(msg->@(field.name));
+@(ind)    canardEncodeScalar(buffer, 0, @(field.type.bitlen), &float16_val);
+@(ind)}
+@[        else]@
 @(ind)canardEncodeScalar(buffer, 0, @(field.type.bitlen), &msg->@(field.name));
+@[        end if]@
 @(ind)chunk_cb(buffer, @(field.type.bitlen), ctx);
 @[      elif field.type.category == field.type.CATEGORY_ARRAY]@
 @[        if field.type.mode == field.type.MODE_DYNAMIC]@
@@ -94,7 +101,14 @@ void _encode_@(msg_underscored_name)(uint8_t* buffer, @(msg_c_type)* msg, uavcan
 @{indent += 1}@{ind = '    '*indent}@
 @[        if field.type.value_type.category == field.type.value_type.CATEGORY_PRIMITIVE]@
 @(ind)    memset(buffer,0,8);
+@[          if field.type.value_type.kind == field.type.value_type.KIND_FLOAT and field.type.value_type.bitlen == 16]@
+@(ind)    {
+@(ind)        uint16_t float16_val = canardConvertNativeFloatToFloat16(msg->@(field.name)[i]);
+@(ind)        canardEncodeScalar(buffer, 0, @(field.type.value_type.bitlen), &float16_val);
+@(ind)    }
+@[          else]@
 @(ind)    canardEncodeScalar(buffer, 0, @(field.type.value_type.bitlen), &msg->@(field.name)[i]);
+@[          end if]@
 @(ind)    chunk_cb(buffer, @(field.type.value_type.bitlen), ctx);
 @[        elif field.type.value_type.category == field.type.value_type.CATEGORY_COMPOUND]@
 @(ind)    _encode_@(underscored_name(field.type.value_type))(buffer, &msg->@(field.name)[i], chunk_cb, ctx, @[if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() < 8]tao && i==msg->@(field.name)_len@[else]false@[end if]@);
