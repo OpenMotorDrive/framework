@@ -4,9 +4,8 @@
 #define FIFOALLOCATOR_ALIGN(ptr) ((void*)(((size_t)(ptr) + (sizeof(void*)-1)) & ~(sizeof(void*)-1)))
 
 static bool fifoallocator_block_in_range(struct fifoallocator_instance_s* instance, void* block, size_t block_size);
-static void fifoallocator_pop_oldest(struct fifoallocator_instance_s* instance);
 
-void fifoallocator_init(struct fifoallocator_instance_s* instance, size_t memory_pool_size, void* memory_pool, delete_handler_ptr delete_cb) {
+void fifoallocator_init(struct fifoallocator_instance_s* instance, size_t memory_pool_size, void* memory_pool) {
     if (!instance || !memory_pool) {
         return;
     }
@@ -15,7 +14,6 @@ void fifoallocator_init(struct fifoallocator_instance_s* instance, size_t memory
     instance->memory_pool_size = memory_pool_size;
     instance->newest = NULL;
     instance->oldest = NULL;
-    instance->delete_cb = delete_cb;
 }
 
 void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t data_size) {
@@ -41,23 +39,19 @@ void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t d
         insert_block = FIFOALLOCATOR_ALIGN((struct fifoallocator_block_s*)instance->memory_pool);
 
         if (!fifoallocator_block_in_range(instance, insert_block, insert_block_size)) {
+            // Block does not fit in pool
             return NULL;
         }
 
-        // Delete oldest block until there is no wrapping.
-        while ((size_t)instance->oldest > (size_t)instance->newest) {
-            fifoallocator_pop_oldest(instance);
+        if ((size_t)instance->oldest > (size_t)instance->newest) {
+            // Allocated blocks wrap, beginning of memory pool is allocated
+            return NULL;
         }
     }
 
     // Check if the insert block overlaps with the oldest block
-    while (instance->oldest && (size_t)instance->oldest >= (size_t)insert_block && (size_t)instance->oldest < (size_t)insert_block+insert_block_size) {
-        fifoallocator_pop_oldest(instance);
-    }
-
-    // Check if we've deleted everything, start from the beginning if so
-    if (!instance->newest) {
-        insert_block = FIFOALLOCATOR_ALIGN((struct fifoallocator_block_s*)instance->memory_pool);
+    if (instance->oldest && (size_t)instance->oldest >= (size_t)insert_block && (size_t)instance->oldest < (size_t)insert_block+insert_block_size) {
+        return NULL;
     }
 
     insert_block->next_oldest = NULL;
@@ -76,6 +70,14 @@ void* fifoallocator_allocate(struct fifoallocator_instance_s* instance, size_t d
     return insert_block->data;
 }
 
+void* fifoallocator_peek_oldest(struct fifoallocator_instance_s* instance) {
+    if (!instance || !instance->oldest) {
+        return NULL;
+    }
+
+    return instance->oldest->data;
+}
+
 size_t fifoallocator_get_block_size(const void* block) {
     if (!block) {
         return 0;
@@ -84,13 +86,9 @@ size_t fifoallocator_get_block_size(const void* block) {
     return ((struct fifoallocator_block_s*)((uint8_t*)block - offsetof(struct fifoallocator_block_s, data)))->data_size;
 }
 
-static void fifoallocator_pop_oldest(struct fifoallocator_instance_s* instance) {
+void fifoallocator_pop_oldest(struct fifoallocator_instance_s* instance) {
     if (!instance || !instance->oldest) {
         return;
-    }
-
-    if (instance->delete_cb) {
-        instance->delete_cb(instance->oldest->data);
     }
 
     if (instance->newest == instance->oldest) {

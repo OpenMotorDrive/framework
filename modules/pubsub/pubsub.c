@@ -9,15 +9,12 @@
 
 PUBSUB_TOPIC_GROUP_DECLARE_EXTERN(PUBSUB_DEFAULT_TOPIC_GROUP);
 
-static void pubsub_delete_handler(void* delete_block);
-
 void pubsub_create_topic_group(struct pubsub_topic_group_s* topic_group, size_t memory_pool_size, void* memory_pool) {
     if (!topic_group || !memory_pool) {
         return;
     }
 
-    fifoallocator_init(&topic_group->allocator, memory_pool_size, memory_pool, pubsub_delete_handler);
-    chMtxObjectInit(&topic_group->mtx);
+    fifoallocator_init(&topic_group->allocator, memory_pool_size, memory_pool);
 }
 
 void pubsub_init_topic(struct pubsub_topic_s* topic, struct pubsub_topic_group_s* topic_group) {
@@ -49,14 +46,10 @@ void pubsub_listener_init_and_register(struct pubsub_listener_s* listener, struc
     listener->next = NULL;
     listener->misses = 0;
 
-    // lock topic group
-    chMtxLock(&topic->group->mtx);
-
     // append listener to topic's listener list
+    chSysLock();
     LINKED_LIST_APPEND(struct pubsub_listener_s, topic->listener_list_head, listener);
-
-    // unlock topic group
-    chMtxUnlock(&topic->group->mtx);
+    chSysUnlock();
 }
 
 void pubsub_listener_unregister(struct pubsub_listener_s* listener) {
@@ -64,13 +57,10 @@ void pubsub_listener_unregister(struct pubsub_listener_s* listener) {
         return;
     }
 
-    // lock topic group
-    chMtxLock(&listener->topic->group->mtx);
-
     // remove listener from topic's listener list
+    chSysLock();
     LINKED_LIST_REMOVE(struct pubsub_listener_s, listener->topic->listener_list_head, listener);
-
-    chMtxUnlock(&listener->topic->group->mtx);
+    chSysUnlock();
 }
 
 void pubsub_listener_reset(struct pubsub_listener_s* listener) {
@@ -91,19 +81,48 @@ void pubsub_copy_writer_func(size_t msg_size, void* msg, void* ctx) {
     memcpy(msg, ctx, msg_size);
 }
 
+static void pubsub_delete_message_S(struct pubsub_message_s* message_to_delete) {
+    struct pubsub_listener_s* listener = message_to_delete->topic->listener_list_head;
+    while (listener) {
+        if (listener->next_message == message_to_delete) {
+            chMtxLockS(&listener->mtx);
+            if (listener->next_message == message_to_delete) {
+                listener->next_message = message_to_delete->next_in_topic;
+                listener->misses++;
+            }
+            chMtxUnlockS(&listener->mtx);
+        }
+        listener = listener->next;
+    }
+
+    if (message_to_delete->topic->message_list_tail == message_to_delete) {
+        message_to_delete->topic->message_list_tail = NULL;
+    }
+}
+
 void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_message_writer_func_ptr writer_cb, void* ctx) {
     if (!topic || !topic->group || !topic->listener_list_head) {
         return;
     }
 
-    // lock topic group
-    chMtxLock(&topic->group->mtx);
+    struct pubsub_message_s* message;
+    while (true) {
+        chSysLock();
+        message = fifoallocator_allocate(&topic->group->allocator, size+sizeof(struct pubsub_message_s));
 
-    struct pubsub_message_s* message = fifoallocator_allocate(&topic->group->allocator, size+sizeof(struct pubsub_message_s));
+        if (message != NULL) {
+            break;
+        }
 
-    if (!message) {
-        chMtxUnlock(&topic->group->mtx);
-        return;
+        // Delete the oldest message in the topic group
+        struct pubsub_message_s* message_to_delete = fifoallocator_peek_oldest(&topic->group->allocator);
+        pubsub_delete_message_S(message_to_delete);
+
+        if (fifoallocator_peek_oldest(&topic->group->allocator) == message_to_delete) {
+            fifoallocator_pop_oldest(&topic->group->allocator);
+        }
+
+        chSysUnlock();
     }
 
     message->topic = topic;
@@ -119,25 +138,27 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
     }
     topic->message_list_tail = message;
 
+    // Set listeners' next messages
     struct pubsub_listener_s* listener = topic->listener_list_head;
     while (listener) {
         if (!listener->next_message) {
-            // Lock to ensure atomic write of next_message
-            chMtxLock(&listener->mtx);
             listener->next_message = message;
-            chMtxUnlock(&listener->mtx);
         }
-
-        chSysLock();
-        if (listener->waiting_thread_reference_ptr) {
-            chThdResumeS(listener->waiting_thread_reference_ptr, (msg_t)listener);
-        }
-        chSysUnlock();
 
         listener = listener->next;
     }
 
-    chMtxUnlock(&topic->group->mtx);
+    // Wake listener threads
+    listener = topic->listener_list_head;
+    while (listener) {
+        if (listener->waiting_thread_reference_ptr) {
+            chThdResumeS(listener->waiting_thread_reference_ptr, (msg_t)listener);
+        }
+
+        listener = listener->next;
+    }
+
+    chSysUnlock();
 }
 
 void pubsub_listener_set_handler_cb(struct pubsub_listener_s* listener, pubsub_message_handler_func_ptr handler_cb, void* handler_cb_ctx) {
@@ -249,26 +270,4 @@ static struct pubsub_listener_s* pubsub_multiple_listener_wait_timeout_S(size_t 
     }
 
     return ret;
-}
-
-static void pubsub_delete_handler(void* delete_block) {
-    // NOTE: this will be called during publishing in the publishing thread's context. The topic group will already be locked.
-    struct pubsub_message_s* message_to_delete = delete_block;
-
-    struct pubsub_listener_s* listener = message_to_delete->topic->listener_list_head;
-    while (listener) {
-        if (listener->next_message == message_to_delete) {
-            chMtxLock(&listener->mtx);
-            if (listener->next_message == message_to_delete) {
-                listener->next_message = message_to_delete->next_in_topic;
-                listener->misses++;
-            }
-            chMtxUnlock(&listener->mtx);
-        }
-        listener = listener->next;
-    }
-
-    if (message_to_delete->topic->message_list_tail == message_to_delete) {
-        message_to_delete->topic->message_list_tail = NULL;
-    }
 }

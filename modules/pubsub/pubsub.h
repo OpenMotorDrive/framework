@@ -51,7 +51,6 @@ struct pubsub_topic_s {
 
 struct pubsub_topic_group_s {
     struct fifoallocator_instance_s allocator;
-    mutex_t mtx;
 };
 
 // - Creates a new topic group with a separate memory pool and mutex. This new topic group is insulated from problems on
