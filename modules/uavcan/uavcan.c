@@ -62,7 +62,6 @@ struct uavcan_instance_s {
     CanardInstance canard;
     void* canard_memory_pool;
     struct transfer_id_map_s transfer_id_map;
-    mutex_t canard_mtx;
 
     struct worker_thread_listener_task_s rx_listener_task;
 
@@ -108,7 +107,6 @@ static void uavcan_init(uint8_t can_dev_idx) {
     if (!(instance = chCoreAlloc(sizeof(struct uavcan_instance_s)))) { goto fail; }
     memset(instance, 0, sizeof(struct uavcan_instance_s));
     instance->can_instance = can_instance;
-    chMtxObjectInit(&instance->canard_mtx);
     if (!(transfer_id_map_working_area = chCoreAlloc(UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE))) { goto fail; }
     uavcan_transfer_id_map_init(&instance->transfer_id_map, UAVCAN_TRANSFER_ID_MAP_WORKING_AREA_SIZE, transfer_id_map_working_area);
     if(!(instance->canard_memory_pool = chCoreAlloc(UAVCAN_CANARD_MEMORY_POOL_SIZE))) { goto fail; }
@@ -163,7 +161,7 @@ static struct pubsub_topic_s* _uavcan_get_message_topic(struct uavcan_instance_s
         return NULL;
     }
 
-    chMtxLock(&instance->canard_mtx);
+    chSysLock();
 
     // attempt to find existing item in receive list
     struct uavcan_rx_list_item_s* rx_list_item = instance->rx_list_head;
@@ -172,14 +170,14 @@ static struct pubsub_topic_s* _uavcan_get_message_topic(struct uavcan_instance_s
     }
 
     if (rx_list_item) {
-        chMtxUnlock(&instance->canard_mtx);
+        chSysUnlock();
         return &rx_list_item->topic;
     }
 
     // create new item in receive list
-    rx_list_item = chPoolAlloc(&rx_list_pool);
+    rx_list_item = chPoolAllocI(&rx_list_pool);
     if (!rx_list_item) {
-        chMtxUnlock(&instance->canard_mtx);
+        chSysUnlock();
         return NULL;
     }
 
@@ -190,7 +188,7 @@ static struct pubsub_topic_s* _uavcan_get_message_topic(struct uavcan_instance_s
     // append it
     LINKED_LIST_APPEND(struct uavcan_rx_list_item_s, instance->rx_list_head, rx_list_item);
 
-    chMtxUnlock(&instance->canard_mtx);
+    chSysUnlock();
 
     return &rx_list_item->topic;
 }
@@ -218,9 +216,9 @@ static uint8_t _uavcan_get_node_id(struct uavcan_instance_s* instance) {
         return 0;
     }
 
-    chMtxLock(&instance->canard_mtx);
+    chSysLock();
     uint8_t ret = canardGetLocalNodeID(&instance->canard);
-    chMtxUnlock(&instance->canard_mtx);
+    chSysUnlock();
     return ret;
 }
 
@@ -233,10 +231,10 @@ static void _uavcan_set_node_id(struct uavcan_instance_s* instance, uint8_t node
         return;
     }
 
-    chMtxLock(&instance->canard_mtx);
     can_set_auto_retransmit_mode(instance->can_instance, node_id != 0);
+    chSysLock();
     canardSetLocalNodeID(&instance->canard, node_id);
-    chMtxUnlock(&instance->canard_mtx);
+    chSysUnlock();
 }
 
 void uavcan_set_node_id(uint8_t uavcan_idx, uint8_t node_id) {
@@ -472,10 +470,8 @@ static void uavcan_can_rx_handler(size_t msg_size, const void* msg, void* ctx) {
 
     CanardCANFrame canard_frame = convert_can_frame_to_CanardCANFrame(&frame->content);
 
-    chMtxLock(&instance->canard_mtx);
     uint64_t timestamp = micros64();
     canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
-    chMtxUnlock(&instance->canard_mtx);
 }
 
 static void stale_transfer_cleanup_task_func(struct worker_thread_timer_task_s* task) {
@@ -483,9 +479,7 @@ static void stale_transfer_cleanup_task_func(struct worker_thread_timer_task_s* 
     struct uavcan_instance_s* instance = NULL;
 
     while (uavcan_iterate_instances(&instance)) {
-        chMtxLock(&instance->canard_mtx);
         canardCleanupStaleTransfers(&instance->canard, micros64());
-        chMtxUnlock(&instance->canard_mtx);
     }
 }
 
