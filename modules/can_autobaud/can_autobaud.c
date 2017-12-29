@@ -11,7 +11,7 @@
 #endif
 
 #ifndef CAN_AUTOBAUD_WORKER_THREAD
-#error Please define CAN_AUTOBAUD_WORKER_THREAD in worker_threads_conf.h.
+#error Please define CAN_AUTOBAUD_WORKER_THREAD in framework_conf.h.
 #endif
 
 #define WT CAN_AUTOBAUD_WORKER_THREAD

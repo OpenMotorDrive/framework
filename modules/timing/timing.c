@@ -19,7 +19,7 @@
 #include <modules/worker_thread/worker_thread.h>
 
 #ifndef TIMING_WORKER_THREAD
-#error Please define TIMING_WORKER_THREAD in worker_threads_conf.h.
+#error Please define TIMING_WORKER_THREAD in framework_conf.h.
 #endif
 
 #define WT TIMING_WORKER_THREAD

@@ -6,7 +6,7 @@
 #include <modules/worker_thread/worker_thread.h>
 
 #ifndef UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD
-#error Please define UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD in worker_threads_conf.h.
+#error Please define UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD in framework_conf.h.
 #endif
 
 #define WT UAVCAN_BEGINFIRMWAREUPDATE_SERVER_WORKER_THREAD

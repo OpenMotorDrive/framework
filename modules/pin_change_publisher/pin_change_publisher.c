@@ -11,7 +11,7 @@
 #endif
 
 #ifndef PIN_CHANGE_PUBLISHER_WORKER_THREAD
-#error Please define PIN_CHANGE_PUBLISHER_WORKER_THREAD in worker_threads_conf.h.
+#error Please define PIN_CHANGE_PUBLISHER_WORKER_THREAD in framework_conf.h.
 #endif
 
 #define WT PIN_CHANGE_PUBLISHER_WORKER_THREAD

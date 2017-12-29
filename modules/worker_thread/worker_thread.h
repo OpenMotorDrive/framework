@@ -7,8 +7,6 @@
 #include <modules/pubsub/pubsub.h>
 #endif
 
-#include <worker_threads_conf.h>
-
 #define __WORKER_THREAD_CONCAT(a,b) a ## b
 #define _WORKER_THREAD_CONCAT(a,b) __WORKER_THREAD_CONCAT(a,b)
 

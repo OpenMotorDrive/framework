@@ -31,7 +31,7 @@
 #endif
 
 #ifndef UAVCAN_RX_WORKER_THREAD
-#error Please define UAVCAN_RX_WORKER_THREAD in worker_threads_conf.h.
+#error Please define UAVCAN_RX_WORKER_THREAD in framework_conf.h.
 #endif
 
 #define WT_RX UAVCAN_RX_WORKER_THREAD
