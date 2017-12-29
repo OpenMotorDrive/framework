@@ -52,6 +52,8 @@ void _encode_@(msg_underscored_name)(uint8_t* buffer, @(msg_c_type)* msg, uavcan
 @{indent += 1}@{ind = '    '*indent}@
 @(ind)(void)buffer;
 @(ind)(void)msg;
+@(ind)(void)chunk_cb;
+@(ind)(void)ctx;
 @(ind)(void)tao;
 
 @[  if msg_union]@
