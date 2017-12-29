@@ -12,9 +12,11 @@
 uint8_t _module_freemem_init_phase = 1;
 
 RUN_AFTER(INIT_END) {
+#if REQUIRED_RAM_MARGIN_AFTER_INIT != 0
     if (chCoreGetStatusX() < REQUIRED_RAM_MARGIN_AFTER_INIT) {
         chSysHalt(NULL);
     }
+#endif
 
 #ifdef MODULE_UAVCAN_DEBUG_ENABLED
     uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "freemem %u", chCoreGetStatusX());
