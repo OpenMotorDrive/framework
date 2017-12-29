@@ -12,7 +12,6 @@ static systime_t worker_thread_get_ticks_to_timer_task_I(struct worker_thread_ti
 static bool worker_thread_timer_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* check_task);
 #ifdef MODULE_PUBSUB_ENABLED
 static bool worker_thread_publisher_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
-static bool worker_thread_publisher_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
 static bool worker_thread_get_any_publisher_task_due_I(struct worker_thread_s* worker_thread);
 static bool worker_thread_listener_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
 static bool worker_thread_listener_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_listener_task_s* check_task);
@@ -369,13 +368,6 @@ static bool worker_thread_publisher_task_is_registered_I(struct worker_thread_s*
         task = task->next;
     }
     return false;
-}
-
-static bool worker_thread_publisher_task_is_registered(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task) {
-    chSysLock();
-    bool ret = worker_thread_publisher_task_is_registered_I(worker_thread, check_task);
-    chSysUnlock();
-    return ret;
 }
 
 static bool worker_thread_get_any_publisher_task_due_I(struct worker_thread_s* worker_thread) {
