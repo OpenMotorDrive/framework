@@ -4,7 +4,7 @@
 #include <string.h>
 
 #ifndef PUBSUB_DEFAULT_TOPIC_GROUP
-#error Please define PUBSUB_DEFAULT_TOPIC_GROUP in pubsub_conf.h.
+#error Please define PUBSUB_DEFAULT_TOPIC_GROUP in framework_conf.h.
 #endif
 
 PUBSUB_TOPIC_GROUP_DECLARE_EXTERN(PUBSUB_DEFAULT_TOPIC_GROUP);

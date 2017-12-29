@@ -3,7 +3,6 @@
 #include <stddef.h>
 #include <modules/pubsub/fifoallocator.h>
 #include <ch.h>
-#include <pubsub_conf.h>
 
 #define __PUBSUB_CONCAT(a,b) a ## b
 #define _PUBSUB_CONCAT(a,b) __PUBSUB_CONCAT(a,b)
