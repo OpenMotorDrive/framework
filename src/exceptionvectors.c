@@ -10,6 +10,7 @@
  *
  * Released under the CC0 1.0 Universal (public domain)
  */
+
 #include <stdint.h>
 #include <ch.h>
 #include <string.h>
@@ -19,6 +20,8 @@
  * If no debugger is attached, this will be ignored
  */
 #define bkpt() __asm volatile("BKPT #0\n")
+
+#pragma GCC diagnostic ignored "-Wdiscarded-qualifiers"
 
 void NMI_Handler(void) {
     //TODO
