@@ -62,7 +62,7 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
     instance->reset_line = reset_line;
     instance->config.prf = DW1000_PRF_64MHZ;
     instance->config.preamble = DW1000_PREAMBLE_128;
-    instance->config.channel = DW1000_CHANNEL_7;
+    instance->config.channel = DW1000_CHANNEL_5;
     instance->config.data_rate = DW1000_DATA_RATE_6_8M;
     instance->config.pcode = dw1000_conf_get_default_pcode(instance->config);
     instance->config.ant_delay = ant_delay;
