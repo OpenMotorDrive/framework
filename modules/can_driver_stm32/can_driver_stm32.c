@@ -68,7 +68,54 @@ static void can_driver_stm32_start(void* ctx, bool silent, bool auto_retransmit,
         __asm__("nop");
     }
 
-    instance->can->BTR = (silent?CAN_BTR_SILM:0) | CAN_BTR_SJW(0) | CAN_BTR_TS2(2-1) | CAN_BTR_TS1(15-1) | CAN_BTR_BRP((STM32_PCLK1/18)/baudrate - 1);
+    // Adapted from libcanard's canardSTM32ComputeCANTimings
+    uint8_t bs1;
+    uint8_t bs2;
+    uint32_t prescaler;
+
+    {
+        const uint8_t max_quanta_per_bit = (baudrate >= 1000000) ? 10 : 17;
+        const uint32_t prescaler_bs = STM32_PCLK1 / baudrate;
+
+        uint8_t bs1_bs2_sum = (uint8_t)(max_quanta_per_bit - 1);
+
+        // Search for the highest valid prescalar value
+        while ((prescaler_bs % (1 + bs1_bs2_sum)) != 0) {
+            if (bs1_bs2_sum <= 2) {
+                return;
+            }
+            bs1_bs2_sum--;
+        }
+
+        prescaler = prescaler_bs / (1 + bs1_bs2_sum);
+        if (prescaler < 1 || prescaler > 1024) {
+            return;
+        }
+
+        // The recommended sample point location is 87.5% or 7/8. Compute the values of BS1 and BS2 that satisfy BS1+BS2 == bs1_bs2_sum and minimize ((1+BS1)/(1+BS1/BS2) - 7/8)
+        bs1 = ((7 * bs1_bs2_sum - 1) + 4) / 8;
+
+        // Check sample point constraints
+        const uint16_t max_sample_point_per_mille = 900;
+        const uint16_t min_sample_point_per_mille = (baudrate >= 1000000) ? 750 : 850;
+
+        if (1000 * (1 + bs1) / (1 + bs1_bs2_sum) >= max_sample_point_per_mille) {
+            bs1--;
+        }
+
+        if (1000 * (1 + bs1) / (1 + bs1_bs2_sum) < min_sample_point_per_mille) {
+            bs1++;
+        }
+
+        if (1000 * (1 + bs1) / (1 + bs1_bs2_sum) >= max_sample_point_per_mille) {
+            return;
+        }
+
+        bs2 = bs1_bs2_sum-bs1;
+    }
+
+    instance->can->BTR = (silent?CAN_BTR_SILM:0) | CAN_BTR_SJW(0) | CAN_BTR_TS1(bs1-1) | CAN_BTR_TS2(bs2-1) | CAN_BTR_BRP(prescaler - 1);
+
     instance->can->MCR = CAN_MCR_ABOM | CAN_MCR_AWUM | (auto_retransmit?0:CAN_MCR_NART);
 
     instance->can->IER = CAN_IER_TMEIE | CAN_IER_FMPIE0; // TODO: review reference manual for other interrupt flags needed
