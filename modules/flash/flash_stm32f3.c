@@ -2,9 +2,16 @@
 
 #include <ch.h>
 #include <hal.h>
+#ifdef STM32F3xx_MCUCONF
+
 
 #define FLASH_WORD_SIZE sizeof(flash_word_t)
 typedef uint16_t flash_word_t;
+
+uint32_t flash_getpageaddr(uint32_t page)
+{
+    return (page*2048);
+}
 
 static void __attribute__((noinline)) flash_wait_until_ready(void) {
     while(FLASH->SR & FLASH_SR_BSY);
@@ -128,3 +135,4 @@ bool __attribute__((noinline)) flash_erase_page(void* page_addr) {
     flash_lock();
     return success;
 }
+#endif //STM32F3xx_MCUCONF
