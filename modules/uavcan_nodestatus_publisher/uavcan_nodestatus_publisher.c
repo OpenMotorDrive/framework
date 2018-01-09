@@ -31,6 +31,15 @@ RUN_AFTER(UAVCAN_INIT) {
     worker_thread_add_timer_task(&WT, &node_status_publisher_task, node_status_publisher_task_func, NULL, S2ST(1), true);
 }
 
+void set_node_health(uint8_t health) {
+    node_status.health = health;
+}
+
+void set_node_mode(uint8_t mode) {
+    node_status.mode = mode;
+}
+
+
 static void node_status_publisher_task_func(struct worker_thread_timer_task_s* task) {
     (void)task;
 
