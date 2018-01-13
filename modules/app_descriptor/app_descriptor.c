@@ -13,8 +13,8 @@ const struct shared_app_descriptor_s shared_app_descriptor __attribute__((sectio
     .image_crc = 0,
     .image_size = 0,
     .vcs_commit = GIT_HASH,
-    .major_version = 1,
-    .minor_version = 0,
+    .major_version = SHARED_APP_DESCRIPTOR_MAJOR_VERSION,
+    .minor_version = SHARED_APP_DESCRIPTOR_MINOR_VERSION,
     .parameters_fmt = SHARED_APP_PARAMETERS_FMT,
     .parameters_ignore_crc64 = 1,
     .parameters = {&shared_app_parameters, 0}
