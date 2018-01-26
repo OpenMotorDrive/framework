@@ -22,7 +22,7 @@ struct __attribute__((packed)) dw1000_rx_finfo_s {
         uint32_t reserved1:1;        // [10]
         uint32_t RXNSPL:2;           // [11:12]
         uint32_t RXBR:2;             // [13:14]
-        uint32_t RNG:1;              // [15]
+        uint32_t RANGE:1;              // [15]
         uint32_t RXPRF:2;            // [16:17]
         uint32_t RXPSR:2;            // [18:19]
         uint32_t RXPACC:12;          // [20:31]

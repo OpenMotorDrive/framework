@@ -217,7 +217,14 @@ ULIBDIR =
 # List all user libraries here
 ULIBS = -lm
 
-LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
+# Select region for application
+BL_MODULE = bootloader
+ifneq ($(filter $(BL_MODULE),$(MODULES_ENABLED)),) 
+  LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/bl.ld
+else
+  LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
+endif
+
 
 include $(RULESPATH)/rules.mk
 
