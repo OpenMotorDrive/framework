@@ -7,4 +7,4 @@ ifeq ($(filter clean,$(MAKECMDGOALS)),)
 endif
 
 clean:
-	rm -rf build
+	rm -rf build .dep
