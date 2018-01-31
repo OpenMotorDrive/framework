@@ -150,19 +150,17 @@ static bool allocation_running(struct allocatee_instance_s* instance) {
     return uavcan_get_node_id(instance->uavcan_idx) == 0;
 }
 
-static float getRandomFloat(void)
-{
-    static bool initialized = false;
-    static uint8_t unique_id[16];
-    if (!initialized)
-    {
-        initialized = true;
+static float getRandomFloat(void) {
+    static uint32_t state;
+    if (state == 0) {
+        uint8_t unique_id[16];
         board_get_unique_id(unique_id, sizeof(unique_id));
 
         const uint32_t* unique_32 = (uint32_t*)&unique_id[0];
 
-        srand(micros() ^ *unique_32);
+        state = micros() ^ unique_32[0] ^ unique_32[1] ^ unique_32[2] ^ unique_32[3];
     }
 
-    return (float)rand() / (float)RAND_MAX;
+    state = state * 747796405U;
+    return (float)(uint16_t)(((state >> 11u) ^ state) >> ((state >> 30u) + 11u)) / UINT16_MAX;
 }
