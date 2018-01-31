@@ -92,6 +92,11 @@ static struct worker_thread_timer_task_s stale_transfer_cleanup_task;
 
 static struct uavcan_instance_s* uavcan_instance_list_head;
 
+#ifdef MODULE_PARAM_ENABLED
+#include <modules/param/param.h>
+PARAM_DEFINE_UINT8_PARAM_STATIC(node_id_param, "uavcan.node_id", 0, 0, 125)
+#endif
+
 RUN_ON(UAVCAN_INIT) {
     uavcan_init(0);
 
@@ -121,20 +126,30 @@ static void uavcan_init(uint8_t can_dev_idx) {
 
     instance->idx = uavcan_get_idx(instance);
 
+    uint8_t node_id = 0;
+
 #ifdef MODULE_APP_DESCRIPTOR_ENABLED
     {
         const struct shared_app_parameters_s* shared_parameters = shared_get_parameters(&shared_app_descriptor);
         if (shared_parameters && shared_parameters->canbus_local_node_id > 0 && shared_parameters->canbus_local_node_id <= 127) {
-            _uavcan_set_node_id(instance, shared_parameters->canbus_local_node_id);
+            node_id = shared_parameters->canbus_local_node_id;
         }
     }
 #endif
 
 #ifdef MODULE_BOOT_MSG_ENABLED
     if (get_boot_msg_valid() && boot_msg.canbus_info.local_node_id > 0 && boot_msg.canbus_info.local_node_id <= 127) {
-        _uavcan_set_node_id(instance, boot_msg.canbus_info.local_node_id);
+        node_id = boot_msg.canbus_info.local_node_id;
     }
 #endif
+
+#ifdef MODULE_PARAM_ENABLED
+    if (node_id_param != 0) {
+        node_id = node_id_param;
+    }
+#endif
+
+    _uavcan_set_node_id(instance, node_id);
 
     return;
 
