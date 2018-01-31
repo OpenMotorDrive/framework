@@ -3,7 +3,7 @@ ifeq ($(USE_OPT),)
   USE_OPT = -Os
 endif
 
-USE_OPT += -Wl,--wrap=log10f -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -ffast-math
+override USE_OPT += -Wl,--wrap=log10f -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -ffast-math
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
@@ -64,9 +64,11 @@ ifeq ($(PROJECT),)
   PROJECT = $(notdir $(shell pwd))
 endif
 
-BOARDS_DIR ?= boards
+override BOARD_DIR := $(realpath $(BOARD_DIR))
 
-include $(BOARDS_DIR)/$(BOARD)/board.mk
+BOARD := $(lastword $(subst /, ,$(BOARD_DIR)))
+
+include $(BOARD_DIR)/board.mk
 
 BUILDDIR = build/$(BOARD)
 
