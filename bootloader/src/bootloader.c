@@ -88,6 +88,7 @@ static void read_request_response_timeout(struct worker_thread_timer_task_s* tas
 static uint32_t get_app_page_from_ofs(uint32_t ofs);
 static uint32_t get_app_address_from_ofs(uint32_t ofs);
 
+
 RUN_AFTER(BOOT_MSG_RETRIEVAL) {
     bootloader_pre_init();
 }
@@ -95,6 +96,7 @@ RUN_AFTER(BOOT_MSG_RETRIEVAL) {
 RUN_BEFORE(INIT_END) {
     bootloader_init();
 }
+
 RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* beginfirmwareupdate_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_file_BeginFirmwareUpdate_req_descriptor);
     worker_thread_add_listener_task(&WT, &beginfirmwareupdate_req_listener_task, beginfirmwareupdate_req_topic, file_beginfirmwareupdate_request_handler, NULL);
@@ -360,7 +362,7 @@ static void delayed_restart_func(struct worker_thread_timer_task_s* task) {
     (void)task;
     // try to boot if image is valid
     command_boot_if_app_valid(SHARED_BOOT_REASON_REBOOT_COMMAND);
-    // otherwise, just reset    
+    // otherwise, just reset
     NVIC_SystemReset();
 }
 

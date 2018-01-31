@@ -64,7 +64,9 @@ ifeq ($(PROJECT),)
   PROJECT = $(notdir $(shell pwd))
 endif
 
-include boards/$(BOARD)/board.mk
+BOARDS_DIR ?= boards
+
+include $(BOARDS_DIR)/$(BOARD)/board.mk
 
 BUILDDIR = build/$(BOARD)
 
@@ -218,13 +220,9 @@ ULIBDIR =
 ULIBS = -lm
 
 # Select region for application
-BL_MODULE = bootloader
-ifneq ($(filter $(BL_MODULE),$(MODULES_ENABLED)),) 
-  LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/bl.ld
-else
-  LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/app.ld
-endif
+LOAD_REGION ?= app
 
+LDSCRIPT = $(RULESPATH)/ld/$(TGT_MCU)/$(LOAD_REGION).ld
 
 include $(RULESPATH)/rules.mk
 
