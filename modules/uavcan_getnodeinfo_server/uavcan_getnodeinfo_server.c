@@ -41,7 +41,12 @@ static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx)
 
     board_get_unique_id(res.hardware_version.unique_id, sizeof(res.hardware_version.unique_id));
 
-#ifdef MODULE_BOOT_MSG_ENABLED
+#if defined(TARGET_BOOTLOADER)
+    strncpy((char*)res.name, BOARD_CONFIG_HW_NAME, sizeof(res.name));
+    res.name_len = strnlen((char*)res.name, sizeof(res.name));
+    res.hardware_version.major = BOARD_CONFIG_HW_MAJOR_VER;
+    res.hardware_version.minor = BOARD_CONFIG_HW_MINOR_VER;
+#elif defined(MODULE_BOOT_MSG_ENABLED)
     if (get_boot_msg_valid() && boot_msg_id == SHARED_MSG_BOOT_INFO && boot_msg.boot_info_msg.hw_info) {
         strncpy((char*)res.name, boot_msg.boot_info_msg.hw_info->hw_name, sizeof(res.name));
         res.name_len = strnlen((char*)res.name, sizeof(res.name));
