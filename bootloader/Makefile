@@ -19,10 +19,10 @@ can \
 can_autobaud \
 uavcan \
 uavcan_nodestatus_publisher \
-uavcan_getnodeinfo_server \
 uavcan_allocatee
 
 MESSAGES_ENABLED = \
+uavcan.protocol.GetNodeInfo \
 uavcan.protocol.file.BeginFirmwareUpdate \
 uavcan.protocol.file.Read \
 uavcan.protocol.RestartNode

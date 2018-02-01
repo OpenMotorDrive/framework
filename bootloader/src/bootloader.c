@@ -13,6 +13,7 @@
 #include <uavcan.protocol.file.BeginFirmwareUpdate.h>
 #include <uavcan.protocol.file.Read.h>
 #include <uavcan.protocol.RestartNode.h>
+#include <uavcan.protocol.GetNodeInfo.h>
 
 #ifndef BOOTLOADER_APP_THREAD
 #error Please define BOOTLOADER_APP_THREAD in worker_threads_conf.h.
@@ -62,6 +63,7 @@ static struct worker_thread_listener_task_s beginfirmwareupdate_req_listener_tas
 static struct worker_thread_listener_task_s file_read_res_task;
 static struct worker_thread_listener_task_s restart_req_listener_task;
 static struct worker_thread_timer_task_s delayed_restart_task;
+static struct worker_thread_listener_task_s getnodeinfo_req_listener_task;
 
 static void file_beginfirmwareupdate_request_handler(size_t msg_size, const void* buf, void* ctx);
 static void begin_flash_from_path(uint8_t uavcan_idx, uint8_t source_node_id, struct uavcan_protocol_file_Path_s path);
@@ -87,7 +89,7 @@ static void delayed_restart_func(struct worker_thread_timer_task_s* task);
 static void read_request_response_timeout(struct worker_thread_timer_task_s* task);
 static uint32_t get_app_page_from_ofs(uint32_t ofs);
 static uint32_t get_app_address_from_ofs(uint32_t ofs);
-
+static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx);
 
 RUN_AFTER(BOOT_MSG_RETRIEVAL) {
     bootloader_pre_init();
@@ -107,8 +109,41 @@ RUN_AFTER(UAVCAN_INIT) {
     struct pubsub_topic_s* restart_topic = uavcan_get_message_topic(0, &uavcan_protocol_RestartNode_req_descriptor);
     worker_thread_add_listener_task(&WT, &restart_req_listener_task, restart_topic, restart_req_handler, NULL);
 
+    struct pubsub_topic_s* getnodeinfo_req_topic = uavcan_get_message_topic(0, &uavcan_protocol_GetNodeInfo_req_descriptor);
+    worker_thread_add_listener_task(&WT, &getnodeinfo_req_listener_task, getnodeinfo_req_topic, getnodeinfo_req_handler, NULL);
 }
 
+static void getnodeinfo_req_handler(size_t msg_size, const void* buf, void* ctx) {
+    (void)msg_size;
+    (void)ctx;
+
+    const struct uavcan_deserialized_message_s* msg_wrapper = buf;
+
+    struct uavcan_protocol_GetNodeInfo_res_s res;
+    memset(&res, 0, sizeof(struct uavcan_protocol_GetNodeInfo_res_s));
+
+    res.status = *uavcan_nodestatus_publisher_get_nodestatus_message();
+
+    board_get_unique_id(res.hardware_version.unique_id, sizeof(res.hardware_version.unique_id));
+
+    strncpy((char*)res.name, _hw_info.hw_name, sizeof(res.name));
+    res.name_len = strnlen((char*)res.name, sizeof(res.name));
+    res.hardware_version.major = _hw_info.hw_major_version;
+    res.hardware_version.minor = _hw_info.hw_minor_version;
+
+    if (app_info.shared_app_descriptor && app_info.image_crc_correct) {
+        res.software_version.optional_field_flags = UAVCAN_PROTOCOL_SOFTWAREVERSION_OPTIONAL_FIELD_FLAG_VCS_COMMIT |
+        UAVCAN_PROTOCOL_SOFTWAREVERSION_OPTIONAL_FIELD_FLAG_IMAGE_CRC;
+
+        res.software_version.vcs_commit = app_info.shared_app_descriptor->vcs_commit;
+        res.software_version.image_crc = app_info.shared_app_descriptor->image_crc;
+
+        res.software_version.major = app_info.shared_app_descriptor->major_version;
+        res.software_version.minor = app_info.shared_app_descriptor->minor_version;
+    }
+
+    uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
+}
 
 static void file_beginfirmwareupdate_request_handler(size_t msg_size, const void* buf, void* ctx) {
     (void)msg_size;
