@@ -15,6 +15,10 @@
 #include <uavcan.protocol.RestartNode.h>
 #include <uavcan.protocol.GetNodeInfo.h>
 
+#if __GNUC__ != 6 || __GNUC_MINOR__ != 3 || __GNUC_PATCHLEVEL__ != 1
+#error Please use arm-none-eabi-gcc 6.3.1.
+#endif
+
 #ifndef BOOTLOADER_APP_THREAD
 #error Please define BOOTLOADER_APP_THREAD in worker_threads_conf.h.
 #endif
