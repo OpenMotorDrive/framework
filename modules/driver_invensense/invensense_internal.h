@@ -1,0 +1,79 @@
+#pragma once
+
+#include "driver_invensense.h"
+
+//#define INVENSENSE_REG_WHOAMI 0x75
+
+
+//Data Output Registers
+
+
+//Register Map
+#define INVENSENSE_REG_XG_OFFS_TC_H         0x04
+#define INVENSENSE_REG_YG_OFFS_TC_H         0x07
+#define INVENSENSE_REG_ZG_OFFS_TC_H         0x0A
+
+#define INVENSENSE_REG_SELF_TEST_X_ACCEL    0x0D
+#define INVENSENSE_REG_SELF_TEST_Y_ACCEL    0x0E
+#define INVENSENSE_REG_SELF_TEST_Z_ACCEL    0x0F
+
+#define INVENSENSE_REG_XG_OFF_USRH          0x13
+#define INVENSENSE_REG_YG_OFF_USRH          0x15
+#define INVENSENSE_REG_ZG_OFF_USRH          0x17
+#define INVENSENSE_REG_SMPLRT_DIV           0x19
+#define INVENSENSE_REG_CONFIG               0x1A
+
+#define INVENSENSE_REG_GYRO_CONFIG          0x1B
+
+#define INVENSENSE_REG_ACCEL_CONFIG         0x1C
+
+#define INVENSENSE_REG_ACCEL_CONFIG2        0x1D
+
+
+#define INVENSENSE_REG_LP_MODE_CFG          0x1E    
+#define INVENSENSE_REG_ACCEL_WOM_X_THR      0x20
+#define INVENSENSE_REG_ACCEL_WOM_Y_THR      0x21
+#define INVENSENSE_REG_ACCEL_WOM_Z_THR      0x22
+
+#define INVENSENSE_REG_FIFO_EN              0x23
+
+#define INVENSENSE_REG_FSYNC_INT            0x36
+
+#define INVENSENSE_REG_INT_PIN_CFG          0x37
+
+#define INVENSENSE_REG_INT_ENABLE           0x38
+
+#define INVENSENSE_REG_FIFO_WM_INT_STATUS   0x39
+
+#define INVENSENSE_REG_INT_STATUS           0x3A
+
+#define INVENSENSE_REG_ACCEL_XOUT_H         0x3B
+#define INVENSENSE_REG_ACCEL_YOUT_H         0x3D
+#define INVENSENSE_REG_ACCEL_ZOUT_H         0x3F
+#define INVENSENSE_REG_TEMP_OUT_H           0x41
+#define INVENSENSE_REG_GYRO_XOUT_H          0x43
+#define INVENSENSE_REG_GYRO_YOUT_H          0x45
+#define INVENSENSE_REG_GYRO_ZOUT_H          0x47
+
+#define INVENSENSE_REG_SELF_TEST_X_GYRO     0x50
+#define INVENSENSE_REG_SELF_TEST_Y_GYRO     0x51
+#define INVENSENSE_REG_SELF_TEST_Z_GYRO     0x52
+
+#define INVENSENSE_REG_FIFO_WM_TH1          0x60
+#define INVENSENSE_REG_FIFO_WM_TH2          0x61
+
+#define INVENSENSE_REG_SIGNAL_PATH_RESET    0x68
+#define INVENSENSE_REG_ACCEL_INTEL_CTRL     0x69
+#define INVENSENSE_REG_USER_CTRL            0x6A
+
+#define INVENSENSE_REG_PWR_MGMT_1           0x6B
+
+#define INVENSENSE_REG_PWR_MGMT_2           0x6C
+#define INVENSENSE_REG_I2C_IF               0x70
+#define INVENSENSE_REG_FIFO_COUNTH          0x72
+#define INVENSENSE_REG_FIFO_R_W             0x74
+#define INVENSENSE_REG_WHO_AM_I             0x75
+
+#define INVENSENSE_REG_XA_OFFSET_H          0x77
+#define INVENSENSE_REG_YA_OFFSET_H          0x7A
+#define INVENSENSE_REG_ZA_OFFSET_H          0x7D
