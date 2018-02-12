@@ -105,6 +105,7 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
         memset(&sys_cfg, 0, sizeof(sys_cfg));
         sys_cfg.HIRQ_POL = 1;
         sys_cfg.RXAUTR = 1;
+        sys_cfg.DIS_STXP = 1;
         if (!instance->config.std_data_length) {
             sys_cfg.PHR_MODE = 0x3; //setup to non standard data length to vary between 0-1023
         }
@@ -161,7 +162,7 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     // 0x1E       4  TX_POWER    -
     {
         // [0x00:0x03] TX_POWER
-        dw1000_write32(instance, 0x1E, 0x00, dw1000_conf_tx_power(config));
+        dw1000_write32(instance, 0x1E, 0x00, 0x85858585);
     }
     // 0x1F       4  CHAN_CTRL   -
     {
