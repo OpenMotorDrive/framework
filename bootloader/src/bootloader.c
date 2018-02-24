@@ -80,7 +80,7 @@ static void update_app_info(void);
 static void corrupt_app(void);
 static void boot_app_if_commanded(void);
 static void command_boot_if_app_valid(uint8_t boot_reason);
-static void start_boot_timer(systime_t timeout);
+static void start_boot_timer(uint32_t timeout);
 static void cancel_boot_timer(void);
 static bool check_and_start_boot_timer(void);
 static void erase_app_page(uint32_t page_num);
@@ -174,7 +174,7 @@ static void begin_flash_from_path(uint8_t uavcan_idx, uint8_t source_node_id, st
     flash_state.source_node_id = source_node_id;
     flash_state.uavcan_idx = uavcan_idx;
     flash_state.path = path;
-    worker_thread_add_timer_task(&WT, &flash_state.read_timeout_task, read_request_response_timeout, NULL, LL_MS2ST(500), false);
+    worker_thread_add_timer_task(&WT, &flash_state.read_timeout_task, read_request_response_timeout, NULL, MS2US(500), false);
     do_send_read_request();
 
     corrupt_app();
@@ -334,7 +334,7 @@ static void start_boot(struct worker_thread_timer_task_s* task)
     command_boot_if_app_valid(SHARED_BOOT_REASON_TIMEOUT);
 }
 
-static void start_boot_timer(systime_t timeout) {
+static void start_boot_timer(micros_time_t timeout) {
     worker_thread_add_timer_task(&WT, &bootloader_state.boot_timer_task, start_boot, NULL, timeout, false);
 }
 
@@ -344,7 +344,7 @@ static void cancel_boot_timer(void) {
 
 static bool check_and_start_boot_timer(void) {
     if (app_info.shared_app_parameters && app_info.shared_app_parameters->boot_delay_sec != 0) {
-        start_boot_timer(S2ST((uint32_t)app_info.shared_app_parameters->boot_delay_sec));
+        start_boot_timer(S2US(app_info.shared_app_parameters->boot_delay_sec));
         return true;
     }
     return false;
@@ -391,7 +391,7 @@ static void restart_req_handler(size_t msg_size, const void* buf, void* ctx) {
 
     if ((msg->magic_number == UAVCAN_PROTOCOL_RESTARTNODE_REQ_MAGIC_NUMBER) && system_get_restart_allowed()) {
         res.ok = true;
-        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, LL_MS2ST(1000), false);
+        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, S2US(1), false);
     }
 
     uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);

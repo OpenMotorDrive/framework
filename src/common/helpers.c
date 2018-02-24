@@ -68,15 +68,15 @@ float cosf_fast(float x)
 
 void transform_a_b_c_to_alpha_beta(float a, float b, float c, float* alpha, float* beta)
 {
-    *alpha = 0.666666666666667*a - 0.333333333333333*b - 0.333333333333333*c;
-    *beta = 0.577350269189626*b - 0.577350269189626*c;
+    *alpha = 0.666666666666667f*a - 0.333333333333333f*b - 0.333333333333333f*c;
+    *beta = 0.577350269189626f*b - 0.577350269189626f*c;
 }
 
 void transform_alpha_beta_to_a_b_c(float alpha, float beta, float* a, float* b, float* c)
 {
     *a = alpha;
-    *b = -0.5*alpha + 0.866025403784439*beta;
-    *c = -0.5*alpha - 0.866025403784439*beta;
+    *b = -0.5f*alpha + 0.866025403784439f*beta;
+    *c = -0.5f*alpha - 0.866025403784439f*beta;
 }
 
 void transform_d_q_to_alpha_beta(float theta, float d, float q, float* alpha, float* beta)

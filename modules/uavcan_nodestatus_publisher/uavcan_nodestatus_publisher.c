@@ -28,7 +28,7 @@ RUN_AFTER(UAVCAN_INIT) {
     node_status.sub_mode = 0;
     node_status.vendor_specific_status_code = 0;
 
-    worker_thread_add_timer_task(&WT, &node_status_publisher_task, node_status_publisher_task_func, NULL, S2ST(1), true);
+    worker_thread_add_timer_task(&WT, &node_status_publisher_task, node_status_publisher_task_func, NULL, S2US(1), true);
 }
 
 void set_node_health(uint8_t health) {
@@ -42,6 +42,8 @@ void set_node_mode(uint8_t mode) {
 
 static void node_status_publisher_task_func(struct worker_thread_timer_task_s* task) {
     (void)task;
+
+    chnWrite(&SD1, (const uint8_t *)"sts\n", 5);
 
     node_status.uptime_sec++;
     uavcan_broadcast(0, &uavcan_protocol_NodeStatus_descriptor, CANARD_TRANSFER_PRIORITY_LOW, &node_status);

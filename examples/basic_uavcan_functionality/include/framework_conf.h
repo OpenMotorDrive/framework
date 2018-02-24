@@ -4,6 +4,7 @@
 // Configure worker threads
 //
 
+#define STACK_MEASUREMENT_WORKER_THREAD                 lpwork_thread
 #define TIMING_WORKER_THREAD                            lpwork_thread
 #define UAVCAN_NODESTATUS_PUBLISHER_WORKER_THREAD       lpwork_thread
 #define CAN_AUTOBAUD_WORKER_THREAD                      lpwork_thread
@@ -23,6 +24,12 @@
 //
 
 #define PUBSUB_DEFAULT_TOPIC_GROUP default_topic_group
+
+//
+// Timer config
+//
+
+#define MICROS_TIME_RESOLUTION 32
 
 //
 // Misc configs

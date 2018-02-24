@@ -100,7 +100,7 @@ PARAM_DEFINE_UINT8_PARAM_STATIC(node_id_param, "uavcan.node_id", 0, 0, 125)
 RUN_ON(UAVCAN_INIT) {
     uavcan_init(0);
 
-    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, LL_US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
+    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC, true);
 }
 
 static void uavcan_init(uint8_t can_dev_idx) {
@@ -150,6 +150,9 @@ static void uavcan_init(uint8_t can_dev_idx) {
 #endif
 
     _uavcan_set_node_id(instance, node_id);
+
+    /* debug message */
+    chnWrite(&SD1, (const uint8_t *)"uavcan_init complete\n", 24);
 
     return;
 
@@ -367,6 +370,8 @@ static bool _uavcan_send(struct uavcan_instance_s* instance, const struct uavcan
         return false;
     }
 
+    /* debug message */
+    chnWrite(&SD1, (const uint8_t *)"snd\n", 5);
 
     uint32_t can_id = 0;
     can_id |= (uint32_t)(priority&0x1f) << 24;

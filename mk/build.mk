@@ -113,7 +113,12 @@ ifneq ($(findstring stm32,$(TGT_MCU)),)
   MCU  = cortex-m4
   TRGT = arm-none-eabi-
   UDEFS += -DARCH_LITTLE_ENDIAN
-  ifneq ($(findstring stm32f3,$(TGT_MCU)),)
+  ifneq ($(findstring stm32f1,$(TGT_MCU)),)
+      MCU  = cortex-m3
+      include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f1xx.mk
+      include $(CHIBIOS)/os/hal/ports/STM32/STM32F1xx/platform.mk
+    endif
+    ifneq ($(findstring stm32f3,$(TGT_MCU)),)
     include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f3xx.mk
     include $(CHIBIOS)/os/hal/ports/STM32/STM32F3xx/platform.mk
   endif
