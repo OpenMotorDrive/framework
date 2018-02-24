@@ -21,7 +21,7 @@
  * @note    Allowed values are 16 or 32 bits.
  */
 #ifndef CH_CFG_ST_RESOLUTION
-#define CH_CFG_ST_RESOLUTION                32
+#define CH_CFG_ST_RESOLUTION                16
 #endif
 
 /**

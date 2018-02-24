@@ -1,0 +1,5 @@
+INCLUDE memory.ld
+
+REGION_ALIAS("PROGRAM_REGION", bl)
+
+INCLUDE common.ld
