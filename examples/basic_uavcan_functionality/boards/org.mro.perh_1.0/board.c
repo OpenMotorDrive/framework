@@ -1,6 +1,6 @@
 #include <hal.h>
 
 void boardInit(void) {
-    palSetLineMode(BOARD_PAL_LINE_CAN_RX, PAL_MODE_INPUT);
-    palSetLineMode(BOARD_PAL_LINE_CAN_TX, PAL_MODE_OUTPUT_PUSHPULL);
+    // default AFIO mapping puts CAN RX/TX on PA11/PA12
+    // make sure USB isn't mapped to those pins
 }
