@@ -78,6 +78,7 @@ struct dw1000_config_s {
     uint8_t pcode;
     uint16_t ant_delay;
     bool std_data_length;
+    uint8_t tx_power;
 };
 
 enum dw1000_rx_frame_err_code_s {
@@ -117,7 +118,7 @@ struct dw1000_instance_s {
 };
 
 int64_t dw1000_wrap_timestamp(int64_t ts);
-void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint16_t ant_delay);
+void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line);
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf);
 void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf, bool expect_response);
 bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t transmit_time, uint32_t buf_len, void* buf, bool expect_response);
@@ -138,6 +139,7 @@ int64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
 uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
 void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay);
 float dw1000_get_temp(struct dw1000_instance_s* instance);
+void dw1000_set_tx_power(struct dw1000_instance_s* instance, uint8_t tx_power);
 float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
 float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc);
 int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);
