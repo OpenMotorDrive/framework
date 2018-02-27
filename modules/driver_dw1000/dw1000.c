@@ -44,7 +44,7 @@ int64_t dw1000_wrap_timestamp(int64_t ts) {
     return ts & (((uint64_t)1<<40)-1);
 }
 
-void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line, uint16_t ant_delay) {
+void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line) {
     if (!instance) {
         return;
     }
@@ -65,7 +65,6 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
     instance->config.channel = DW1000_CHANNEL_7;
     instance->config.data_rate = DW1000_DATA_RATE_6_8M;
     instance->config.pcode = dw1000_conf_get_default_pcode(instance->config);
-    instance->config.ant_delay = ant_delay;
     instance->config.std_data_length = false;
 
     dw1000_hard_reset(instance);
@@ -168,11 +167,6 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     {
         // [0x00:0x03] RX_SNIFF
         dw1000_write32(instance, 0x1D, 0, 0);
-    }
-    // 0x1E       4  TX_POWER    -
-    {
-        // [0x00:0x03] TX_POWER
-        dw1000_write32(instance, 0x1E, 0x00, 0x85858585);
     }
     // 0x1F       4  CHAN_CTRL   -
     {
@@ -626,6 +620,7 @@ uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance) {
 
 void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay)
 {
+    instance->config.ant_delay = ant_delay;
     // [0x00:0x01] TX_ANTD
     dw1000_write16(instance, 0x18, 0, ant_delay);
     // [0x1804:0x1805] LDE_RXANTD
@@ -644,6 +639,16 @@ float dw1000_get_temp(struct dw1000_instance_s* instance) {
     dw1000_write8(instance, 0x2A, 0x00, 0x00);
 
     return ((int8_t)(sar_ltemp - instance->t_meas_23c)) * 1.14f + 23;
+}
+
+void dw1000_set_tx_power(struct dw1000_instance_s* instance, uint8_t tx_power)
+{
+    instance->config.tx_power = tx_power;
+    // [0x00:0x03] TX_POWER
+    dw1000_write32(instance, 0x1E, 0x00, instance->config.tx_power<<24 |
+                                        instance->config.tx_power<<16 |
+                                        instance->config.tx_power<<8  |
+                                        instance->config.tx_power);
 }
 
 static void dw1000_clock_force_sys_xti(struct dw1000_instance_s* instance) {
