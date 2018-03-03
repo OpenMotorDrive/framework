@@ -5,7 +5,6 @@ MODULES_ENABLED = \
 chibios_sys_init \
 chibios_hal_init \
 app_descriptor \
-boot_msg \
 timing \
 system \
 pubsub \
@@ -16,7 +15,6 @@ can_autobaud \
 uavcan \
 uavcan_nodestatus_publisher \
 uavcan_getnodeinfo_server \
-uavcan_beginfirmwareupdate_server \
 uavcan_allocatee \
 uavcan_restart \
 freemem_check

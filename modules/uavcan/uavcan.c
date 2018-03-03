@@ -367,6 +367,7 @@ static bool _uavcan_send(struct uavcan_instance_s* instance, const struct uavcan
         return false;
     }
 
+    LED_ON;
 
     uint32_t can_id = 0;
     can_id |= (uint32_t)(priority&0x1f) << 24;
@@ -423,6 +424,8 @@ static bool _uavcan_send(struct uavcan_instance_s* instance, const struct uavcan
     }
 
     can_enqueue_tx_frames(instance->can_instance, &tx_state.frame_list_head, TIME_INFINITE, NULL);
+
+    LED_OFF;
 
     return true;
 }
@@ -483,10 +486,13 @@ static void uavcan_can_rx_handler(size_t msg_size, const void* msg, void* ctx) {
 
     const struct can_rx_frame_s* frame = msg;
 
+    palSetPadMode(GPIOB, 3, PAL_MODE_OUTPUT_PUSHPULL);
+    palSetPad(GPIOB, 3);
     CanardCANFrame canard_frame = convert_can_frame_to_CanardCANFrame(&frame->content);
 
     uint64_t timestamp = micros64();
     canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
+    palClearPad(GPIOB, 3);
 }
 
 static void stale_transfer_cleanup_task_func(struct worker_thread_timer_task_s* task) {
