@@ -3,10 +3,12 @@
 #include <stdint.h>
 #include <modules/platform_stm32f103xB/platform_stm32f103xB.h>
 
+//#define MODULE_UAVCAN_DEBUG_ENABLED 1
+
 #define BOARD_PAL_LINE_CAN_RX PAL_LINE(GPIOA,11)
 #define BOARD_PAL_LINE_CAN_TX PAL_LINE(GPIOA,12)
 
-#define MAPLE
+//#define MAPLE
 #if defined(MAPLE)
 #define TXPORT GPIOA
 #define LEDPORT GPIOB
