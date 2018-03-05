@@ -108,6 +108,11 @@ struct dw1000_rx_frame_info_s {
 struct dw1000_instance_s {
     struct spi_device_s spi_dev;
     uint32_t reset_line;
+    uint8_t t_meas_23c;
+    struct {
+        uint8_t v_meas_3v3;
+        uint8_t v_meas_3v7;
+    };
     struct dw1000_config_s config;
 };
 
@@ -132,6 +137,7 @@ uint64_t dw1000_get_tx_stamp(struct dw1000_instance_s* instance);
 int64_t dw1000_get_sys_time(struct dw1000_instance_s* instance);
 uint16_t dw1000_get_ant_delay(struct dw1000_instance_s* instance);
 void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay);
+float dw1000_get_temp(struct dw1000_instance_s* instance);
 float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, uint16_t rxpacc);
 float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc);
 int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);

@@ -79,6 +79,16 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
     // DW1000 User Manual Section 2.5.5.11
     dw1000_load_ldotune(instance);
 
+    // Load temperature and voltage sensor calibrations
+    {
+        uint8_t buf[2];
+        dw1000_otp_read(instance, 0x008, 2, buf);
+        instance->v_meas_3v3 = buf[0];
+        instance->v_meas_3v7 = buf[1];
+        dw1000_otp_read(instance, 0x009, 1, buf);
+        instance->t_meas_23c = buf[0];
+    }
+
     // Switch back to normal clock
     dw1000_clock_enable_all_seq(instance);
 
@@ -620,6 +630,20 @@ void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay
     dw1000_write16(instance, 0x18, 0, ant_delay);
     // [0x1804:0x1805] LDE_RXANTD
     dw1000_write16(instance, 0x2E, 0x1804, ant_delay);    
+}
+
+float dw1000_get_temp(struct dw1000_instance_s* instance) {
+    uint8_t sar_ltemp;
+    dw1000_write8(instance, 0x28, 0x11, 0x80);
+    dw1000_write8(instance, 0x28, 0x12, 0x0A);
+    dw1000_write8(instance, 0x28, 0x12, 0x0F);
+    dw1000_write8(instance, 0x2A, 0x00, 0x00);
+    dw1000_write8(instance, 0x2A, 0x00, 0x01);
+    chThdSleep(US2ST(20));
+    dw1000_read(instance, 0x2A, 0x04, sizeof(uint8_t), &sar_ltemp);
+    dw1000_write8(instance, 0x2A, 0x00, 0x00);
+
+    return ((int8_t)(sar_ltemp - instance->t_meas_23c)) * 1.14f + 23;
 }
 
 static void dw1000_clock_force_sys_xti(struct dw1000_instance_s* instance) {
