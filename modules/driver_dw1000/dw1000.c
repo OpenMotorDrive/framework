@@ -817,6 +817,6 @@ static void dw1000_otp_read(struct dw1000_instance_s* instance, uint16_t otp_add
     dw1000_write16(instance, 0x2D, 0x04, otp_addr);
     dw1000_write8(instance, 0x2D, 0x06, 0x03);
     dw1000_write8(instance, 0x2D, 0x06, 0x01);
-    dw1000_read(instance, 0x2A, 0x04, otp_field_len, buf);
+    dw1000_read(instance, 0x2D, 0x0A, otp_field_len, buf);
     dw1000_write8(instance, 0x2D, 0x06, 0x00);
 }
