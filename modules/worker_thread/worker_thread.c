@@ -1,4 +1,5 @@
 #include "worker_thread.h"
+#include <modules/uavcan_debug/uavcan_debug.h>
 
 #include <common/helpers.h>
 
@@ -248,6 +249,11 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
         chSysLock();
         systime_t tnow_ticks = chVTGetSystemTimeX();
         systime_t ticks_to_next_timer_task = worker_thread_get_ticks_to_timer_task_I(worker_thread->timer_task_list_head, tnow_ticks);
+
+        chSysUnlock();
+        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "rem_ticks: %u", ticks_to_next_timer_task);
+        chSysLock();
+
         if (ticks_to_next_timer_task == TIME_IMMEDIATE) {
             // Task is due - pop the task off the task list, run it, reschedule if task is auto-repeat
             struct worker_thread_timer_task_s* next_timer_task = worker_thread->timer_task_list_head;

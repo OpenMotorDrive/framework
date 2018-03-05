@@ -1,6 +1,6 @@
 BOARD_DIR = boards/org.mro.perh_1.0
 USE_FPU = no
-USE_OPT = -ggdb -O0 -DMAPLE -DMODULE_UAVCAN_DEBUG_ENABLED
+USE_OPT = -ggdb -O0 -DMAPLE -DMODULE_UAVCAN_DEBUG_ENABLED -DMODULE_PUBSUB_ENABLED
 
 CSRC = $(shell find src -name "*.c")
 INCDIR = ./include
@@ -22,6 +22,7 @@ uavcan_getnodeinfo_server \
 uavcan_allocatee \
 uavcan_restart \
 uavcan_debug \
+stack_measurement \
 freemem_check
 
 MESSAGES_ENABLED = \

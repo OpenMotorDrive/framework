@@ -3,8 +3,6 @@
 #include <stdint.h>
 #include <modules/platform_stm32f103xB/platform_stm32f103xB.h>
 
-//#define MODULE_UAVCAN_DEBUG_ENABLED 1
-
 #define BOARD_PAL_LINE_CAN_RX PAL_LINE(GPIOA,11)
 #define BOARD_PAL_LINE_CAN_TX PAL_LINE(GPIOA,12)
 
@@ -35,7 +33,7 @@
  * PA12 - Normal input      (USB DP).
  */
 #define VAL_GPIOACRL            0x88884B84      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x888B4888      /* PA15...PA8 */
+#define VAL_GPIOACRH            0x888B44B8      /* PA15...PA8 */
 #define VAL_GPIOAODR            0xFFFFFFFF
 
 /*

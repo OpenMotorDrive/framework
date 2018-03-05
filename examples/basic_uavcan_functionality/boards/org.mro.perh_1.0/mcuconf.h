@@ -35,14 +35,6 @@
  * HAL driver system settings.
  * default clock settings are for 8MHz crystal and 72MHz system clock
  */
-//#define STM32_NO_INIT                       FALSE
-//#define STM32_PVD_ENABLE                    FALSE
-//#define STM32_PLS                           STM32_PLS_LEV0
-//#define STM32_HSI_ENABLED                   TRUE
-//#define STM32_LSI_ENABLED                   TRUE
-//#define STM32_HSE_ENABLED                   TRUE
-//#define STM32_LSE_ENABLED                   FALSE
-
 // from the ChibiOS F1xx CAN demo
 #define STM32_NO_INIT                       FALSE
 #define STM32_HSI_ENABLED                   TRUE
@@ -64,12 +56,19 @@
 #define STM32_PVD_ENABLE                    FALSE
 #define STM32_PLS                           STM32_PLS_LEV0
 
-
-#define STM32_CAN_USE_CAN1                  TRUE
-#define STM32_CAN_CAN1_IRQ_PRIORITY         11
-
 /*
  * ST driver system settings.
  */
 #define STM32_ST_IRQ_PRIORITY               8
 #define STM32_ST_USE_TIMER                  2
+
+/*
+ * CAN driver system settings.
+ */
+#define STM32_CAN_USE_CAN1                  TRUE
+#define STM32_CAN_CAN1_IRQ_PRIORITY         11
+
+/*
+ * UART driver system settings.
+ */
+#define STM32_SERIAL_USE_USART1             TRUE

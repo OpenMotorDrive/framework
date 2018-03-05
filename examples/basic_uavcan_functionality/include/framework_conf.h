@@ -4,6 +4,7 @@
 // Configure worker threads
 //
 
+#define STACK_MEASUREMENT_WORKER_THREAD                 lpwork_thread
 #define TIMING_WORKER_THREAD                            lpwork_thread
 #define UAVCAN_NODESTATUS_PUBLISHER_WORKER_THREAD       lpwork_thread
 #define CAN_AUTOBAUD_WORKER_THREAD                      lpwork_thread

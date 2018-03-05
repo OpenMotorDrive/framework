@@ -2,27 +2,27 @@
 
 void boardInit(void) {
     // default AFIO mapping puts CAN RX/TX on PA11/PA12
-    // make sure USB isn't mapped to those pins
+    // Choose alternate function for these pins; USB is the default function
+
+    // *** This has no effect ***
 //    palSetLineMode(BOARD_PAL_LINE_CAN_RX, PAL_MODE_INPUT);
 //    palSetLineMode(BOARD_PAL_LINE_CAN_TX, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
-//    palSetPadMode(GPIOA, 11, PAL_MODE_INPUT);
-//    palSetPadMode(GPIOA, 12, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 
-//    // maple-mini LED
-//    palSetPadMode(GPIOB, 1, PAL_MODE_OUTPUT_PUSHPULL);
-    // bluepill LED
-//    palSetPadMode(GPIOC, 13, PAL_MODE_OUTPUT_PUSHPULL);
+    static const SerialConfig uartCfg =
+    {
+      57600,
+      0,
+      USART_CR2_STOP1_BITS,
+      0
+    };
 
-//    /* Configure CAN pin: RX */
-//    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_CAN_RX;
-//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-//    GPIO_Init(GPIO_CAN, &GPIO_InitStructure);
+    /*
+     * Activates the serial driver 1 using the driver default configuration.
+     * PA9 and PA10 are routed to USART1.
+     */
+    sdStart(&SD1, &uartCfg);
 
-//    /* Configure CAN pin: TX */
-//    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_CAN_TX;
-//    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-//    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//    GPIO_Init(GPIO_CAN, &GPIO_InitStructure);
-
-//    GPIO_PinRemapConfig(GPIO_Remapping_CAN , ENABLE);
+    /* this is set in board.h */
+//    palSetPadMode(GPIOA, 9, PPAL_MODE_STM32_ALTERNATE_PUSHPULL);
+//    palSetPadMode(GPIOA, 10, PAL_MODE_INPUT);
 }

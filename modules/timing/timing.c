@@ -52,7 +52,7 @@ uint32_t micros(void) {
     uint8_t idx = timing_state_idx;
     systime_t systime_now = chVTGetSystemTimeX();
     uint32_t delta_ticks = systime_now-timing_state[idx].update_systime;
-    uint32_t delta_us = delta_ticks * (1000000.0f/CH_CFG_ST_FREQUENCY);
+    uint32_t delta_us = delta_ticks * (1000000.0f / CH_CFG_ST_FREQUENCY);
     return ((uint32_t)timing_state[idx].update_seconds*1000000) + delta_us;
 }
 
@@ -60,7 +60,7 @@ uint64_t micros64(void) {
     uint8_t idx = timing_state_idx;
     systime_t systime_now = chVTGetSystemTimeX();
     uint32_t delta_ticks = systime_now-timing_state[idx].update_systime;
-    uint32_t delta_us = delta_ticks * (1000000.0f/CH_CFG_ST_FREQUENCY);
+    uint32_t delta_us = delta_ticks * (1000000.0f / CH_CFG_ST_FREQUENCY);
     return (timing_state[idx].update_seconds*1000000) + delta_us;
 }
 

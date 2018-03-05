@@ -43,6 +43,8 @@ void set_node_mode(uint8_t mode) {
 static void node_status_publisher_task_func(struct worker_thread_timer_task_s* task) {
     (void)task;
 
+    chnWrite(&SD1, (const uint8_t *)"sts\n", 5);
+
     node_status.uptime_sec++;
     uavcan_broadcast(0, &uavcan_protocol_NodeStatus_descriptor, CANARD_TRANSFER_PRIORITY_LOW, &node_status);
 }
