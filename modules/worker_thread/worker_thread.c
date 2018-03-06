@@ -250,9 +250,9 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
         systime_t tnow_ticks = chVTGetSystemTimeX();
         systime_t ticks_to_next_timer_task = worker_thread_get_ticks_to_timer_task_I(worker_thread->timer_task_list_head, tnow_ticks);
 
-        chSysUnlock();
-        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "rem_ticks: %u", ticks_to_next_timer_task);
-        chSysLock();
+//        chSysUnlock();
+//        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "rem_ticks: %u", ticks_to_next_timer_task);
+//        chSysLock();
 
         if (ticks_to_next_timer_task == TIME_IMMEDIATE) {
             // Task is due - pop the task off the task list, run it, reschedule if task is auto-repeat
@@ -266,6 +266,27 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
             next_timer_task->timer_begin_systime = tnow_ticks;
 
             if (next_timer_task->auto_repeat) {
+
+                uint16_t task_run_time = next_timer_task->timer_begin_systime + next_timer_task->timer_expiration_ticks;
+                struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
+
+                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "task %x, now: %u, runtime: %u\ntask list",
+                                      next_timer_task->task_func, tnow_ticks, task_run_time);
+                uint16_t time_till_run;
+                uint16_t period;
+                if (*insert_ptr) {
+                    do {
+                        time_till_run = task_run_time - (*insert_ptr)->timer_begin_systime;
+                        period = (*insert_ptr)->timer_expiration_ticks;
+                        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+                                              "%x, dt: %u, period: %u, begin: %u",
+                                              (*insert_ptr)->task_func, time_till_run, period,
+                                              (*insert_ptr)->timer_begin_systime);
+                        insert_ptr = &(*insert_ptr)->next;
+                    } while (*insert_ptr && (time_till_run >= period));
+                }
+                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "insert %x", next_timer_task->task_func);
+
                 // Re-insert task
                 chSysLock();
                 worker_thread_insert_timer_task_I(worker_thread, next_timer_task);
@@ -340,9 +361,22 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
 
     systime_t task_run_time = task->timer_begin_systime + task->timer_expiration_ticks;
     struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
-    while (*insert_ptr && task_run_time - (*insert_ptr)->timer_begin_systime >= (*insert_ptr)->timer_expiration_ticks) {
+
+//    systime_t time_till_run;
+//    systime_t period;
+//    if (*insert_ptr) {
+//        do {
+//            time_till_run = (systime_t)(task_run_time - (*insert_ptr)->timer_begin_systime);
+//            period = (*insert_ptr)->timer_expiration_ticks;
+//            insert_ptr = &(*insert_ptr)->next;
+//        } while (*insert_ptr && (time_till_run >= period));
+//    }
+
+    while (*insert_ptr &&
+           (systime_t)(task_run_time - (*insert_ptr)->timer_begin_systime) >= (*insert_ptr)->timer_expiration_ticks) {
         insert_ptr = &(*insert_ptr)->next;
     }
+
     task->next = *insert_ptr;
     *insert_ptr = task;
 }
