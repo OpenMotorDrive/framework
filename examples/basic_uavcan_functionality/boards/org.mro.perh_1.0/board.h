@@ -6,29 +6,29 @@
 #define BOARD_PAL_LINE_CAN_RX PAL_LINE(GPIOA,11)
 #define BOARD_PAL_LINE_CAN_TX PAL_LINE(GPIOA,12)
 
-//#define MAPLE
-#if defined(MAPLE)
+// CAN I/O for maple-mini and mRo gps is on PortA
 #define TXPORT GPIOA
-#define LEDPORT GPIOB
-#define LEDPIN 1
 
-#elif defined(MRO)
-#define TXPORT GPIOA
+// maple-mini
+#define LEDPORT_MM GPIOB
+#define LEDPIN_MM 1
+
+// mRo GPS module
 #define LEDPORT GPIOA
 #define LEDPIN 4
-#endif
 
-#define CONFIG_LED  palSetPadMode(LEDPORT, LEDPIN, PAL_MODE_OUTPUT_PUSHPULL)
-#define LED_ON palSetPad(LEDPORT, LEDPIN)
-#define LED_OFF palClearPad(LEDPORT, LEDPIN)
+#define CONFIG_LED palSetPadMode(LEDPORT, LEDPIN, PAL_MODE_OUTPUT_PUSHPULL); palSetPadMode(LEDPORT_MM, LEDPIN_MM, PAL_MODE_OUTPUT_PUSHPULL)
 
+#define LED_ON palSetPad(LEDPORT, LEDPIN); palSetPad(LEDPORT_MM, LEDPIN_MM)
+
+#define LED_OFF palClearPad(LEDPORT, LEDPIN); palClearPad(LEDPORT_MM, LEDPIN_MM)
 
 /*
  * Port A setup.
  * Everything input with pull-up except:
  * PA0  - Normal input      (BUTTON).
- * PA2  - Alternate output  (USART2 TX).
- * PA3  - Normal input      (USART2 RX).
+ * PA2  - Alternate output  (CAN TX).
+ * PA3  - Normal input      (CAN RX).
  * PA11 - Normal input      (USB DM).
  * PA12 - Normal input      (USB DP).
  */
