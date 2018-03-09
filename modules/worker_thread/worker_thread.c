@@ -70,8 +70,7 @@ void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struc
     worker_thread_wake_I(worker_thread);
 }
 
-void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
-    uint32_t timer_expiration_millis = ST2MS(timer_expiration_ticks);
+void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, uint32_t timer_expiration_millis, bool auto_repeat) {
     chSysLock();
     _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_millis, auto_repeat);
     chSysUnlock();
@@ -253,10 +252,6 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
         uint32_t millis_to_next_timer_task =
                 worker_thread_get_millis_to_timer_task_I(worker_thread->timer_task_list_head, tnow_millis);
 
-//        chSysUnlock();
-//        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "rem_millis: %u", ticks_to_next_timer_task);
-//        chSysLock();
-
         if (millis_to_next_timer_task == 0) {
             // Task is due - pop the task off the task list, run it, reschedule if task is auto-repeat
             struct worker_thread_timer_task_s* next_timer_task = worker_thread->timer_task_list_head;
@@ -270,25 +265,30 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
 
             if (next_timer_task->auto_repeat) {
 
-                uint16_t task_run_time = next_timer_task->timer_begin_millis + next_timer_task->timer_expiration_millis;
-                struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
+//                uint16_t task_run_time = next_timer_task->timer_begin_millis + next_timer_task->timer_expiration_millis;
+//                struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
 
-                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "thread %x task %x, now: %u, runtime: %u\ntask list",
-                                      worker_thread, next_timer_task->task_func, tnow_millis, task_run_time);
-                uint16_t time_till_run;
-                uint16_t period;
-                if (*insert_ptr) {
-                    do {
-                        time_till_run = task_run_time - (*insert_ptr)->timer_begin_millis;
-                        period = (*insert_ptr)->timer_expiration_millis;
-                        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-                                              "%x, dt: %u, period: %u, begin: %u",
-                                              (*insert_ptr)->task_func, time_till_run, period,
-                                              (*insert_ptr)->timer_begin_millis);
-                        insert_ptr = &(*insert_ptr)->next;
-                    } while (*insert_ptr && (time_till_run >= period));
-                }
-                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "insert %x", next_timer_task->task_func);
+//                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+//                                      "thread %x task %x, now: %u, runtime: %u\ntask list",
+//                                      worker_thread, next_timer_task->task_func, tnow_millis, task_run_time);
+//                uint16_t time_till_run;
+//                uint16_t period;
+//                if (*insert_ptr) {
+//                    do {
+//                        time_till_run = task_run_time - (*insert_ptr)->timer_begin_millis;
+//                        period = (*insert_ptr)->timer_expiration_millis;
+//                        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+//                                              "%x, dt: %u, period: %u, begin: %u",
+//                                              (*insert_ptr)->task_func, time_till_run, period,
+//                                              (*insert_ptr)->timer_begin_millis);
+//                        insert_ptr = &(*insert_ptr)->next;
+//                    } while (*insert_ptr && (time_till_run >= period));
+//                }
+//                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "insert %x", next_timer_task->task_func);
+
+                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+                                      "%u insert %x, dt: %u",
+                                      tnow_millis, next_timer_task->task_func, next_timer_task->timer_expiration_millis);
 
                 // Re-insert task
                 chSysLock();

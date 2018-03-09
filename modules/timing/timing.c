@@ -39,7 +39,7 @@ static void timing_state_update_task_func(struct worker_thread_timer_task_s* tas
 // This task must run more frequently than the system timer wraps
 // For a 16 bit timer running at 10KHz, the wraparound interval is 6.5536 seconds
 RUN_AFTER(WORKER_THREADS_INIT) {
-    worker_thread_add_timer_task(&WT, &timing_state_update_task, timing_state_update_task_func, NULL, S2ST(5), true);
+    worker_thread_add_timer_task(&WT, &timing_state_update_task, timing_state_update_task_func, NULL, 5000, true);
 }
 
 uint32_t millis(void) {
@@ -79,7 +79,7 @@ static void timing_state_update_task_func(struct worker_thread_timer_task_s* tas
     uint8_t next_timing_state_idx = (timing_state_idx+1) % 2;
 
     systime_t systime_now = chVTGetSystemTimeX();
-    uint32_t delta_ticks = systime_now - timing_state[timing_state_idx].update_systime;
+    systime_t delta_ticks = systime_now - timing_state[timing_state_idx].update_systime;
 
     timing_state[next_timing_state_idx].update_seconds = timing_state[timing_state_idx].update_seconds + delta_ticks / CH_CFG_ST_FREQUENCY;
     timing_state[next_timing_state_idx].update_systime = systime_now - (delta_ticks % CH_CFG_ST_FREQUENCY);

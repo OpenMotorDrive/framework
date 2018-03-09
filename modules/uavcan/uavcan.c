@@ -100,7 +100,7 @@ PARAM_DEFINE_UINT8_PARAM_STATIC(node_id_param, "uavcan.node_id", 0, 0, 125)
 RUN_ON(UAVCAN_INIT) {
     uavcan_init(0);
 
-    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, LL_US2ST(CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC), true);
+    worker_thread_add_timer_task(&WT_RX, &stale_transfer_cleanup_task, stale_transfer_cleanup_task_func, NULL, CANARD_RECOMMENDED_STALE_TRANSFER_CLEANUP_INTERVAL_USEC/1000UL, true);
 }
 
 static void uavcan_init(uint8_t can_dev_idx) {

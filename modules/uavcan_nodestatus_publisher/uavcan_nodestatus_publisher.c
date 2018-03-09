@@ -28,7 +28,7 @@ RUN_AFTER(UAVCAN_INIT) {
     node_status.sub_mode = 0;
     node_status.vendor_specific_status_code = 0;
 
-    worker_thread_add_timer_task(&WT, &node_status_publisher_task, node_status_publisher_task_func, NULL, S2ST(1), true);
+    worker_thread_add_timer_task(&WT, &node_status_publisher_task, node_status_publisher_task_func, NULL, 1000, true);
 }
 
 void set_node_health(uint8_t health) {

@@ -52,7 +52,7 @@ static void restart_req_handler(size_t msg_size, const void* buf, void* ctx) {
 
     if (msg->magic_number == UAVCAN_PROTOCOL_RESTARTNODE_REQ_MAGIC_NUMBER && system_get_restart_allowed()) {
         res.ok = true;
-        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, LL_MS2ST(UAVCAN_RESTART_DELAY_MS), false);
+        worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, UAVCAN_RESTART_DELAY_MS, false);
     }
 
     uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
