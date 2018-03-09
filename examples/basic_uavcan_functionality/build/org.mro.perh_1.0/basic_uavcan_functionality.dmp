@@ -1,0 +1,1026 @@
+
+build/org.mro.perh_1.0/basic_uavcan_functionality.elf:     file format elf32-littlearm
+build/org.mro.perh_1.0/basic_uavcan_functionality.elf
+architecture: arm, flags 0x00000112:
+EXEC_P, HAS_SYMS, D_PAGED
+start address 0x080031d1
+
+Program Header:
+0x70000001 off    0x0000edd0 vaddr 0x0800edd0 paddr 0x0800edd0 align 2**2
+         filesz 0x00000008 memsz 0x00000008 flags r--
+    LOAD off    0x00000000 vaddr 0x08000000 paddr 0x08000000 align 2**15
+         filesz 0x0000edd8 memsz 0x0000edd8 flags rwx
+    LOAD off    0x00010a00 vaddr 0x20000a00 paddr 0x0800edd8 align 2**15
+         filesz 0x0000001c memsz 0x0000001c flags rw-
+    LOAD off    0x00010a20 vaddr 0x20000a20 paddr 0x0800edf4 align 2**15
+         filesz 0x00000000 memsz 0x00000b4c flags rw-
+    LOAD off    0x00018000 vaddr 0x20000000 paddr 0x20000000 align 2**15
+         filesz 0x00000000 memsz 0x00003f00 flags rw-
+private flags = 5000202: [Version5 EABI] [soft-float ABI] [has entry point]
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .mstack       00000500  20000000  20000000  00018000  2**0
+                  ALLOC
+  1 .pstack       00000500  20000500  20000500  00018000  2**0
+                  ALLOC
+  2 .vectors      00000188  08003000  08003000  00003000  2**7
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .xtors        0000003c  08003188  08003188  00003188  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  4 .text         0000b4a8  080031d0  080031d0  000031d0  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  5 .rodata       00000758  0800e678  0800e678  0000e678  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  6 .ARM.exidx    00000008  0800edd0  0800edd0  0000edd0  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  7 .data         0000001c  20000a00  0800edd8  00010a00  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .bss          00000b4c  20000a20  0800edf4  00010a20  2**3
+                  ALLOC
+  9 .ram0_init    00000000  2000156c  2000156c  00010a1c  2**2
+                  CONTENTS
+ 10 .ram0         00000000  2000156c  2000156c  00010a1c  2**2
+                  CONTENTS
+ 11 .ram1_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 12 .ram1         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 13 .ram2_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 14 .ram2         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 15 .ram3_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 16 .ram3         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 17 .ram4_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 18 .ram4         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 19 .ram5_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 20 .ram5         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 21 .ram6_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 22 .ram6         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 23 .ram7_init    00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 24 .ram7         00000000  00000000  00000000  00010a1c  2**2
+                  CONTENTS
+ 25 .heap         00002994  2000156c  2000156c  00018000  2**0
+                  ALLOC
+ 26 .ARM.attributes 0000002f  00000000  00000000  00010a1c  2**0
+                  CONTENTS, READONLY
+ 27 .comment      00000070  00000000  00000000  00010a4b  2**0
+                  CONTENTS, READONLY
+ 28 .debug_line   000085c1  00000000  00000000  00010abb  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 29 .debug_info   000143ab  00000000  00000000  0001907c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 30 .debug_abbrev 00002cdd  00000000  00000000  0002d427  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 31 .debug_aranges 00001868  00000000  00000000  00030108  2**3
+                  CONTENTS, READONLY, DEBUGGING
+ 32 .debug_ranges 000017e0  00000000  00000000  00031970  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 33 .debug_str    00006c3e  00000000  00000000  00033150  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 34 .debug_frame  00006944  00000000  00000000  00039d90  2**2
+                  CONTENTS, READONLY, DEBUGGING
+SYMBOL TABLE:
+20000000 l    d  .mstack	00000000 .mstack
+20000500 l    d  .pstack	00000000 .pstack
+08003000 l    d  .vectors	00000000 .vectors
+08003188 l    d  .xtors	00000000 .xtors
+080031d0 l    d  .text	00000000 .text
+0800e678 l    d  .rodata	00000000 .rodata
+0800edd0 l    d  .ARM.exidx	00000000 .ARM.exidx
+20000a00 l    d  .data	00000000 .data
+20000a20 l    d  .bss	00000000 .bss
+2000156c l    d  .ram0_init	00000000 .ram0_init
+2000156c l    d  .ram0	00000000 .ram0
+00000000 l    d  .ram1_init	00000000 .ram1_init
+00000000 l    d  .ram1	00000000 .ram1
+00000000 l    d  .ram2_init	00000000 .ram2_init
+00000000 l    d  .ram2	00000000 .ram2
+00000000 l    d  .ram3_init	00000000 .ram3_init
+00000000 l    d  .ram3	00000000 .ram3
+00000000 l    d  .ram4_init	00000000 .ram4_init
+00000000 l    d  .ram4	00000000 .ram4
+00000000 l    d  .ram5_init	00000000 .ram5_init
+00000000 l    d  .ram5	00000000 .ram5
+00000000 l    d  .ram6_init	00000000 .ram6_init
+00000000 l    d  .ram6	00000000 .ram6
+00000000 l    d  .ram7_init	00000000 .ram7_init
+00000000 l    d  .ram7	00000000 .ram7
+2000156c l    d  .heap	00000000 .heap
+00000000 l    d  .ARM.attributes	00000000 .ARM.attributes
+00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .debug_line	00000000 .debug_line
+00000000 l    d  .debug_info	00000000 .debug_info
+00000000 l    d  .debug_abbrev	00000000 .debug_abbrev
+00000000 l    d  .debug_aranges	00000000 .debug_aranges
+00000000 l    d  .debug_ranges	00000000 .debug_ranges
+00000000 l    d  .debug_str	00000000 .debug_str
+00000000 l    d  .debug_frame	00000000 .debug_frame
+00000000 l    df *ABS*	00000000 <artificial>
+0800e7f0 l     O .rodata	00000020 uavcan_protocol_RestartNode_res_descriptor
+0800e810 l     O .rodata	00000020 uavcan_protocol_RestartNode_req_descriptor
+0800e850 l     O .rodata	00000020 uavcan_protocol_debug_LogMessage_descriptor
+08003ed4 l     F .text	00000090 getRandomFloat
+20001504 l     O .bss	00000004 state.8113
+08003f64 l     F .text	00000028 NVIC_SystemReset
+08003f8c l     F .text	000000c0 LL_MS2ST
+0800edb4 l     O .rodata	00000009 __func__.5454
+20001508 l     O .bss	00000018 delayed_restart_task
+20001520 l     O .bss	00000034 restart_req_listener_task
+0800404c l     F .text	00000038 _local_ctor_25
+08004098 l     F .text	00000084 restart_req_handler
+08004084 l     F .text	00000012 delayed_restart_func
+080049e4 l     F .text	0000003c msObjectInit
+08004454 l     F .text	00000454 chvprintf
+20001554 l     O .bss	00000018 stack_print_task
+080041c4 l     F .text	0000002c _local_ctor_31
+080042a8 l     F .text	0000002e stack_print_task_func
+080041f0 l     F .text	00000044 _print_thread_free_stack
+08004234 l     F .text	0000005c print_thread_free_stack
+08004290 l     F .text	00000018 print_exception_free_stack
+20000a18 l     O .data	00000001 _module_freemem_init_phase
+080042d8 l     F .text	0000003c _local_ctor_14
+08004384 l     F .text	000000aa long_to_string_with_divisor
+08004430 l     F .text	00000022 ch_ltoa
+080048a8 l     F .text	00000056 _writes
+08004900 l     F .text	00000056 _reads
+08004958 l     F .text	00000048 _put.lto_priv.6
+080049a0 l     F .text	00000044 _get.lto_priv.4
+0800edc0 l     O .rodata	00000010 vmt.lto_priv.1
+00000000 l    df *ABS*	00000000 <artificial>
+08007c30 l     F .text	0000000a _local_ctor_5.lto_priv.155
+08007c3c l     F .text	0000000a _local_ctor_5.lto_priv.156
+08007c48 l     F .text	00000016 st_lld_get_counter.lto_priv.149
+08007c60 l     F .text	0000000e port_timer_get_time.lto_priv.147
+08007c70 l     F .text	0000000e chVTGetSystemTimeX.lto_priv.144
+08007c80 l     F .text	0000002c _local_ctor_41
+08007e0c l     F .text	000000b8 timing_state_update_task_func
+08007ef0 l     F .text	0000003a fifoallocator_init
+08007f2c l     F .text	000000fe fifoallocator_allocate
+080080b8 l     F .text	00000056 fifoallocator_block_in_range
+0800802c l     F .text	0000002c fifoallocator_peek_oldest
+08008058 l     F .text	00000024 fifoallocator_get_block_size
+0800807c l     F .text	0000003c fifoallocator_pop_oldest
+08008110 l     F .text	0000001a port_lock.lto_priv.141
+0800812c l     F .text	0000001a port_unlock.lto_priv.139
+08008148 l     F .text	0000000e chSysLock
+08008158 l     F .text	00000038 chSysUnlock
+080081f8 l     F .text	00000088 pubsub_listener_init_and_register
+08008280 l     F .text	00000052 pubsub_listener_unregister
+08008314 l     F .text	00000072 pubsub_delete_message_S
+080084c4 l     F .text	00000084 pubsub_multiple_listener_handle_one_timeout
+08008568 l     F .text	00000128 pubsub_multiple_listener_wait_timeout_S
+08008548 l     F .text	00000020 pubsub_listener_set_waiting_thread_reference
+08008690 l     F .text	0000001a port_lock.lto_priv.142
+080086ac l     F .text	0000001a port_unlock.lto_priv.140
+08008760 l     F .text	00000028 chCoreAllocAligned
+08008888 l     F .text	0000003e _worker_thread_add_timer_task_no_wake_I
+08008920 l     F .text	0000003a _worker_thread_timer_task_reschedule_no_wake_I
+080089b0 l     F .text	00000048 worker_thread_remove_timer_task_I
+00000000 l    df *ABS*	00000000 <artificial>
+0800ca2c l     F .text	00000018 _local_ctor_4
+0800ca58 l     F .text	00000024 _local_ctor_5
+0800ca7c l     F .text	0000001c _local_ctor_7
+0800dfc8 l     F .text	0000005a initPoolAllocator
+0800df8c l     F .text	0000003a crcAdd
+0800df2c l     F .text	0000005e crcAddSignature
+0800e078 l     F .text	00000032 freeBlock
+0800d77c l     F .text	00000048 extractTransferType
+0800d738 l     F .text	00000042 extractDataType
+0800d7c4 l     F .text	0000005e traverseRxStates
+0800d824 l     F .text	00000034 findRxState
+0800d6c0 l     F .text	00000032 computeTransferIDForwardDistance
+0800d900 l     F .text	00000050 releaseStatePayload
+0800d6f4 l     F .text	00000044 prepareForNextTransfer
+0800d950 l     F .text	000001fc bufferBlockPushBytes
+0800d66c l     F .text	00000052 canardReleaseRxTransferPayload
+0800dc6c l     F .text	000001e0 descatterTransferPayload
+0800de4c l     F .text	00000022 isBigEndian
+0800de70 l     F .text	0000005c swapByteOrder
+0800db78 l     F .text	000000f2 copyBitArray
+0800e024 l     F .text	00000052 allocateBlock
+0800d894 l     F .text	0000006c createRxState
+0800d858 l     F .text	0000003a prependRxState
+0800db4c l     F .text	0000002a createBufferBlock
+0800decc l     F .text	0000005e crcAddByte
+0800e0e4 l     F .text	00000026 encode_uavcan_protocol_NodeStatus
+0800e10c l     F .text	0000002c decode_uavcan_protocol_NodeStatus
+0800e2e4 l     F .text	00000026 encode_uavcan_protocol_RestartNode_res
+0800e30c l     F .text	0000002c decode_uavcan_protocol_RestartNode_res
+0800e338 l     F .text	00000034 _encode_uavcan_protocol_RestartNode_res
+0800e36c l     F .text	00000032 _decode_uavcan_protocol_RestartNode_res
+0800e3d8 l     F .text	00000026 encode_uavcan_protocol_RestartNode_req
+0800e400 l     F .text	0000002c decode_uavcan_protocol_RestartNode_req
+0800e42c l     F .text	00000034 _encode_uavcan_protocol_RestartNode_req
+0800e460 l     F .text	00000034 _decode_uavcan_protocol_RestartNode_req
+0800e4cc l     F .text	00000026 encode_uavcan_protocol_dynamic_node_id_Allocation
+0800e4f4 l     F .text	0000002c decode_uavcan_protocol_dynamic_node_id_Allocation
+0800e520 l     F .text	000000c4 _encode_uavcan_protocol_dynamic_node_id_Allocation
+00000000 l    df *ABS*	00000000 <artificial>
+080067f4 l     F .text	000000bc worker_thread_add_publisher_task_I
+08006ce4 l     F .text	00000038 worker_thread_publisher_task_is_registered_I
+08006c98 l     F .text	0000004c worker_thread_get_millis_to_timer_task_I
+08006dbc l     F .text	0000003c worker_thread_get_any_listener_task_due_I
+08006d1c l     F .text	0000003e worker_thread_get_any_publisher_task_due_I
+08006be4 l     F .text	00000038 worker_thread_timer_task_is_registered_I
+08006d5c l     F .text	00000038 worker_thread_listener_task_is_registered_I
+08006df8 l     F .text	0000001a port_lock.lto_priv.113
+08006e14 l     F .text	0000001a port_unlock.lto_priv.110
+08006e30 l     F .text	0000000a port_lock_from_isr
+08006e3c l     F .text	0000000a port_unlock_from_isr
+08006e48 l     F .text	00000016 st_lld_get_counter.lto_priv.107
+08006e60 l     F .text	0000000e port_timer_get_time.lto_priv.104
+08006e70 l     F .text	0000000e chSysLockFromISR
+08006e80 l     F .text	0000000e chSysUnlockFromISR
+08006e90 l     F .text	0000000e chVTGetSystemTimeX.lto_priv.116
+08006ea0 l     F .text	00000038 _local_ctor_41
+08007258 l     F .text	000000ae can_driver_stm32_retreive_rx_frame_I
+08007308 l     F .text	000000ae stm32_can_rx_handler
+080073b8 l     F .text	000000ca stm32_can_tx_handler
+080074bc l     F .text	0000001a port_lock.lto_priv.114
+080074d8 l     F .text	0000001a port_unlock.lto_priv.111
+080074f4 l     F .text	0000000e chSysLock.lto_priv.125
+08007504 l     F .text	00000038 chSysUnlock.lto_priv.123
+08007558 l     F .text	0000006c can_tx_queue_push_I
+08007700 l     F .text	00000038 can_tx_queue_frame_exists_in_queue
+0800767c l     F .text	0000005e can_tx_queue_pop_expired_I
+08007738 l     F .text	00000016 st_lld_get_counter.lto_priv.108
+08007750 l     F .text	0000000e port_timer_get_time.lto_priv.105
+08007760 l     F .text	0000000e chVTGetSystemTimeX.lto_priv.117
+080077e8 l     F .text	000000a0 can_get_frame_priority_X
+080078a4 l     F .text	0000001a port_lock.lto_priv.115
+080078c0 l     F .text	0000001a port_unlock.lto_priv.112
+080078dc l     F .text	00000016 st_lld_get_counter.lto_priv.109
+080078f4 l     F .text	0000000e port_timer_get_time.lto_priv.106
+00000000 l    df *ABS*	00000000 <artificial>
+0800590c l     F .text	00000030 can_start
+0800596c l     F .text	00000060 can_allocate_tx_frame_and_append_I
+08005d24 l     F .text	0000001c can_try_enqueue_waiting_frame
+08005e00 l     F .text	00000020 can_reschedule_expire_timer
+08005ee4 l     F .text	000000b4 can_expire_handler
+08005c14 l     F .text	0000010e can_try_enqueue_waiting_frame_I
+08005d40 l     F .text	000000c0 can_reschedule_expire_timer_I
+08005e20 l     F .text	00000068 can_tx_frame_completed_I
+08005e88 l     F .text	0000005c can_tx_frame_completed
+08006010 l     F .text	00000034 can_fill_rx_frame_I
+08006090 l     F .text	000000c4 LL_US2ST.lto_priv.86
+08006154 l     F .text	00000040 is_baudrate_valid
+08006194 l     F .text	00000104 _local_ctor_37
+08006298 l     F .text	0000009c autobaud_timer_task_func
+08006334 l     F .text	0000001a port_lock
+08006350 l     F .text	0000001a port_unlock
+080063b4 l     F .text	000000c4 LL_US2ST.lto_priv.87
+08006498 l     F .text	0000001c chCoreAlloc.lto_priv.85
+080064b4 l     F .text	0000003c _local_ctor_100
+080064f0 l     F .text	0000016c uavcan_init
+080066a8 l     F .text	000000a8 _uavcan_get_message_topic
+00000000 l    df *ABS*	00000000 <artificial>
+08004a68 l     F .text	0000002a uavcan_set_node_id
+08004a94 l     F .text	0000007c copy_bit_array
+08004b10 l     F .text	000000e2 uavcan_transmit_chunk_handler
+08004bf4 l     F .text	00000354 _uavcan_send
+080053d0 l     F .text	00000186 uavcan_transfer_id_map_retrieve
+08005180 l     F .text	00000086 convert_can_frame_to_CanardCANFrame
+08005108 l     F .text	00000038 uavcan_get_num_instances
+08005208 l     F .text	00000066 uavcan_message_writer_func
+08005558 l     F .text	00000014 uavcan_nodestatus_publisher_get_nodestatus_message
+0800556c l     F .text	00000050 _local_ctor_24
+080055bc l     F .text	00000044 node_status_publisher_task_func
+08005600 l     F .text	00000038 _local_ctor_26
+08005638 l     F .text	000000a4 getnodeinfo_req_handler
+080056dc l     F .text	0000001c chCoreAlloc
+080056f8 l     F .text	0000009c _local_ctor_34
+08005864 l     F .text	000000a8 allocation_message_handler
+00000000 l    df *ABS*	00000000 build/org.mro.perh_1.0/obj/crt0_v7m.o
+080031fc l       .text	00000000 msloop
+0800320a l       .text	00000000 psloop
+0800321a l       .text	00000000 dloop
+0800322e l       .text	00000000 bloop
+08003244 l       .text	00000000 initloop
+08003250 l       .text	00000000 endinitloop
+08003258 l       .text	00000000 finiloop
+08003264 l       .text	00000000 endfiniloop
+00000000 l    df *ABS*	00000000 build/org.mro.perh_1.0/obj/chcoreasm_v7m.o
+e000ed04 l       *ABS*	00000000 SCB_ICSR
+10000000 l       *ABS*	00000000 ICSR_PENDSVSET
+00000000 l    df *ABS*	00000000 _arm_fixunssfsi.o
+00000000 l    df *ABS*	00000000 _aeabi_uldivmod.o
+00000000 l    df *ABS*	00000000 bpabi.c
+00000000 l    df *ABS*	00000000 _dvmd_tls.o
+00000000 l    df *ABS*	00000000 libgcc2.c
+00000000 l    df *ABS*	00000000 libgcc2.c
+00000000 l    df *ABS*	00000000 _arm_addsubsf3.o
+00000000 l    df *ABS*	00000000 _arm_muldivsf3.o
+00000000 l    df *ABS*	00000000 <artificial>
+08008b0c l     F .text	00000084 oqPutTimeout
+08008b90 l     F .text	00000076 oqGetI
+08008c08 l     F .text	00000104 oqWriteTimeout
+08008d0c l     F .text	0000001a port_lock.lto_priv.181
+08008d28 l     F .text	0000001a port_unlock.lto_priv.178
+08008d44 l     F .text	0000000e chSysLock
+08008d54 l     F .text	00000038 chSysUnlock
+08008d8c l     F .text	0000000a osalSysLock.lto_priv.195
+08008d98 l     F .text	0000000a osalSysUnlock.lto_priv.193
+08008da4 l     F .text	00000018 osalEventObjectInit
+08008dbc l     F .text	00000020 osalEventBroadcastFlagsI.lto_priv.164
+08009800 l     F .text	00000024 sd_lld_init
+08008f34 l     F .text	00000064 sdObjectInit
+08008f98 l     F .text	0000004c sdStart
+08009824 l     F .text	00000054 sd_lld_start
+08008fe4 l     F .text	00000060 sdIncomingDataI
+08009044 l     F .text	0000002c st_lld_start_alarm
+08009070 l     F .text	00000014 st_lld_stop_alarm
+08009084 l     F .text	0000001c st_lld_set_alarm
+080090a0 l     F .text	00000022 st_lld_is_alarm_active
+0800944c l     F .text	00000074 st_lld_init
+080091d4 l     F .text	0000001c hal_lld_backup_domain_init
+08009384 l     F .text	0000001a port_lock.lto_priv.182
+080093a0 l     F .text	0000001a port_unlock.lto_priv.179
+080093bc l     F .text	0000000a port_lock_from_isr.lto_priv.176
+080093c8 l     F .text	0000000a port_unlock_from_isr.lto_priv.174
+080093d4 l     F .text	0000000e chSysLockFromISR.lto_priv.172
+080093e4 l     F .text	0000000e chSysUnlockFromISR.lto_priv.170
+080093f4 l     F .text	0000000a osalSysLockFromISR.lto_priv.168
+08009400 l     F .text	0000000a osalSysUnlockFromISR.lto_priv.166
+0800940c l     F .text	0000000a osalOsTimerHandlerI
+080094c0 l     F .text	0000001a port_lock.lto_priv.183
+080094dc l     F .text	0000001a port_unlock.lto_priv.180
+080094f8 l     F .text	0000000a port_lock_from_isr.lto_priv.177
+08009504 l     F .text	0000000a port_unlock_from_isr.lto_priv.175
+08009510 l     F .text	0000000e chSysLockFromISR.lto_priv.173
+08009520 l     F .text	0000000e chSysUnlockFromISR.lto_priv.171
+08009530 l     F .text	0000000a osalSysLockFromISR.lto_priv.169
+0800953c l     F .text	0000000a osalSysUnlockFromISR.lto_priv.167
+08009548 l     F .text	00000020 osalEventBroadcastFlagsI.lto_priv.165
+08009568 l     F .text	000000ac usart_init
+08009614 l     F .text	0000006a set_error
+08009680 l     F .text	0000013e serve_interrupt
+080097c0 l     F .text	00000024 notify1
+08009890 l     F .text	00000052 param_struct_valid
+08009988 l     F .text	000000c0 crc64_we
+00000000 l    df *ABS*	00000000 <artificial>
+08009a48 l     F .text	0000000e chSysLock.lto_priv.214
+08009a58 l     F .text	00000038 chSysUnlock.lto_priv.210
+08009b88 l     F .text	0000001a port_lock.lto_priv.230
+08009ba4 l     F .text	0000001a port_unlock.lto_priv.225
+08009bc0 l     F .text	0000000e chSysLock.lto_priv.215
+08009bd0 l     F .text	00000038 chSysUnlock.lto_priv.211
+08009c08 l     F .text	00000018 chPoolAdd
+08009d7c l     F .text	0000001a port_lock.lto_priv.231
+08009d98 l     F .text	0000001a port_unlock.lto_priv.226
+08009db4 l     F .text	0000000a port_lock_from_isr
+08009dc0 l     F .text	0000000a port_unlock_from_isr
+08009e60 l     F .text	0000000c osalInit
+08009e8c l     F .text	0000001a port_lock.lto_priv.233
+08009ea8 l     F .text	0000001a port_unlock.lto_priv.228
+08009ec4 l     F .text	00000016 st_lld_get_counter.lto_priv.223
+08009edc l     F .text	0000000e port_timer_get_time.lto_priv.221
+08009eec l     F .text	0000001e queue_init.lto_priv.219
+08009f0c l     F .text	0000000e chSysLock.lto_priv.217
+08009f1c l     F .text	00000038 chSysUnlock.lto_priv.213
+08009f54 l     F .text	0000000e chVTGetSystemTimeX.lto_priv.209
+08009f64 l     F .text	00000014 chThdQueueObjectInit.lto_priv.207
+08009fa0 l     F .text	00000014 osalThreadQueueObjectInit.lto_priv.205
+00000000 l    df *ABS*	00000000 <artificial>
+0800a284 l     F .text	0000008c chThdRelease
+0800a328 l     F .text	00000080 chThdExitS
+0800a564 l     F .text	0000001a port_lock.lto_priv.266
+0800a580 l     F .text	0000001a port_unlock.lto_priv.262
+0800a59c l     F .text	0000000e chSysLock.lto_priv.256
+0800a5ac l     F .text	00000038 chSysUnlock.lto_priv.251
+0800a5e4 l     F .text	00000018 chThdGetWorkingAreaX.lto_priv.279
+0800a6c4 l     F .text	0000001a port_lock.lto_priv.267
+0800a6e0 l     F .text	0000001a port_unlock.lto_priv.263
+0800a6fc l     F .text	0000001e queue_init.lto_priv.260
+0800a71c l     F .text	00000024 queue_notempty.lto_priv.276
+0800a740 l     F .text	0000000e chSysLock.lto_priv.257
+0800a750 l     F .text	00000038 chSysUnlock.lto_priv.252
+0800a788 l     F .text	0000001e chMtxQueueNotEmptyS
+0800ab18 l     F .text	0000001a port_lock.lto_priv.269
+0800ab34 l     F .text	0000001a port_unlock.lto_priv.265
+0800ab50 l     F .text	0000001e queue_init.lto_priv.261
+0800ab70 l     F .text	0000000e chSysLock.lto_priv.259
+0800ab80 l     F .text	00000038 chSysUnlock.lto_priv.254
+0800abb8 l     F .text	00000014 chThdQueueObjectInit
+0800abcc l     F .text	00000022 chMBGetSizeI
+0800abf0 l     F .text	00000018 chMBGetUsedCountI
+0800ac08 l     F .text	00000026 chMBGetFreeCountI
+0800ad4c l     F .text	000000a8 chMBFetchS
+00000000 l    df *ABS*	00000000 <artificial>
+0800ae54 l     F .text	0000001a port_lock.lto_priv.309
+0800ae70 l     F .text	0000001a port_unlock.lto_priv.306
+0800ae8c l     F .text	0000000a port_lock_from_isr.lto_priv.319
+0800ae98 l     F .text	0000000a port_unlock_from_isr.lto_priv.317
+0800b030 l     F .text	00000016 st_lld_get_counter.lto_priv.304
+0800b048 l     F .text	00000018 port_timer_start_alarm
+0800b060 l     F .text	0000000a port_timer_stop_alarm
+0800b06c l     F .text	00000018 port_timer_set_alarm
+0800b084 l     F .text	0000000e port_timer_get_time.lto_priv.302
+0800b094 l     F .text	0000000e chVTGetSystemTimeX
+0800b0d4 l     F .text	00000150 chVTDoSetI
+0800b224 l     F .text	00000100 chVTDoResetI
+0800b324 l     F .text	0000001a port_lock.lto_priv.310
+0800b340 l     F .text	0000001a port_unlock.lto_priv.307
+0800b35c l     F .text	0000000a port_lock_from_isr.lto_priv.320
+0800b368 l     F .text	0000000a port_unlock_from_isr.lto_priv.318
+0800b374 l     F .text	0000001e queue_init
+0800b394 l     F .text	00000028 chSchIsRescRequiredI
+0800b3bc l     F .text	0000000e chSysLockFromISR.lto_priv.316
+0800b3cc l     F .text	0000000e chSysUnlockFromISR.lto_priv.314
+0800b3dc l     F .text	00000022 chVTIsArmedI
+0800b5a0 l     F .text	00000080 chSchReadyAheadI
+0800b68c l     F .text	00000050 wakeup
+0800b838 l     F .text	00000064 chSchDoRescheduleAhead
+0800b900 l     F .text	0000001a port_lock.lto_priv.311
+0800b91c l     F .text	0000001a port_unlock.lto_priv.308
+0800b938 l     F .text	00000018 list_init
+00000000 l    df *ABS*	00000000 <artificial>
+0800bcec l     F .text	00000034 _encode_uavcan_protocol_debug_LogLevel
+0800bd20 l     F .text	00000032 _decode_uavcan_protocol_debug_LogLevel
+0800bd8c l     F .text	00000026 encode_uavcan_protocol_debug_LogMessage
+0800bdb4 l     F .text	0000002c decode_uavcan_protocol_debug_LogMessage
+0800bde0 l     F .text	000000f8 _encode_uavcan_protocol_debug_LogMessage
+0800bed8 l     F .text	00000104 _decode_uavcan_protocol_debug_LogMessage
+0800c014 l     F .text	00000026 encode_uavcan_protocol_GetNodeInfo_res
+0800c03c l     F .text	0000002c decode_uavcan_protocol_GetNodeInfo_res
+0800c068 l     F .text	000000c8 _encode_uavcan_protocol_GetNodeInfo_res
+0800c130 l     F .text	000000cc _decode_uavcan_protocol_GetNodeInfo_res
+0800c40c l     F .text	000000bc _encode_uavcan_protocol_SoftwareVersion
+0800c1fc l     F .text	000000fe _encode_uavcan_protocol_HardwareVersion
+0800c4c8 l     F .text	000000bc _decode_uavcan_protocol_SoftwareVersion
+0800c2fc l     F .text	00000110 _decode_uavcan_protocol_HardwareVersion
+0800c5bc l     F .text	00000026 encode_uavcan_protocol_GetNodeInfo_req
+0800c5e4 l     F .text	0000002c decode_uavcan_protocol_GetNodeInfo_req
+0800c610 l     F .text	00000018 _encode_uavcan_protocol_GetNodeInfo_req
+0800c628 l     F .text	00000018 _decode_uavcan_protocol_GetNodeInfo_req
+0800c6d0 l     F .text	00000006 _unhandled_exception
+0800c6d8 l     F .text	00000048 NVIC_SetPriorityGrouping
+0800c720 l     F .text	00000054 NVIC_SetPriority
+0800c774 l     F .text	00000040 port_init
+0800c7b4 l     F .text	0000001a port_lock
+0800c7d0 l     F .text	0000001a port_unlock
+0800c7ec l     F .text	0000000a port_lock_from_isr
+0800c7f8 l     F .text	0000000a port_unlock_from_isr
+0800c814 l     F .text	0000001c port_enable
+0800c830 l     F .text	0000000c port_wait_for_interrupt
+0800c83c l     F .text	00000016 st_lld_get_counter
+0800c854 l     F .text	0000000a port_timer_stop_alarm
+0800c860 l     F .text	00000018 port_timer_set_alarm
+0800c878 l     F .text	0000000e port_timer_get_time
+0800c888 l     F .text	0000000e chSysEnable
+0800c8b8 l     F .text	0000000e chVTGetSystemTimeX
+00000000 l    df *ABS*	00000000 memcmp.c
+00000000 l    df *ABS*	00000000 memcpy.c
+00000000 l    df *ABS*	00000000 memmove.c
+00000000 l    df *ABS*	00000000 memset.c
+00000000 l    df *ABS*	00000000 strnlen.c
+00000000 l    df *ABS*	00000000 
+00000000 l       .ARM.exidx	00000000 __ram4_start__
+00000000 l       .ARM.exidx	00000000 __ram6_start__
+ffffffff l       *ABS*	00000000 __ram5_end__
+ffffffff l       *ABS*	00000000 __ram5_size__
+ffffffff l       *ABS*	00000000 __ram1_size__
+ffffffff l       *ABS*	00000000 __ram4_size__
+ffffffff l       *ABS*	00000000 __ram1_end__
+ffffffff l       *ABS*	00000000 __ram4_end__
+00003f00 l       *ABS*	00000000 __ram0_size__
+ffffffff l       *ABS*	00000000 __ram6_end__
+ffffffff l       *ABS*	00000000 __ram7_size__
+00000000 l       .ARM.exidx	00000000 __ram7_start__
+ffffffff l       *ABS*	00000000 __ram3_size__
+ffffffff l       *ABS*	00000000 __ram3_end__
+ffffffff l       *ABS*	00000000 __ram2_size__
+00000000 l       .ARM.exidx	00000000 __ram1_start__
+ffffffff l       *ABS*	00000000 __ram6_size__
+20003f00 l       .mstack	00000000 _app_bl_shared_sec
+ffffffff l       *ABS*	00000000 __ram2_end__
+00000000 l       .ARM.exidx	00000000 __ram2_start__
+ffffffff l       *ABS*	00000000 __ram7_end__
+20000000 l       .ARM.exidx	00000000 __ram0_start__
+00000000 l       .ARM.exidx	00000000 __ram5_start__
+20003f00 l       *ABS*	00000000 __ram0_end__
+00000500 l       *ABS*	00000000 __main_stack_size__
+00000000 l       .ARM.exidx	00000000 __ram3_start__
+00000500 l       *ABS*	00000000 __process_stack_size__
+08007d68 g     F .text	000000a4 .hidden micros64
+08005038 g     F .text	00000050 .hidden uavcan_can_rx_handler.lto_priv.81
+080059f4 g     F .text	0000007c .hidden can_enqueue_tx_frames
+08008efc g     F .text	0000002a .hidden _readt.lto_priv.31
+0800c6d0 g     F .text	00000006 .hidden Vector58
+0800cb04 g     F .text	00000018 .hidden canardGetUserReference
+0800c6d0 g     F .text	00000006 .hidden VectorE8
+0800c6d0 g     F .text	00000006 .hidden Vector9C
+08008710 g     F .text	00000018 .hidden chThdGetSelfX.lto_priv.131
+0800e970 g     O .rodata	0000000c .hidden __func__.5759.lto_priv.312
+0800913c g     F .text	0000005c .hidden nvicEnableVector
+08003378 g     F .text	00000030 .hidden __gnu_uldivmod_helper
+080089f8 g     F .text	00000020 .hidden worker_thread_remove_timer_task
+0800c6d0 g     F .text	00000006 .hidden VectorAC
+0800ae44 g     F .text	0000000e .hidden chSysTimerHandlerI
+0800a310 g     F .text	00000018 chThdExit
+0800b6dc g     F .text	00000074 .hidden chSchGoSleepTimeoutS
+08007888 g     F .text	0000001a .hidden can_get_tx_frame_priority_X
+0800c898 g     F .text	0000000e .hidden chSysLockFromISR.lto_priv.315
+0800ec48 g     O .rodata	00000013 .hidden __func__.7565.lto_priv.138
+0800c6d0 g     F .text	00000006 .hidden DebugMon_Handler
+0800a4a4 g     F .text	00000040 .hidden chThdResumeS
+0800e9d0 g     O .rodata	0000000d .hidden __func__.5772.lto_priv.286
+0800b950 g     F .text	00000024 .hidden list_notempty.lto_priv.293
+0800e2ac g     F .text	0000001c .hidden encode_func.lto_priv.49
+080033ac g     F .text	000002aa .hidden __divdi3
+0800eb48 g     O .rodata	0000000d .hidden __func__.5740.lto_priv.35
+0800a7dc g     F .text	0000012c .hidden chMtxLockS
+08008a3c g     F .text	0000007c .hidden worker_thread_add_listener_task
+0800c6d0 g     F .text	00000006 .hidden Vector5C
+0800aef4 g     F .text	0000002c _dbg_check_unlock
+20000a68 g     O .bss	00000800 .hidden _pubsub_topic_group_memory_default_topic_group.lto_priv.332
+0800ea70 g     O .rodata	00000010 .hidden __func__.6051.lto_priv.277
+0800bad0 g     F .text	0000002c .hidden _thread_memfill
+20001478 g     O .bss	00000018 .hidden autobaud_timer_task.lto_priv.92
+0800c6d0 g     F .text	00000006 .hidden Vector11C
+00000000 g       .ram5	00000000 __ram5_clear__
+0800e3a0 g     F .text	0000001c .hidden encode_func.lto_priv.50
+0800794c g     F .text	0000000e .hidden chVTGetSystemTimeX.lto_priv.100
+0800e97c g     O .rodata	00000011 .hidden __func__.5766.lto_priv.45
+08009c20 g     F .text	0000003c .hidden chPoolObjectInit
+0800c6d0 g     F .text	00000006 .hidden HardFault_Handler
+0800665c g     F .text	0000004c .hidden uavcan_iterate_instances.lto_priv.75
+08006044 g     F .text	0000004c .hidden can_driver_rx_frame_received_I
+2000156c g       .ram0_init	00000000 __ram0_init__
+0800e8b0 g     O .rodata	00000080 .hidden ram_areas.lto_priv.331
+0800a238 g     F .text	0000004a .hidden oqObjectInit
+08003c4c g     F .text	00000136 .hidden __divsf3
+200014ac g     O .bss	0000000c .hidden node_status.lto_priv.67
+08007484 g     F .text	0000001c .hidden Vector8C
+0800c6d0 g     F .text	00000006 .hidden SysTick_Handler
+00000000 g       .ram1	00000000 __ram1_free__
+0800e61a g     F .text	00000036 memmove
+080059cc g     F .text	00000026 .hidden can_allocate_tx_frame_and_append
+0800c6d0 g     F .text	00000006 .hidden VectorDC
+0800c6d0 g     F .text	00000006 .hidden PendSV_Handler
+0800bd54 g     F .text	0000001c .hidden encode_func.lto_priv.52
+0800e960 g     O .rodata	0000000d .hidden __func__.5740.lto_priv.34
+0800c6d0 g     F .text	00000006 .hidden NMI_Handler
+08003000 g     O .vectors	00000160 _vectors
+0800edd8 g       .ARM.exidx	00000000 __exidx_end
+0800e9c4 g     O .rodata	0000000c .hidden __func__.5751.lto_priv.297
+0800eae0 g     O .rodata	0000000a .hidden __func__.5753.lto_priv.247
+0800b620 g     F .text	0000006c .hidden chSchGoSleepS
+0800c6d0 g     F .text	00000006 .hidden Vector110
+0800797c g     F .text	0000001c .hidden chCoreAlloc.lto_priv.84
+0800a504 g     F .text	0000003c .hidden chThdEnqueueTimeoutS
+0800e890 g     O .rodata	00000020 .hidden uavcan_protocol_GetNodeInfo_req_descriptor
+2000156c g       .ram0	00000000 __ram0_free__
+20001570 g       .heap	00000000 __heap_base__
+08007154 g     F .text	00000054 .hidden can_driver_stm32_abort_tx_mailbox_I
+0800c6d0 g     F .text	00000006 .hidden Vector120
+0800411c g     F .text	000000a8 .hidden uavcan_send_debug_msg
+0800a134 g     F .text	00000104 .hidden iqReadTimeout
+0800b9a8 g     F .text	00000038 .hidden chSysUnlock.lto_priv.250
+0800c6d0 g     F .text	00000006 .hidden VectorC8
+0800ed80 g     O .rodata	00000009 .hidden __func__.6044.lto_priv.93
+080038d4 g     F .text	00000160 .hidden __aeabi_fadd
+08007bb8 g     F .text	00000078 .hidden crc16_ccitt
+080038d0 g     F .text	00000164 .hidden __subsf3
+080068b0 g     F .text	00000028 .hidden worker_thread_add_publisher_task
+0800b750 g     F .text	0000009c .hidden chSchWakeupS
+08008728 g     F .text	00000020 .hidden chRegSetThreadName.lto_priv.132
+0800a68c g     F .text	00000038 .hidden chRegFindThreadByWorkingArea
+080050c0 g     F .text	00000048 .hidden uavcan_get_instance.lto_priv.96
+0800edf4 g       *ABS*	00000000 __ram3_init_text__
+0800ac30 g     F .text	0000006c .hidden chMBObjectInit
+0800b400 g     F .text	00000024 .hidden _scheduler_init
+08005390 g     F .text	00000040 .hidden uavcan_transfer_id_map_init.lto_priv.99
+08008984 g     F .text	0000002a .hidden worker_thread_timer_task_reschedule
+0800b7ec g     F .text	00000018 .hidden chSchRescheduleS
+0800c8a8 g     F .text	0000000e .hidden chSysUnlockFromISR.lto_priv.313
+0800c6d0 g     F .text	00000006 .hidden Vector94
+08006750 g     F .text	00000028 .hidden uavcan_get_message_topic
+00000000 g       .ram5	00000000 __ram5_noinit__
+080086d8 g     F .text	00000038 .hidden chSysUnlock.lto_priv.122
+0800c6d0 g     F .text	00000006 .hidden VectorA8
+0800679c g     F .text	00000032 .hidden _uavcan_get_node_id.lto_priv.78
+0800e604 g     F .text	00000016 memcpy
+0800eda4 g     O .rodata	0000000f .hidden __func__.8076.lto_priv.65
+0800c6d0 g     F .text	00000006 .hidden VectorB4
+0800ebc4 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.18
+080090d0 g     F .text	0000002c .hidden stStartAlarm
+08009fd4 g     F .text	00000018 .hidden osalThreadDequeueNextI.lto_priv.201
+0800e0c8 g     F .text	0000001c .hidden decode_func.lto_priv.56
+08003318 g     F .text	00000000 .hidden __aeabi_uldivmod
+0800b520 g     F .text	00000080 .hidden chSchReadyI
+080076dc g     F .text	00000022 .hidden can_tx_queue_pop_expired
+080031c4 g       .xtors	00000000 __fini_array_end
+0800aea4 g     F .text	00000024 .hidden _dbg_check_enable
+20000a00 g       .pstack	00000000 __main_thread_stack_end__
+0800b0a4 g     F .text	00000030 .hidden _vt_init
+080071a8 g     F .text	000000b0 .hidden can_driver_stm32_load_tx_mailbox_I
+0800edd0 g       .rodata	00000000 __rodata_end__
+0800ebf0 g     O .rodata	0000000b .hidden __func__.6303.lto_priv.25
+0800ebd0 g     O .rodata	00000010 .hidden __func__.6350.lto_priv.189
+0800eb7c g     O .rodata	0000000e .hidden __func__.6322.lto_priv.203
+08003a3c g     F .text	0000001c .hidden __aeabi_i2f
+0800c6d0 g     F .text	00000006 .hidden Vector74
+0800af78 g     F .text	00000038 .hidden _dbg_check_enter_isr
+08009e6c g     F .text	0000001e .hidden halInit
+0800ed14 g     O .rodata	00000017 .hidden __func__.6817.lto_priv.119
+0800ea28 g     O .rodata	0000000d .hidden __func__.5836.lto_priv.280
+0800c6d0 g     F .text	00000006 .hidden UsageFault_Handler
+0800cb1c g     F .text	00000032 .hidden canardSetLocalNodeID
+0800637c g     F .text	00000038 .hidden chSysUnlock.lto_priv.76
+0800895c g     F .text	00000026 .hidden worker_thread_timer_task_reschedule_I
+0800c6d0 g     F .text	00000006 .hidden VectorEC
+20000a20 g       .bss	00000000 _bss_start
+0800a038 g     F .text	0000007a .hidden iqPutI
+08007770 g     F .text	0000002c .hidden can_tx_frame_expired_X
+0800c5a0 g     F .text	0000001c .hidden decode_func.lto_priv.63
+0800ea80 g     O .rodata	00000010 .hidden __func__.5724.lto_priv.274
+20001268 g     O .bss	000000d0 .hidden ch_idle_thread_wa
+0800ebe0 g     O .rodata	0000000d .hidden __func__.6296.lto_priv.187
+20003f00 g       .heap	00000000 __heap_end__
+0800ec7c g     O .rodata	00000020 .hidden __func__.7636.lto_priv.135
+0800e7d0 g     O .rodata	00000020 .hidden uavcan_protocol_NodeStatus_descriptor
+20000a00 g     O .data	0000000c .hidden can_instance_pool
+0800bd70 g     F .text	0000001c .hidden decode_func.lto_priv.60
+080079e8 g     F .text	00000040 .hidden can_get_instance
+0800e1f4 g     F .text	000000b6 .hidden _decode_uavcan_protocol_NodeStatus
+0800c6d0 g     F .text	00000006 .hidden Vector40
+0800ca98 g     F .text	0000006a .hidden canardInit
+080082f8 g     F .text	0000001c .hidden pubsub_copy_writer_func
+0800c6d0 g     F .text	00000006 .hidden VectorF8
+0800c6d0 g     F .text	00000006 .hidden Vector108
+080090fc g     F .text	0000000a .hidden stStopAlarm
+0800b474 g     F .text	00000030 .hidden queue_insert
+20000a3c g     O .bss	0000001c .hidden can_thread
+20001428 g     O .bss	00000020 .hidden timing_state.lto_priv.153
+0800c6d0 g     F .text	00000006 .hidden VectorBC
+08004a20 g     F .text	00000048 .hidden _uavcan_set_node_id.lto_priv.97
+0800c6d0 g     F .text	00000006 .hidden Vector150
+0800795c g     F .text	0000001e .hidden chCoreAllocAlignedI.lto_priv.8
+080057c0 g     F .text	000000a4 .hidden allocation_timer_expired.lto_priv.7
+00000000 g       .ram1	00000000 __ram1_clear__
+0800c6d0 g     F .text	00000006 .hidden Vector124
+08008e78 g     F .text	0000002e .hidden _putt.lto_priv.28
+08007a58 g     F .text	00000042 .hidden can_set_silent_mode
+08007658 g     F .text	00000024 .hidden can_tx_queue_pop_I
+20001490 g     O .bss	00000018 .hidden stale_transfer_cleanup_task.lto_priv.82
+08007b48 g     F .text	00000070 .hidden can_start_I
+080091f0 g     F .text	0000004c .hidden hal_lld_init
+00000000 g       .ram7	00000000 __ram7_free__
+08009f90 g     F .text	0000000e .hidden osalOsGetSystemTimeX.lto_priv.200
+0800edd0 g       .ARM.exidx	00000000 __exidx_start
+20000a0c g     O .data	0000000c .hidden rx_list_pool
+0800d560 g     F .text	0000010c .hidden canardEncodeScalar
+0800e9ec g     O .rodata	00000011 .hidden __func__.5796.lto_priv.284
+080067d0 g     F .text	00000024 .hidden uavcan_get_node_id
+0800edf4 g       *ABS*	00000000 __ram0_init_text__
+0800eb9c g     O .rodata	00000020 .hidden vmt.lto_priv.0
+0800ed70 g     O .rodata	00000010 .hidden valid_baudrates.lto_priv.91
+0800b424 g     F .text	0000004e .hidden queue_prio_insert
+0800695c g     F .text	000001fc .hidden worker_thread_takeover
+0800edf4 g       *ABS*	00000000 __ram1_init_text__
+08007640 g     F .text	00000018 .hidden can_tx_queue_peek_I
+08003658 g     F .text	0000026e .hidden __udivdi3
+0800c6d0 g     F .text	00000006 .hidden Vector148
+08008190 g     F .text	0000002a .hidden pubsub_create_topic_group
+0800edf4 g       *ABS*	00000000 __ram5_init_text__
+200014b8 g     O .bss	00000018 .hidden node_status_publisher_task.lto_priv.68
+08005088 g     F .text	00000038 .hidden stale_transfer_cleanup_task_func.lto_priv.83
+080087c0 g     F .text	0000004c .hidden worker_thread_init
+0800e660 g     F .text	00000018 strnlen
+0800ae2c g     F .text	00000018 .hidden chSysHalt
+0800c6d0 g     F .text	00000006 .hidden Vector118
+0800e9a0 g     O .rodata	00000016 .hidden __func__.5738.lto_priv.299
+0800c6d0 g     F .text	00000006 .hidden Vector64
+2000156c g       .bss	00000000 _bss_end
+080038d0 g     F .text	00000164 .hidden __aeabi_fsub
+0800eb18 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.15
+0800eb8c g     O .rodata	0000000f .hidden __func__.6361.lto_priv.198
+0800cb50 g     F .text	00000018 .hidden canardGetLocalNodeID
+08009b68 g     F .text	00000020 .hidden chCoreGetStatusX
+080031d0 g     F .text	00000000 Reset_Handler
+080090c4 g     F .text	0000000a .hidden stInit
+0800c6d0 g     F .text	00000006 .hidden VectorCC
+08006ed8 g     F .text	00000234 .hidden can_driver_stm32_start.lto_priv.22
+0800e494 g     F .text	0000001c .hidden encode_func.lto_priv.51
+0800ec24 g     O .rodata	0000000c .hidden __func__.5296.lto_priv.146
+08009fb4 g     F .text	00000020 .hidden osalThreadEnqueueTimeoutS.lto_priv.199
+20001470 g     O .bss	00000004 .hidden can_instance_list_head.lto_priv.95
+0800c6d0 g     F .text	00000006 .hidden Vector54
+08003a68 g     F .text	0000007c .hidden __floatdisf
+20001468 g     O .bss	00000008 .hidden can1_instance.lto_priv.126
+0800c6d0 g     F .text	00000006 .hidden Vector98
+0800ed40 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.21
+08008e58 g     F .text	00000020 .hidden _get.lto_priv.3
+0800a410 g     F .text	00000050 .hidden chThdSuspendTimeoutS
+0800ea64 g     O .rodata	0000000c .hidden __func__.5593.lto_priv.32
+0800779c g     F .text	0000004c .hidden can_tx_frame_time_until_expire_X
+00000000 g       .ram4	00000000 __ram4_clear__
+0800ebbc g     O .rodata	00000008 .hidden __func__.6341.lto_priv.191
+00000000 g       .ram5	00000000 __ram5_free__
+0800c6d0 g     F .text	00000006 .hidden VectorD8
+0800edf4 g       *ABS*	00000000 __ram6_init_text__
+08006b58 g     F .text	00000018 .hidden worker_thread_func.lto_priv.137
+0800c6d0 g     F .text	00000006 .hidden Vector138
+0800e948 g     O .rodata	0000000c .hidden __func__.5391.lto_priv.330
+08004f48 g     F .text	00000086 .hidden uavcan_broadcast
+0800c6d0 g     F .text	00000006 .hidden Vector24
+0800afe8 g     F .text	00000024 .hidden chDbgCheckClassI
+0800ea90 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.12
+00000000 g       .ram3	00000000 __ram3_clear__
+0800c658  w    F .text	00000006 __default_exit
+0800ae10 g     F .text	0000001a .hidden port_unlock.lto_priv.224
+0800e2c8 g     F .text	0000001c .hidden decode_func.lto_priv.57
+00000000 g       .ram6_init	00000000 __ram6_init__
+0800b89c g     F .text	00000064 chSchDoReschedule
+0800c9c8 g     F .text	00000064 .hidden chSysInit
+00000000 g       .ram7_init	00000000 __ram7_init__
+0800e990 g     O .rodata	0000000d .hidden __func__.5793.lto_priv.41
+00000000 g       .ram6	00000000 __ram6_free__
+08006bac g     F .text	00000036 .hidden worker_thread_init_timer_task.lto_priv.161
+0800c6d0 g     F .text	00000006 .hidden Vector84
+00000000 g       .ram2	00000000 __ram2_noinit__
+00000000 g       .ram6	00000000 __ram6_noinit__
+0800923c g     F .text	000000b0 .hidden stm32_clock_init
+00000000 g       .ram4_init	00000000 __ram4_init__
+08003e20 g     F .text	0000008c .hidden allocation_start_followup_timer.lto_priv.71
+080092ec g     F .text	00000098 .hidden _pal_lld_init
+08009ca4 g     F .text	00000058 .hidden chPoolAllocI
+0800e0ac g     F .text	0000001c .hidden encode_func.lto_priv.48
+08008f28 g     F .text	0000000a .hidden sdInit
+08005140 g     F .text	00000040 .hidden uavcan_get_idx.lto_priv.98
+00000000 g       .ram7	00000000 __ram7_clear__
+0800ec14 g     O .rodata	0000000f .hidden shared_app_parameters.lto_priv.70
+0800a7a8 g     F .text	00000034 .hidden chMtxObjectInit
+0800c6d0 g     F .text	00000006 .hidden VectorD0
+08009a90 g     F .text	00000024 .hidden _core_init
+0800aa14 g     F .text	00000104 .hidden chMtxUnlockS
+08009c5c g     F .text	00000048 .hidden chPoolLoadArray
+0800c8c8 g     F .text	000000f0 .hidden chVTDoTickI.lto_priv.327
+20000a00 g       .data	00000000 _data_start
+0800a4e4 g     F .text	00000020 .hidden chThdResume
+08004320 g     F .text	00000064 .hidden board_get_unique_id
+20000a20 g     O .bss	0000001c .hidden lpwork_thread
+08006778 g     F .text	00000024 .hidden _uavcan_get_message_data_type_id.lto_priv.74
+08003a3c g     F .text	0000001c .hidden __floatsisf
+0800c6d0 g     F .text	00000006 .hidden Vector140
+08005794 g     F .text	0000002c .hidden allocation_stop_and_cleanup.lto_priv.64
+20001474 g     O .bss	00000001 .hidden baudrate_idx.lto_priv.90
+0800c6d0 g     F .text	00000006 .hidden VectorE4
+08009cfc g     F .text	00000022 .hidden chPoolAlloc
+0800c6d0 g     F .text	00000006 .hidden VectorC0
+0800c6d0 g     F .text	00000006 .hidden Vector158
+0800ea18 g     O .rodata	0000000d .hidden __func__.5830.lto_priv.281
+0800c6d0 g     F .text	00000006 .hidden Vector130
+080032a4 g     F .text	00000000 _port_switch
+0800c640  w    F .text	0000000c __core_init
+00000000 g       .ram4	00000000 __ram4_noinit__
+0800e4b0 g     F .text	0000001c .hidden decode_func.lto_priv.59
+08008748 g     F .text	00000018 .hidden chMBGetUsedCountI.lto_priv.130
+08009108 g     F .text	00000034 .hidden stSetAlarm
+0800c64c  w    F .text	0000000c __late_init
+08009f78 g     F .text	0000000a .hidden osalSysLock.lto_priv.194
+0800ed98 g     O .rodata	0000000c .hidden __func__.5420.lto_priv.89
+08009df8 g     F .text	00000068 .hidden _port_irq_epilogue
+0800c6d0 g     F .text	00000006 .hidden Vector134
+00000000 g       .ram6	00000000 __ram6_clear__
+08003c4c g     F .text	00000136 .hidden __aeabi_fdiv
+08008a18 g     F .text	00000022 .hidden worker_thread_task_get_user_context
+080087a4 g     F .text	0000001c .hidden chPoolAddI.lto_priv.133
+0800b00c g     F .text	00000024 .hidden chDbgCheckClassS
+0800880c g     F .text	0000007c .hidden worker_thread_start
+0800c6d0 g     F .text	00000006 .hidden VectorF0
+0800e5e4 g     F .text	00000020 memcmp
+0800eb58 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.16
+0800c6d0 g     F .text	00000006 .hidden Vector12C
+08003a58 g     F .text	0000008c .hidden __floatundisf
+20000a1c g       .data	00000000 _data_end
+0800b4d0 g     F .text	0000002a .hidden queue_dequeue
+080081bc g     F .text	0000003c .hidden pubsub_init_topic
+0800c6d0 g     F .text	00000006 .hidden Vector13C
+080033a8  w    F .text	00000002 .hidden __aeabi_ldiv0
+08008ab8 g     F .text	00000054 .hidden worker_thread_remove_listener_task
+08009b3c g     F .text	0000002a .hidden chCoreAllocAlignedWithOffset
+08007904 g     F .text	0000000e .hidden chSysLock.lto_priv.102
+0800adf4 g     F .text	0000001a .hidden port_lock.lto_priv.229
+08003a34 g     F .text	00000024 .hidden __aeabi_ui2f
+080075e4 g     F .text	0000005c .hidden can_tx_queue_iterate_I
+0800c6d0 g     F .text	00000006 .hidden Vector100
+0800b974 g     F .text	00000024 .hidden queue_notempty.lto_priv.275
+080098e4 g     F .text	000000a0 .hidden shared_get_parameters
+0800c9b8 g     F .text	0000000e .hidden _idle_thread.lto_priv.47
+0800c6d0 g     F .text	00000006 .hidden VectorE0
+0800d270 g     F .text	000002f0 .hidden canardDecodeScalar
+0800eaec g     O .rodata	0000000b .hidden __func__.5786.lto_priv.44
+0800c6d0 g     F .text	00000006 .hidden VectorF4
+0800e870 g     O .rodata	00000020 .hidden uavcan_protocol_GetNodeInfo_res_descriptor
+0800ac9c g     F .text	00000080 .hidden chMBPostI
+080031c4 g       .xtors	00000000 __fini_array_start
+00000000 g       .ram2	00000000 __ram2_clear__
+0800e930 g     O .rodata	00000018 .hidden idle_descriptor.5731.lto_priv.329
+08005270 g     F .text	00000094 .hidden uavcan_on_transfer_rx.lto_priv.79
+0800af20 g     F .text	0000002c .hidden _dbg_check_lock_from_isr
+0800e678 g       .rodata	00000000 __rodata_base__
+0800bff8 g     F .text	0000001c .hidden decode_func.lto_priv.62
+08007a28 g     F .text	00000030 .hidden can_get_rx_topic
+08009ab4 g     F .text	00000088 .hidden chCoreAllocAlignedWithOffsetI
+0800e650 g     F .text	00000010 memset
+0800c6d0 g     F .text	00000006 .hidden MemManage_Handler
+0800ca44 g     F .text	00000014 main
+0800c6d0 g     F .text	00000006 .hidden Vector6C
+08003160 g     O .vectors	00000028 shared_app_descriptor
+0800eb70 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.17
+08003a68 g     F .text	0000007c .hidden __aeabi_l2f
+0800a5fc g     F .text	00000034 .hidden chRegFirstThread
+0800c6d0 g     F .text	00000006 .hidden VectorA0
+0800edf4 g       *ABS*	00000000 __ram2_init_text__
+0800cb68 g     F .text	0000065c .hidden canardHandleRxFrame
+0800ad1c g     F .text	0000002e .hidden chMBFetch
+08007998 g     F .text	00000050 .hidden can_iterate_instances
+08009dcc g     F .text	0000002a .hidden SVC_Handler
+08003eac g     F .text	00000026 .hidden allocation_running.lto_priv.73
+00000000 g       .ram3	00000000 __ram3_free__
+080031c4 g       .xtors	00000000 __init_array_end
+0800a0b4 g     F .text	00000080 .hidden iqGetTimeout
+0800ec5c g     O .rodata	00000014 .hidden __func__.7570.lto_priv.136
+0800c6d0 g     F .text	00000006 .hidden VectorC4
+0800c6d0 g     F .text	00000006 .hidden Vector7C
+0800edf4 g       *ABS*	00000000 __ram4_init_text__
+0800c804 g     F .text	0000000e .hidden port_disable.lto_priv.328
+0800eb24 g     O .rodata	00000011 .hidden __func__.5726.lto_priv.40
+00000000 g       .ram1	00000000 __ram1_noinit__
+08007d0c g     F .text	0000005c .hidden micros
+0800ed08 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.20
+08003a58 g     F .text	0000008c .hidden __aeabi_ul2f
+08009418 g     F .text	00000034 .hidden VectorB0
+0800ea4c g     O .rodata	00000016 .hidden ch_debug
+08003ae4 g     F .text	00000168 .hidden __mulsf3
+080082d4 g     F .text	00000022 .hidden pubsub_listener_has_message
+080074a0 g     F .text	0000001c .hidden Vector90
+0800ea9c g     O .rodata	0000000b .hidden __func__.5732.lto_priv.37
+20001464 g     O .bss	00000004 .hidden restart_allowed_cb.lto_priv.151
+0800ed4c g     O .rodata	00000021 .hidden __func__.7210.lto_priv.94
+0800c6d0 g     F .text	00000006 .hidden Vector114
+080032b4 g     F .text	00000000 _port_thread_start
+08003d84 g     F .text	0000009c .hidden allocation_start_request_timer.lto_priv.72
+0800eaf8 g     O .rodata	0000001e .hidden __func__.5736.lto_priv.245
+200014a8 g     O .bss	00000004 .hidden uavcan_instance_list_head.lto_priv.69
+0800c6d0 g     F .text	00000006 .hidden Vector60
+08009d20 g     F .text	0000003c .hidden chPoolFreeI
+0800593c g     F .text	00000030 .hidden can_stop_I
+0800c6d0 g     F .text	00000006 .hidden Vector1C
+0800ec08 g     O .rodata	0000000c .hidden uartCfg.6293.lto_priv.162
+0800e830 g     O .rodata	00000020 .hidden uavcan_protocol_dynamic_node_id_Allocation_descriptor
+08005a70 g     F .text	0000003c .hidden can_free_tx_frames
+0800a540 g     F .text	00000024 .hidden chThdDequeueNextI
+0800c6d0 g     F .text	00000006 .hidden Vector48
+00000000 g       .ram2_init	00000000 __ram2_init__
+0800ea00 g     O .rodata	00000015 .hidden __func__.5824.lto_priv.282
+20000500 g       .pstack	00000000 __process_stack_base__
+08007914 g     F .text	00000038 .hidden chSysUnlock.lto_priv.101
+2000156c g       .ram0	00000000 __ram0_clear__
+0800636c g     F .text	0000000e .hidden chSysLock.lto_priv.77
+080038c8 g     F .text	0000016c .hidden __aeabi_frsub
+0800eab4 g     O .rodata	0000000d .hidden __func__.5765.lto_priv.271
+08007ec4 g     F .text	0000002c .hidden system_get_restart_allowed
+0800c6d0 g     F .text	00000006 .hidden Vector70
+0800eac4 g     O .rodata	0000000f .hidden __func__.5726.lto_priv.39
+080097e4 g     F .text	0000001c .hidden VectorD4
+08007b24 g     F .text	00000022 .hidden can_get_baudrate_confirmed
+08003ae4 g     F .text	00000168 .hidden __aeabi_fmul
+08007ae0 g     F .text	00000044 .hidden can_set_baudrate
+2000144c g     O .bss	00000018 .hidden timing_state_update_task.lto_priv.154
+00000000 g       .ram3	00000000 __ram3_noinit__
+0800bafc g     F .text	000000c4 .hidden chThdCreateSuspendedI
+0800af4c g     F .text	0000002c .hidden _dbg_check_unlock_from_isr
+20001448 g     O .bss	00000001 .hidden timing_state_idx.lto_priv.152
+08009d5c g     F .text	00000020 .hidden chPoolFree
+2000156c g       .ram0	00000000 __ram0_noinit__
+0800eb64 g     O .rodata	0000000c .hidden __func__.5750.lto_priv.244
+0800ba10 g     F .text	00000050 .hidden chThdDoDequeueNextI.lto_priv.287
+0800c660 g     F .text	00000070 __init_ram_areas
+0800c6d0 g     F .text	00000006 .hidden Vector4C
+0800c6d0 g     F .text	00000006 .hidden Vector144
+0800c6d0 g     F .text	00000006 .hidden Vector80
+0800a460 g     F .text	00000044 .hidden chThdResumeI
+080032c8 g     F .text	00000000 _port_switch_from_isr
+0800b998 g     F .text	0000000e .hidden chSysLock.lto_priv.255
+08008ddc g     F .text	00000028 .hidden _write.lto_priv.26
+0800d1c4 g     F .text	000000ac .hidden canardCleanupStaleTransfers
+0800c6d0 g     F .text	00000006 .hidden Vector15C
+0800c6d0 g     F .text	00000006 .hidden Vector68
+080088c8 g     F .text	00000058 .hidden worker_thread_add_timer_task
+0800a908 g     F .text	0000010c .hidden chMtxUnlock
+08008ed0 g     F .text	0000002a .hidden _writet.lto_priv.30
+0800eaa8 g     O .rodata	0000000c .hidden __func__.5754.lto_priv.272
+20000500 g       .mstack	00000000 __main_stack_end__
+0800c6d0 g     F .text	00000006 .hidden Vector78
+00000000 g       .ram5_init	00000000 __ram5_init__
+0800ead4 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.14
+0800eb38 g     O .rodata	00000010 .hidden __func__.5732.lto_priv.38
+08006b70 g     F .text	00000020 .hidden worker_thread_wake_I.lto_priv.159
+0800ea38 g     O .rodata	00000014 .hidden __func__.5506.lto_priv.300
+0800e138 g     F .text	000000bc .hidden _encode_uavcan_protocol_NodeStatus
+0800b4a4 g     F .text	0000002c .hidden queue_fifo_remove
+080032d8 g     F .text	0000003e .hidden __aeabi_f2uiz
+08008e2c g     F .text	0000002a .hidden _put.lto_priv.5
+0800c6d0 g     F .text	00000006 .hidden Vector88
+0800ecc0 g     O .rodata	00000022 .hidden __func__.7743.lto_priv.128
+08008e04 g     F .text	00000028 .hidden _read.lto_priv.27
+200013a4 g     O .bss	00000008 .hidden ch_memcore
+0800bbc0 g     F .text	00000058 .hidden chThdCreate
+20000500 g       .pstack	00000000 __main_thread_stack_base__
+08003a34 g     F .text	00000024 .hidden __floatunsisf
+0800edf4 g       *ABS*	00000000 __ram7_init_text__
+00000000 g       .ram3_init	00000000 __ram3_init__
+08005f98 g     F .text	00000078 .hidden can_driver_tx_request_complete_I
+0800c6d0 g     F .text	00000006 .hidden Vector104
+08008ea8 g     F .text	00000026 .hidden _gett.lto_priv.29
+0800bc18 g     F .text	000000d2 .hidden _decode_uavcan_protocol_dynamic_node_id_Allocation
+08005304 g     F .text	0000008a .hidden uavcan_should_accept_transfer.lto_priv.80
+0800e954 g     O .rodata	0000000b .hidden __func__.5732.lto_priv.36
+0800ed8c g     O .rodata	00000009 .hidden __func__.5459.lto_priv.88
+200014d0 g     O .bss	00000034 .hidden getnodeinfo_req_listener_task.lto_priv.66
+0800c6d0 g     F .text	00000006 .hidden Vector10C
+080032d4 g       .text	00000000 _port_exit_from_isr
+00000000 g       .ram1_init	00000000 __ram1_init__
+0800a3a8 g     F .text	00000068 .hidden chThdSetPriority
+0800ec30 g     O .rodata	00000017 .hidden __func__.6779.lto_priv.143
+080033a8  w    F .text	00000002 .hidden __aeabi_idiv0
+08003188 g       .xtors	00000000 __init_array_start
+080075c4 g     F .text	00000020 .hidden can_tx_queue_push
+08004fd0 g     F .text	00000066 .hidden uavcan_respond
+080032d8 g     F .text	0000003e .hidden __fixunssfsi
+0800b804 g     F .text	00000034 .hidden chSchIsPreemptionRequired
+0800edd8 g       *ABS*	00000000 _textdata_start
+200013ac g     O .bss	0000007c .hidden SD1
+0800c6d0 g     F .text	00000006 .hidden Vector14C
+08009fec g     F .text	0000004a .hidden iqObjectInit
+0800ed2c g     O .rodata	00000011 .hidden __func__.7046.lto_priv.103
+0800ba60 g     F .text	00000070 .hidden _thread_init
+0800c6d0 g     F .text	00000006 .hidden BusFault_Handler
+0800c6d0 g     F .text	00000006 .hidden Vector50
+0800aec8 g     F .text	0000002c _dbg_check_lock
+20001338 g     O .bss	0000006c .hidden ch
+08008388 g     F .text	00000118 .hidden pubsub_publish_message
+08006d94 g     F .text	00000028 .hidden worker_thread_listener_task_is_registered.lto_priv.158
+00000000 g       .ram2	00000000 __ram2_free__
+080068d8 g     F .text	00000082 .hidden worker_thread_publisher_task_publish_I
+0800ec9c g     O .rodata	00000023 .hidden __func__.7655.lto_priv.129
+20000a58 g     O .bss	00000010 .hidden default_topic_group
+0800c6d0 g     F .text	00000006 .hidden Vector154
+0800ece4 g     O .rodata	00000010 .hidden can_driver_stm32_iface.lto_priv.127
+00000000 g       .ram4	00000000 __ram4_free__
+0800a630 g     F .text	0000005c .hidden chRegNextThread
+0800bfdc g     F .text	0000001c .hidden encode_func.lto_priv.54
+08006c1c g     F .text	0000007c .hidden worker_thread_insert_timer_task_I.lto_priv.160
+08007a9c g     F .text	00000042 .hidden can_set_auto_retransmit_mode
+0800c584 g     F .text	0000001c .hidden encode_func.lto_priv.55
+08003348 g     F .text	00000030 .hidden __gnu_ldivmod_helper
+0800e3bc g     F .text	0000001c .hidden decode_func.lto_priv.58
+0800e9e0 g     O .rodata	0000000b .hidden __func__.5786.lto_priv.43
+08009198 g     F .text	0000003c .hidden nvicDisableVector
+08009f84 g     F .text	0000000a .hidden osalSysUnlock.lto_priv.192
+20000000 g       .mstack	00000000 __main_stack_base__
+0800c6d0 g     F .text	00000006 .hidden Vector44
+0800c6d0 g     F .text	00000006 .hidden Vector28
+08009878 g     F .text	00000018 .hidden boardInit
+0800c6d0 g     F .text	00000006 .hidden VectorB8
+0800e9b8 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.11
+0800b9f8 g     F .text	00000018 .hidden chThdGetWorkingAreaX.lto_priv.278
+08006478 g     F .text	0000001e .hidden chCoreAllocAlignedI.lto_priv.9
+0800c6d0 g     F .text	00000006 .hidden VectorFC
+0800ebfc g     O .rodata	0000000c .hidden default_config.lto_priv.163
+00000000 g       .ram7	00000000 __ram7_noinit__
+080086c8 g     F .text	0000000e .hidden chSysLock.lto_priv.124
+08008788 g     F .text	0000001c .hidden chCoreAllocI.lto_priv.134
+0800afb0 g     F .text	00000038 .hidden _dbg_check_leave_isr
+20000a00 g       .pstack	00000000 __process_stack_end__
+0800b4fc g     F .text	00000024 .hidden list_remove
+08005aac g     F .text	00000168 .hidden can_driver_register
+0800c6d0 g     F .text	00000006 .hidden Vector34
+08006b90 g     F .text	0000001c .hidden worker_thread_wake.lto_priv.157
+08004314 g     F .text	0000000a __early_init
+0800753c g     F .text	0000001c .hidden can_tx_queue_init
+0800c6d0 g     F .text	00000006 .hidden Vector128
+08007cac g     F .text	00000060 .hidden millis
+0800ec70 g     O .rodata	0000000c .hidden __func__.5272.lto_priv.19
+080038d4 g     F .text	00000160 .hidden __addsf3
+0800b9e0 g     F .text	00000018 .hidden chThdGetSelfX.lto_priv.288
+0800c6d0 g     F .text	00000006 .hidden VectorA4
+0800710c g     F .text	00000048 .hidden can_driver_stm32_stop.lto_priv.23
+0800c6d0 g     F .text	00000006 .hidden Vector20
+0800ecf4 g     O .rodata	00000014 .hidden __func__.6789.lto_priv.121
+080084a0 g     F .text	00000024 .hidden pubsub_listener_handle_one_timeout
+
+
