@@ -70,6 +70,9 @@ void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struc
     worker_thread_wake_I(worker_thread);
 }
 
+// TODO: add a microsecond_time_t type specified in the timing module as either uint32 or uint64 and change
+// timer_expiration_millis to timer_expiration_micros
+// also add a MICROS_INFINITE constant (microsecond_time_t)(-1)
 void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, uint32_t timer_expiration_millis, bool auto_repeat) {
     chSysLock();
     _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_millis, auto_repeat);
@@ -379,7 +382,7 @@ static uint32_t worker_thread_get_millis_to_timer_task_I(struct worker_thread_ti
     chDbgCheckClassI();
 
     // TODO: need a macro for this 32bit version of TIME_INFINITE
-    // but perhaps it should be named something more like END_OF_TIME
+    // TIME_INFINITE, means to simply initialize the task and not insert it into the queue.
     if (task && task->timer_expiration_millis != (uint32_t)-1) {
         uint32_t elapsed = tnow_millis - task->timer_begin_millis;
         if (elapsed >= task->timer_expiration_millis) {
