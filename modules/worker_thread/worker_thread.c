@@ -378,6 +378,8 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
 static uint32_t worker_thread_get_millis_to_timer_task_I(struct worker_thread_timer_task_s* task, uint32_t tnow_millis) {
     chDbgCheckClassI();
 
+    // TODO: need a macro for this 32bit version of TIME_INFINITE
+    // but perhaps it should be named something more like END_OF_TIME
     if (task && task->timer_expiration_millis != (uint32_t)-1) {
         uint32_t elapsed = tnow_millis - task->timer_begin_millis;
         if (elapsed >= task->timer_expiration_millis) {
