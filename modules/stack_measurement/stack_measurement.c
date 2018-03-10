@@ -29,7 +29,7 @@ static struct worker_thread_timer_task_s stack_print_task;
 static void stack_print_task_func(struct worker_thread_timer_task_s* task);
 
 RUN_AFTER(WORKER_THREADS_INIT) {
-    worker_thread_add_timer_task(&WT, &stack_print_task, stack_print_task_func, NULL, S2ST(5), true);
+    worker_thread_add_timer_task(&WT, &stack_print_task, stack_print_task_func, NULL, S2ST(60), true);
 }
 
 extern uint8_t __process_stack_base__;
