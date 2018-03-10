@@ -6,6 +6,7 @@
 #include <common/helpers.h>
 #include <modules/pubsub/pubsub.h>
 #include <modules/worker_thread/worker_thread.h>
+#include <modules/timing/timing.h>
 
 #ifndef CAN_TRX_WORKER_THREAD
 #error Please define CAN_TRX_WORKER_THREAD in framework_conf.h.
@@ -331,7 +332,7 @@ struct can_instance_s* can_driver_register(uint8_t can_idx, void* driver_ctx, co
 
     worker_thread_add_publisher_task(&WT_TRX, &instance->tx_publisher_task, sizeof(struct can_transmit_completion_msg_s), num_tx_mailboxes);
 
-    worker_thread_add_timer_task(&WT_EXPIRE, &instance->expire_timer_task, can_expire_handler, instance, (uint32_t)-1, false);
+    worker_thread_add_timer_task(&WT_EXPIRE, &instance->expire_timer_task, can_expire_handler, instance, MILLIS_INFINITE, false);
 
     LINKED_LIST_APPEND(struct can_instance_s, can_instance_list_head, instance);
 

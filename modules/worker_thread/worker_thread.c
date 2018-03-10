@@ -250,6 +250,14 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
             }
         }
 #endif
+//        // debug
+//        {
+//        uint32_t next_run_time = worker_thread->timer_task_list_head->timer_begin_millis +
+//                                 worker_thread->timer_task_list_head->timer_expiration_millis;
+//        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+//                              "thread %x now: %u next_run_time: %u", worker_thread, millis(), next_run_time);
+//        }
+
         chSysLock();
         uint32_t tnow_millis = millis();
         uint32_t millis_to_next_timer_task =
@@ -266,37 +274,25 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
             next_timer_task->task_func(next_timer_task);
             next_timer_task->timer_begin_millis = tnow_millis;
 
+//            uint32_t next_run_time = next_timer_task->timer_begin_millis + next_timer_task->timer_expiration_millis;
+
+//            uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+//                                  "thread %x task %x, now: %u, next runtime: %u",
+//                                  worker_thread, next_timer_task->task_func, tnow_millis, next_run_time);
+
             if (next_timer_task->auto_repeat) {
-
-//                uint16_t task_run_time = next_timer_task->timer_begin_millis + next_timer_task->timer_expiration_millis;
-//                struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
-
-//                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-//                                      "thread %x task %x, now: %u, runtime: %u\ntask list",
-//                                      worker_thread, next_timer_task->task_func, tnow_millis, task_run_time);
-//                uint16_t time_till_run;
-//                uint16_t period;
-//                if (*insert_ptr) {
-//                    do {
-//                        time_till_run = task_run_time - (*insert_ptr)->timer_begin_millis;
-//                        period = (*insert_ptr)->timer_expiration_millis;
-//                        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-//                                              "%x, dt: %u, period: %u, begin: %u",
-//                                              (*insert_ptr)->task_func, time_till_run, period,
-//                                              (*insert_ptr)->timer_begin_millis);
-//                        insert_ptr = &(*insert_ptr)->next;
-//                    } while (*insert_ptr && (time_till_run >= period));
-//                }
-//                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "", "insert %x", next_timer_task->task_func);
-
-                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-                                      "%u insert %x, dt: %u",
-                                      tnow_millis, next_timer_task->task_func, next_timer_task->timer_expiration_millis);
 
                 // Re-insert task
                 chSysLock();
                 worker_thread_insert_timer_task_I(worker_thread, next_timer_task);
                 chSysUnlock();
+
+//                next_run_time = worker_thread->timer_task_list_head->timer_begin_millis +
+//                                worker_thread->timer_task_list_head->timer_expiration_millis;
+//                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
+//                                      "reinsert: %x next_task %x runs at: %u",
+//                                      next_timer_task->task_func, worker_thread->timer_task_list_head->task_func, next_run_time);
+
             }
         } else {
 #ifdef MODULE_PUBSUB_ENABLED
@@ -314,7 +310,7 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
 #endif
 
             // No task due - go to sleep until there is a task
-            chThdSuspendTimeoutS(&worker_thread->suspend_trp, millis_to_next_timer_task);
+            chThdSuspendTimeoutS(&worker_thread->suspend_trp, MS2ST(millis_to_next_timer_task));
 
             chSysUnlock();
         }
@@ -361,7 +357,7 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
     chDbgCheckClassI();
     chDbgCheck(!worker_thread_timer_task_is_registered_I(worker_thread, task));
 
-    if (task->timer_expiration_millis == (uint32_t)-1) {
+    if (task->timer_expiration_millis == MILLIS_INFINITE) {
         return;
     }
 
@@ -381,9 +377,8 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
 static uint32_t worker_thread_get_millis_to_timer_task_I(struct worker_thread_timer_task_s* task, uint32_t tnow_millis) {
     chDbgCheckClassI();
 
-    // TODO: need a macro for this 32bit version of TIME_INFINITE
-    // TIME_INFINITE, means to simply initialize the task and not insert it into the queue.
-    if (task && task->timer_expiration_millis != (uint32_t)-1) {
+    // _INFINITE means to simply initialize the task and not insert it into the queue.
+    if (task && task->timer_expiration_millis != MILLIS_INFINITE) {
         uint32_t elapsed = tnow_millis - task->timer_begin_millis;
         if (elapsed >= task->timer_expiration_millis) {
             return 0;
@@ -391,7 +386,7 @@ static uint32_t worker_thread_get_millis_to_timer_task_I(struct worker_thread_ti
             return task->timer_expiration_millis - elapsed;
         }
     } else {
-        return (uint32_t)-1;
+        return MILLIS_INFINITE;
     }
 }
 
