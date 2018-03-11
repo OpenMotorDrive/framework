@@ -29,7 +29,7 @@ WORKER_THREAD_DECLARE_EXTERN(WT)
 // TODO: that typedef probably belongs in the timing module
 // and then micros64() and micros() should probably consolidated into just microsecond_time_t micros()
 
-static struct {
+static struct timing_state {
     uint64_t update_seconds;
     systime_t update_systime;
 } timing_state[2];

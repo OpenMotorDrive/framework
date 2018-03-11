@@ -1,2 +1,4 @@
 build
 .dep
+!basic_uavcan_functionality.bin
+
