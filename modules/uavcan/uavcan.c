@@ -371,7 +371,6 @@ static bool _uavcan_send(struct uavcan_instance_s* instance, const struct uavcan
     }
 
     /* debug message */
-    LED_ON;
     chnWrite(&SD1, (const uint8_t *)"snd\n", 5);
 
     uint32_t can_id = 0;
@@ -495,8 +494,7 @@ static void uavcan_can_rx_handler(size_t msg_size, const void* msg, void* ctx) {
     canardHandleRxFrame(&instance->canard, &canard_frame, timestamp);
 
     /* debug message */
-    LED_OFF;
-//    chnWrite(&SD1, (const uint8_t *)"rcv\n", 5);
+    chnWrite(&SD1, (const uint8_t *)"rcv\n", 5);
 }
 
 static void stale_transfer_cleanup_task_func(struct worker_thread_timer_task_s* task) {

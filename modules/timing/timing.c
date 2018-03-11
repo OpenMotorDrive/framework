@@ -16,6 +16,7 @@
 #include <common/ctor.h>
 #include "timing.h"
 #include <ch.h>
+#include <hal.h>
 #include <modules/worker_thread/worker_thread.h>
 
 #ifndef TIMING_WORKER_THREAD
@@ -79,6 +80,9 @@ void usleep(uint32_t delay) {
 
 static void timing_state_update_task_func(struct worker_thread_timer_task_s* task) {
     (void)task;
+    CONFIG_LED;
+    LED_TOGGLE;
+
     uint8_t next_timing_state_idx = (timing_state_idx+1) % 2;
 
     systime_t systime_now = chVTGetSystemTimeX();
