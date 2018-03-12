@@ -250,14 +250,6 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
             }
         }
 #endif
-//        // debug
-//        {
-//        uint32_t next_run_time = worker_thread->timer_task_list_head->timer_begin_millis +
-//                                 worker_thread->timer_task_list_head->timer_expiration_millis;
-//        uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-//                              "thread %x now: %u next_run_time: %u", worker_thread, millis(), next_run_time);
-//        }
-
         chSysLock();
         uint32_t tnow_millis = millis();
         uint32_t millis_to_next_timer_task =
@@ -274,24 +266,12 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
             next_timer_task->task_func(next_timer_task);
             next_timer_task->timer_begin_millis = tnow_millis;
 
-//            uint32_t next_run_time = next_timer_task->timer_begin_millis + next_timer_task->timer_expiration_millis;
-
-//            uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-//                                  "thread %x task %x, now: %u, next runtime: %u",
-//                                  worker_thread, next_timer_task->task_func, tnow_millis, next_run_time);
-
             if (next_timer_task->auto_repeat) {
 
                 // Re-insert task
                 chSysLock();
                 worker_thread_insert_timer_task_I(worker_thread, next_timer_task);
                 chSysUnlock();
-
-//                next_run_time = worker_thread->timer_task_list_head->timer_begin_millis +
-//                                worker_thread->timer_task_list_head->timer_expiration_millis;
-//                uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "",
-//                                      "reinsert: %x next_task %x runs at: %u",
-//                                      next_timer_task->task_func, worker_thread->timer_task_list_head->task_func, next_run_time);
 
             }
         } else {
