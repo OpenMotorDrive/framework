@@ -1,4 +1,6 @@
 #include "worker_thread.h"
+#include <modules/uavcan_debug/uavcan_debug.h>
+#include <modules/timing/timing.h>
 
 #include <common/helpers.h>
 
@@ -6,9 +8,9 @@ static THD_FUNCTION(worker_thread_func, arg);
 
 static void worker_thread_wake_I(struct worker_thread_s* worker_thread);
 static void worker_thread_wake(struct worker_thread_s* worker_thread);
-static void worker_thread_init_timer_task(struct worker_thread_timer_task_s* task, systime_t timer_begin_systime, systime_t timer_expiration_ticks, bool auto_repeat, timer_task_handler_func_ptr task_func, void* ctx);
+static void worker_thread_init_timer_task(struct worker_thread_timer_task_s* task, uint32_t timer_begin_millis, uint32_t timer_expiration_millis, bool auto_repeat, timer_task_handler_func_ptr task_func, void* ctx);
 static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task);
-static systime_t worker_thread_get_ticks_to_timer_task_I(struct worker_thread_timer_task_s* task, systime_t tnow_ticks);
+static uint32_t worker_thread_get_millis_to_timer_task_I(struct worker_thread_timer_task_s* task, uint32_t tnow_millis);
 static bool worker_thread_timer_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* check_task);
 #ifdef MODULE_PUBSUB_ENABLED
 static bool worker_thread_publisher_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_publisher_task_s* check_task);
@@ -52,55 +54,58 @@ void worker_thread_start(struct worker_thread_s* worker_thread, size_t stack_siz
     worker_thread->thread = chThdCreate(&thread_descriptor);
 }
 
-static void _worker_thread_add_timer_task_no_wake_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
+static void _worker_thread_add_timer_task_no_wake_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, uint32_t timer_expiration_millis, bool auto_repeat) {
     chDbgCheckClassI();
 
-    worker_thread_init_timer_task(task, chVTGetSystemTimeX(), timer_expiration_ticks, auto_repeat, task_func, ctx);
+    worker_thread_init_timer_task(task, millis(), timer_expiration_millis, auto_repeat, task_func, ctx);
     worker_thread_insert_timer_task_I(worker_thread, task);
 }
 
-void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
+void worker_thread_add_timer_task_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, uint32_t timer_expiration_millis, bool auto_repeat) {
     chDbgCheckClassI();
 
-    _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_ticks, auto_repeat);
+    _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_millis, auto_repeat);
 
     // Wake worker thread to process tasks
     worker_thread_wake_I(worker_thread);
 }
 
-void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, systime_t timer_expiration_ticks, bool auto_repeat) {
+// TODO: add a microsecond_time_t type specified in the timing module as either uint32 or uint64 and change
+// timer_expiration_millis to timer_expiration_micros
+// also add a MICROS_INFINITE constant (microsecond_time_t)(-1)
+void worker_thread_add_timer_task(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, timer_task_handler_func_ptr task_func, void* ctx, uint32_t timer_expiration_millis, bool auto_repeat) {
     chSysLock();
-    _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_ticks, auto_repeat);
+    _worker_thread_add_timer_task_no_wake_I(worker_thread, task, task_func, ctx, timer_expiration_millis, auto_repeat);
     chSysUnlock();
 
     // Wake worker thread to process tasks
     worker_thread_wake(worker_thread);
 }
 
-static void _worker_thread_timer_task_reschedule_no_wake_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+static void _worker_thread_timer_task_reschedule_no_wake_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, uint32_t timer_expiration_millis) {
     chDbgCheckClassI();
 
-    systime_t t_now = chVTGetSystemTimeX();
+    systime_t t_now = millis();
 
     worker_thread_remove_timer_task_I(worker_thread, task);
 
-    task->timer_expiration_ticks = timer_expiration_ticks;
-    task->timer_begin_systime = t_now;
+    task->timer_expiration_millis = timer_expiration_millis;
+    task->timer_begin_millis = t_now;
 
     worker_thread_insert_timer_task_I(worker_thread, task);
 }
 
-void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+void worker_thread_timer_task_reschedule_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, uint32_t timer_expiration_millis) {
     chDbgCheckClassI();
-    _worker_thread_timer_task_reschedule_no_wake_I(worker_thread, task, timer_expiration_ticks);
+    _worker_thread_timer_task_reschedule_no_wake_I(worker_thread, task, timer_expiration_millis);
 
     // Wake worker thread to process tasks
     worker_thread_wake_I(worker_thread);
 }
 
-void worker_thread_timer_task_reschedule(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, systime_t timer_expiration_ticks) {
+void worker_thread_timer_task_reschedule(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* task, uint32_t timer_expiration_millis) {
     chSysLock();
-    _worker_thread_timer_task_reschedule_no_wake_I(worker_thread, task, timer_expiration_ticks);
+    _worker_thread_timer_task_reschedule_no_wake_I(worker_thread, task, timer_expiration_millis);
     chSysUnlock();
 
     // Wake worker thread to process tasks
@@ -246,9 +251,11 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
         }
 #endif
         chSysLock();
-        systime_t tnow_ticks = chVTGetSystemTimeX();
-        systime_t ticks_to_next_timer_task = worker_thread_get_ticks_to_timer_task_I(worker_thread->timer_task_list_head, tnow_ticks);
-        if (ticks_to_next_timer_task == TIME_IMMEDIATE) {
+        uint32_t tnow_millis = millis();
+        uint32_t millis_to_next_timer_task =
+                worker_thread_get_millis_to_timer_task_I(worker_thread->timer_task_list_head, tnow_millis);
+
+        if (millis_to_next_timer_task == 0) {
             // Task is due - pop the task off the task list, run it, reschedule if task is auto-repeat
             struct worker_thread_timer_task_s* next_timer_task = worker_thread->timer_task_list_head;
             worker_thread->timer_task_list_head = next_timer_task->next;
@@ -257,13 +264,15 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
 
             // Perform task
             next_timer_task->task_func(next_timer_task);
-            next_timer_task->timer_begin_systime = tnow_ticks;
+            next_timer_task->timer_begin_millis = tnow_millis;
 
             if (next_timer_task->auto_repeat) {
+
                 // Re-insert task
                 chSysLock();
                 worker_thread_insert_timer_task_I(worker_thread, next_timer_task);
                 chSysUnlock();
+
             }
         } else {
 #ifdef MODULE_PUBSUB_ENABLED
@@ -281,7 +290,7 @@ void worker_thread_takeover(struct worker_thread_s* worker_thread) {
 #endif
 
             // No task due - go to sleep until there is a task
-            chThdSuspendTimeoutS(&worker_thread->suspend_trp, ticks_to_next_timer_task);
+            chThdSuspendTimeoutS(&worker_thread->suspend_trp, MS2ST(millis_to_next_timer_task));
 
             chSysUnlock();
         }
@@ -303,12 +312,12 @@ static void worker_thread_wake(struct worker_thread_s* worker_thread) {
     chThdResume(&worker_thread->suspend_trp, MSG_TIMEOUT);
 }
 
-static void worker_thread_init_timer_task(struct worker_thread_timer_task_s* task, systime_t timer_begin_systime, systime_t timer_expiration_ticks, bool auto_repeat, timer_task_handler_func_ptr task_func, void* ctx) {
+static void worker_thread_init_timer_task(struct worker_thread_timer_task_s* task, uint32_t timer_begin_millis, uint32_t timer_expiration_millis, bool auto_repeat, timer_task_handler_func_ptr task_func, void* ctx) {
     task->task_func = task_func;
     task->ctx = ctx;
-    task->timer_expiration_ticks = timer_expiration_ticks;
+    task->timer_expiration_millis = timer_expiration_millis;
     task->auto_repeat = auto_repeat;
-    task->timer_begin_systime = timer_begin_systime;
+    task->timer_begin_millis = timer_begin_millis;
 }
 
 static bool worker_thread_timer_task_is_registered_I(struct worker_thread_s* worker_thread, struct worker_thread_timer_task_s* check_task) {
@@ -328,31 +337,36 @@ static void worker_thread_insert_timer_task_I(struct worker_thread_s* worker_thr
     chDbgCheckClassI();
     chDbgCheck(!worker_thread_timer_task_is_registered_I(worker_thread, task));
 
-    if (task->timer_expiration_ticks == TIME_INFINITE) {
+    if (task->timer_expiration_millis == MILLIS_INFINITE) {
         return;
     }
 
-    systime_t task_run_time = task->timer_begin_systime + task->timer_expiration_ticks;
+    // since the system timer is only 16 bits on STM32F1xx, and wraparound occurs every 6.5536 seconds at 10KHz
+    uint32_t task_run_time = task->timer_begin_millis + task->timer_expiration_millis;
     struct worker_thread_timer_task_s** insert_ptr = &worker_thread->timer_task_list_head;
-    while (*insert_ptr && task_run_time - (*insert_ptr)->timer_begin_systime >= (*insert_ptr)->timer_expiration_ticks) {
+
+    while (*insert_ptr &&
+           (uint32_t)(task_run_time - (*insert_ptr)->timer_begin_millis) >= (*insert_ptr)->timer_expiration_millis) {
         insert_ptr = &(*insert_ptr)->next;
     }
+
     task->next = *insert_ptr;
     *insert_ptr = task;
 }
 
-static systime_t worker_thread_get_ticks_to_timer_task_I(struct worker_thread_timer_task_s* task, systime_t tnow_ticks) {
+static uint32_t worker_thread_get_millis_to_timer_task_I(struct worker_thread_timer_task_s* task, uint32_t tnow_millis) {
     chDbgCheckClassI();
 
-    if (task && task->timer_expiration_ticks != TIME_INFINITE) {
-        systime_t elapsed = tnow_ticks - task->timer_begin_systime;
-        if (elapsed >= task->timer_expiration_ticks) {
-            return TIME_IMMEDIATE;
+    // _INFINITE means to simply initialize the task and not insert it into the queue.
+    if (task && task->timer_expiration_millis != MILLIS_INFINITE) {
+        uint32_t elapsed = tnow_millis - task->timer_begin_millis;
+        if (elapsed >= task->timer_expiration_millis) {
+            return 0;
         } else {
-            return task->timer_expiration_ticks - elapsed;
+            return task->timer_expiration_millis - elapsed;
         }
     } else {
-        return TIME_INFINITE;
+        return MILLIS_INFINITE;
     }
 }
 

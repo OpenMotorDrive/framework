@@ -17,7 +17,7 @@
 #define WT CAN_AUTOBAUD_WORKER_THREAD
 WORKER_THREAD_DECLARE_EXTERN(WT)
 
-#define CAN_AUTOBAUD_SWITCH_INTERVAL_US 1000000
+#define CAN_AUTOBAUD_SWITCH_INTERVAL_MS 1000
 
 static const uint32_t valid_baudrates[] = {1000000, 500000, 250000, 125000};
 
@@ -70,7 +70,7 @@ RUN_AFTER(CAN_INIT) {
     }
 
     if (canbus_autobaud_enable) {
-        worker_thread_add_timer_task(&WT, &autobaud_timer_task, autobaud_timer_task_func, NULL, LL_US2ST(CAN_AUTOBAUD_SWITCH_INTERVAL_US), false);
+        worker_thread_add_timer_task(&WT, &autobaud_timer_task, autobaud_timer_task_func, NULL, CAN_AUTOBAUD_SWITCH_INTERVAL_MS, false);
     }
 }
 
@@ -89,6 +89,6 @@ static void autobaud_timer_task_func(struct worker_thread_timer_task_s* task) {
     }
 
     if (!autobaud_complete) {
-        worker_thread_timer_task_reschedule(&WT, task, LL_US2ST(CAN_AUTOBAUD_SWITCH_INTERVAL_US));
+        worker_thread_timer_task_reschedule(&WT, task, CAN_AUTOBAUD_SWITCH_INTERVAL_MS);
     }
 }

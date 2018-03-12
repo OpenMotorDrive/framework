@@ -17,6 +17,7 @@
 
 #include <stdint.h>
 
+#define MILLIS_INFINITE ((uint32_t)(-1))
 uint32_t millis(void);
 uint32_t micros(void);
 uint64_t micros64(void);
