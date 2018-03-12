@@ -70,7 +70,7 @@ RUN_AFTER(CAN_INIT) {
     }
 
     if (canbus_autobaud_enable) {
-        worker_thread_add_timer_task(&WT, &autobaud_timer_task, autobaud_timer_task_func, NULL, CAN_AUTOBAUD_SWITCH_INTERVAL_MS, false);
+        worker_thread_add_timer_task(&WT, &autobaud_timer_task, autobaud_timer_task_func, NULL, MS2US(CAN_AUTOBAUD_SWITCH_INTERVAL_MS), false);
     }
 }
 
