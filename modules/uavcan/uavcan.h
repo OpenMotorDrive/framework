@@ -37,6 +37,7 @@ uint8_t uavcan_get_num_instances(void);
 
 uint8_t uavcan_get_node_id(uint8_t uavcan_idx);
 void uavcan_set_node_id(uint8_t uavcan_idx, uint8_t node_id);
+void uavcan_forget_nodeid(uint8_t uavcan_idx);
 
 uint16_t uavcan_get_message_data_type_id(uint8_t uavcan_idx, const struct uavcan_message_descriptor_s* msg_descriptor);
 
