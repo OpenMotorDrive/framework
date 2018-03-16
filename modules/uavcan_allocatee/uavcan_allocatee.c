@@ -32,14 +32,13 @@ struct allocatee_instance_s {
     struct allocatee_instance_s* next;
 };
 
-struct allocatee_instance_s* allocatee_instance_list_head;
+static struct allocatee_instance_s* allocatee_instance_list_head;
 
 RUN_AFTER(UAVCAN_INIT) {
     allocation_init();
 }
 
 static void allocation_init(void) {
-    uint8_t num_uavcan_instances = uavcan_get_num_instances();
     for (uint8_t i=0; i<uavcan_get_num_instances(); i++) {
         struct allocatee_instance_s* instance = chCoreAlloc(sizeof(struct allocatee_instance_s));
 
