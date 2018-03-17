@@ -3,13 +3,9 @@
 #include <stdint.h>
 #include <modules/platform_stm32f103xB/platform_stm32f103xB.h>
 
-//#define MODULE_UAVCAN_DEBUG_ENABLED 1
-
+// CAN I/O requires alternate output function on pin A12 and normal input on A11
 #define BOARD_PAL_LINE_CAN_RX PAL_LINE(GPIOA,11)
 #define BOARD_PAL_LINE_CAN_TX PAL_LINE(GPIOA,12)
-
-// CAN I/O for maple-mini and mRo gps is on PortA
-#define TXPORT GPIOA
 
 // maple-mini
 #define LEDPORT_MM GPIOB

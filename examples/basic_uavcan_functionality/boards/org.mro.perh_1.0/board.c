@@ -5,8 +5,8 @@ void boardInit(void) {
     // Choose alternate function for these pins; USB is the default function
 
     // *** This has no effect ***
-//    palSetLineMode(BOARD_PAL_LINE_CAN_RX, PAL_MODE_INPUT);
-//    palSetLineMode(BOARD_PAL_LINE_CAN_TX, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
+    palSetLineMode(BOARD_PAL_LINE_CAN_RX, PAL_MODE_INPUT);
+    palSetLineMode(BOARD_PAL_LINE_CAN_TX, PAL_MODE_STM32_ALTERNATE_PUSHPULL);
 
     static const SerialConfig uartCfg =
     {
@@ -21,8 +21,4 @@ void boardInit(void) {
      * PA9 and PA10 are routed to USART1.
      */
     sdStart(&SD1, &uartCfg);
-
-    /* this is set in board.h */
-//    palSetPadMode(GPIOA, 9, PPAL_MODE_STM32_ALTERNATE_PUSHPULL);
-//    palSetPadMode(GPIOA, 10, PAL_MODE_INPUT);
 }
