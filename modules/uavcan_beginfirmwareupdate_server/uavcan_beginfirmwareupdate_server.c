@@ -61,7 +61,7 @@ static void beginfirmwareupdate_req_handler(size_t msg_size, const void* buf, vo
             new_boot_msg.firmwareupdate_msg.source_node_id = msg_wrapper->source_node_id;
         }
 
-        shared_msg_finalize_and_write(SHARED_MSG_CANBUS_INFO, &new_boot_msg);
+        shared_msg_finalize_and_write(SHARED_MSG_FIRMWAREUPDATE, &new_boot_msg);
 
         worker_thread_add_timer_task(&WT, &delayed_restart_task, delayed_restart_func, NULL, LL_MS2ST(UAVCAN_RESTART_DELAY_MS), false);
     }
