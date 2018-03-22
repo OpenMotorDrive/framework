@@ -46,7 +46,7 @@ static struct {
     uint8_t source_node_id;
     int32_t last_erased_page;
     struct worker_thread_timer_task_s read_timeout_task;
-    struct uavcan_protocol_file_Path_s path;
+    char path[201];
 } flash_state;
 
 static struct {
@@ -70,7 +70,7 @@ static struct worker_thread_timer_task_s delayed_restart_task;
 static struct worker_thread_listener_task_s getnodeinfo_req_listener_task;
 
 static void file_beginfirmwareupdate_request_handler(size_t msg_size, const void* buf, void* ctx);
-static void begin_flash_from_path(uint8_t uavcan_idx, uint8_t source_node_id, struct uavcan_protocol_file_Path_s path);
+static void begin_flash_from_path(uint8_t uavcan_idx, uint8_t source_node_id, const char* path);
 static void file_read_response_handler(size_t msg_size, const void* buf, void* ctx);
 static void do_resend_read_request(void);
 static void do_send_read_request(void);
@@ -159,21 +159,23 @@ static void file_beginfirmwareupdate_request_handler(size_t msg_size, const void
     if (!flash_state.in_progress) {
         res.error = UAVCAN_PROTOCOL_FILE_BEGINFIRMWAREUPDATE_RES_ERROR_OK;
         uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
-        begin_flash_from_path(msg_wrapper->uavcan_idx, req->source_node_id, req->image_file_remote_path);
+        char path[sizeof(req->image_file_remote_path)+1] = {};
+        memcpy(path, req->image_file_remote_path.path, req->image_file_remote_path.path_len);
+        begin_flash_from_path(msg_wrapper->uavcan_idx, req->source_node_id, path);
     } else {
         res.error = UAVCAN_PROTOCOL_FILE_BEGINFIRMWAREUPDATE_RES_ERROR_IN_PROGRESS;
         uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
     }
 }
 
-static void begin_flash_from_path(uint8_t uavcan_idx, uint8_t source_node_id, struct uavcan_protocol_file_Path_s path) {
+static void begin_flash_from_path(uint8_t uavcan_idx, uint8_t source_node_id, const char* path) {
     cancel_boot_timer();
     memset(&flash_state, 0, sizeof(flash_state));
     flash_state.in_progress = true;
     flash_state.ofs = 0; 
     flash_state.source_node_id = source_node_id;
     flash_state.uavcan_idx = uavcan_idx;
-    flash_state.path = path;
+    strncpy(flash_state.path, path, 200);
     worker_thread_add_timer_task(&WT, &flash_state.read_timeout_task, read_request_response_timeout, NULL, LL_MS2ST(500), false);
     do_send_read_request();
 
@@ -214,7 +216,8 @@ static void file_read_response_handler(size_t msg_size, const void* buf, void* c
 static void do_resend_read_request(void) {
     struct uavcan_protocol_file_Read_req_s read_req;
     read_req.offset =  flash_state.ofs;
-    read_req.path = flash_state.path;
+    strncpy(read_req.path.path,flash_state.path,sizeof(read_req.path));
+    read_req.path.path_len = strnlen(flash_state.path,sizeof(read_req.path));
     uavcan_request(flash_state.uavcan_idx, &uavcan_protocol_file_Read_req_descriptor, CANARD_TRANSFER_PRIORITY_HIGH, flash_state.source_node_id, &read_req);
     worker_thread_timer_task_reschedule(&WT, &flash_state.read_timeout_task, LL_MS2ST(500));
     flash_state.retries++;
@@ -375,7 +378,12 @@ static void bootloader_pre_init(void) {
 
 static void bootloader_init(void) {
     update_app_info();
-    check_and_start_boot_timer();
+
+    if (get_boot_msg_valid() && boot_msg_id == SHARED_MSG_FIRMWAREUPDATE) {
+        begin_flash_from_path(0, boot_msg.firmwareupdate_msg.source_node_id, boot_msg.firmwareupdate_msg.path);
+    } else {
+        check_and_start_boot_timer();
+    }
 }
 
 static void restart_req_handler(size_t msg_size, const void* buf, void* ctx) {
