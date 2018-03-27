@@ -43,4 +43,25 @@ openmotordrive/framework is a framework for embedded applications, primarily tar
 |uavcan_restart|Provides a uavcan.protocol.RestartNode server|
 |worker_thread|Provides worker threads that can process timer tasks, which run after a delay, or listener tasks, which listen to pubsub messages|
 
+## REQUIREMENTS
+Some installations requirements and help.
+
+### Submodules :
+After cloning, get the submodules with :
+
+```bash
+git submodule update --init --recursive
+```
+
+### Toolchain :
+Tested with gcc6 and gcc7
+
+On Ubuntu 16.04, you can use [team-gcc-arm-embedded](https://launchpad.net/~team-gcc-arm-embedded/+archive/ubuntu/ppa) version
+
+### Others
+It needs crcmod and uavcan python package
+
+```bash
+sudo pip install -U crcmod uavcan
+```
 
