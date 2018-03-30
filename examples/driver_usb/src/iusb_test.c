@@ -25,6 +25,12 @@ void cmd_blinkspeed(BaseSequentialStream *chp, int argc, char *argv[]) {
         return;
     }
     speed = atoi(argv[0]);
+    chprintf(chp, "Got speed [%d]\r\n", speed);
+    if(speed > 5000) {
+        speed = 5000;
+    } else if(speed < 5) {
+        speed = 5;
+    }
     blinkspeed = speed;
 }
 
@@ -54,15 +60,14 @@ static THD_FUNCTION(Thread2, arg) {
     chRegSetThreadName("blinker2");
     while (true) {
         palClearPad(GPIOG, GPIOG_LED3_GREEN);
-        chprintf((BaseSequentialStream  *)&SDU1, "blink\r\n");
+        //chprintf((BaseSequentialStream  *)&SDU1, "blink\r\n");
 
-chThdSleepMilliseconds(5000);
+        chThdSleepMilliseconds(1000);
         palSetPad(GPIOG, GPIOG_LED3_GREEN);
-        chThdSleepMilliseconds(5000);
+        chThdSleepMilliseconds(1000);
     }
 }
 
-static THD_WORKING_AREA(waShell, 2048);
 
 static const ShellCommand commands[] = {
     {"blinkspeed", cmd_blinkspeed}
@@ -76,7 +81,25 @@ static const ShellConfig shell_cfg1 = {
   commands
 };
 
+#define SHELL_WA_SIZE   THD_WORKING_AREA_SIZE(2048)
+
+static THD_WORKING_AREA(waThread3, 2048);
+static THD_FUNCTION(Thread3, arg) {
+    (void)arg;
+    chRegSetThreadName("shellthread");
+    while (true) {
+        if (SDU1.config->usbp->state == USB_ACTIVE) {
+            thread_t *shelltp = chThdCreateFromHeap(NULL, SHELL_WA_SIZE,
+                                                    "shell", NORMALPRIO + 1,
+                                                    shellThread, (void *)&shell_cfg1);
+            chThdWait(shelltp);               /* Waiting termination.             */
+        }
+        chThdSleepMilliseconds(1000);
+    }
+}
+
 void usb_init(void) {
+
     sduObjectInit(&SDU1);
     sduStart(&SDU1, &serusbcfg);
     /*
@@ -88,19 +111,19 @@ void usb_init(void) {
     chThdSleepMilliseconds(1500);
     usbStart(serusbcfg.usbp, &usbcfg);
     usbConnectBus(serusbcfg.usbp);
-    
     /*
      * Shell manager initialization.
      */
     shellInit();
-    chThdCreateStatic(waShell, sizeof(waShell), NORMALPRIO,
-                    shellThread, (void *)&shell_cfg1);
+    chThdCreateStatic(waThread3, sizeof(waThread3), NORMALPRIO+1,
+                      Thread3, NULL);
 
     chThdCreateStatic(waThread1, sizeof(waThread1),
                       NORMALPRIO + 10, Thread1, NULL);
     chThdCreateStatic(waThread2, sizeof(waThread2),
                       NORMALPRIO + 10, Thread2, NULL);
 }
+
 
 RUN_AFTER(INIT_END) {
     usb_init();

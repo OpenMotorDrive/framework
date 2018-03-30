@@ -6,6 +6,7 @@ Set BOARD_DIR according to you board directory.
 ```bash
 BOARD_DIR=boards/com.hex.cube_1.0 make
 ```
+init the gpio used in board init , the auto initialisation from chibios as been removed to save flash
 
 Add a new board type :
 Add new platform in modules/platform_YOURBOARDNAME

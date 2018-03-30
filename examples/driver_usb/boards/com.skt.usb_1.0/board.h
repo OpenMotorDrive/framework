@@ -1361,8 +1361,20 @@
                                      PIN_AFIO_AF(GPIOI_PIN14, 0U) |         \
                                      PIN_AFIO_AF(GPIOI_PIN15, 0U))
 
-#define HAL_OTG1_CONFIG {(BaseSequentialStream*) &SDU1, true, false, 0, 0, false, 0, 0}
-#define HAL_UART_DEVICE_LIST HAL_OTG1_CONFIG
+#define SERIAL_DEFAULT_BITRATE 57600
 
 #define BOARD_PAL_LINE_CAN_RX PAL_LINE(GPIOD,0)
 #define BOARD_PAL_LINE_CAN_TX PAL_LINE(GPIOD,1)
+
+#define BOARD_CONFIG_HW_NAME "org.proficnc.uwb"
+#define BOARD_CONFIG_HW_MAJOR_VER 1
+#define BOARD_CONFIG_HW_MINOR_VER 0
+
+#define BOARD_CONFIG_HW_INFO_STRUCTURE { \
+    .hw_name = BOARD_CONFIG_HW_NAME, \
+    .hw_major_version = BOARD_CONFIG_HW_MAJOR_VER, \
+    .hw_minor_version = BOARD_CONFIG_HW_MINOR_VER, \
+    .board_desc_fmt = SHARED_HW_INFO_BOARD_DESC_FMT_NONE, \
+    .board_desc = 0, \
+}
+
