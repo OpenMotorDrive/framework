@@ -19,6 +19,7 @@ uavcan_getnodeinfo_server \
 uavcan_beginfirmwareupdate_server \
 uavcan_allocatee \
 uavcan_restart \
+uavcan_debug \
 freemem_check
 
 MESSAGES_ENABLED = \
