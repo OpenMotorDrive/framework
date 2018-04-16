@@ -17,4 +17,6 @@ struct pin_change_msg_s {
 };
 
 bool pin_change_publisher_enable_pin(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic);
+bool pin_change_publisher_enable_pin_oneshot(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic); // Masks the interrupt until a subscriber re-enables it.
 void pin_change_publisher_disable_pin(uint32_t line);
+void pin_change_publisher_unmask_pin(uint32_t line);

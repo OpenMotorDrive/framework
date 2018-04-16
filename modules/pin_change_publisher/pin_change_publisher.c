@@ -20,6 +20,7 @@ WORKER_THREAD_DECLARE_EXTERN(WT)
 
 struct pin_change_publisher_topic_s {
     expchannel_t channel;
+    bool mask_until_handled;
     struct pubsub_topic_s* topic;
     struct pin_change_publisher_topic_s* next;
 };
@@ -37,11 +38,22 @@ RUN_ON(PUBSUB_TOPIC_INIT) {
 
 MEMORYPOOL_DECL(pin_change_publisher_topic_list_pool, sizeof(struct pin_change_publisher_topic_s), chCoreAllocAlignedI);
 
+static bool pin_change_publisher_enable_pin_with_mask_option(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic, bool mask_until_handled);
 static struct pin_change_publisher_topic_s* pin_change_publisher_find_irq_topic(expchannel_t channel);
 static void pin_change_publisher_common_handler(EXTDriver *extp, expchannel_t channel);
 static bool pin_change_publisher_get_mode(uint32_t line, enum pin_change_type_t mode, uint32_t* ret);
 
 bool pin_change_publisher_enable_pin(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic) {
+    bool mask_until_handled = false;
+    return pin_change_publisher_enable_pin_with_mask_option(line, mode, topic, mask_until_handled);
+}
+
+bool pin_change_publisher_enable_pin_oneshot(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic) {
+    bool mask_until_handled = true;
+    return pin_change_publisher_enable_pin_with_mask_option(line, mode, topic, mask_until_handled);
+}
+
+static bool pin_change_publisher_enable_pin_with_mask_option(uint32_t line, enum pin_change_type_t mode, struct pubsub_topic_s* topic, bool mask_until_handled) {
     chSysLock();
 
     expchannel_t channel = PAL_PAD(line);
@@ -65,6 +77,7 @@ bool pin_change_publisher_enable_pin(uint32_t line, enum pin_change_type_t mode,
 
     irq_topic->channel = channel;
     irq_topic->topic = topic;
+    irq_topic->mask_until_handled = mask_until_handled;
 
     LINKED_LIST_APPEND(struct pin_change_publisher_topic_s, irq_topic_list_head, irq_topic);
 
@@ -111,6 +124,9 @@ static void pin_change_publisher_common_handler(EXTDriver *extp, expchannel_t ch
 
     if (irq_topic) {
         chSysLockFromISR();
+        if (irq_topic->mask_until_handled) {
+            extChannelDisableI(extp, channel);
+        }
         struct pin_change_msg_s msg = {chVTGetSystemTimeX()};
         worker_thread_publisher_task_publish_I(&publisher_task, irq_topic->topic, sizeof(struct pin_change_msg_s), pubsub_copy_writer_func, &msg);
         chSysUnlockFromISR();
@@ -190,4 +206,10 @@ static bool pin_change_publisher_get_mode(uint32_t line, enum pin_change_type_t 
     *ret = ext_channel_mode;
 
     return true;
+}
+
+void pin_change_publisher_unmask_pin(uint32_t line) {
+    expchannel_t channel = PAL_PAD(line);
+
+    extChannelEnable(&EXTD1, channel);
 }
