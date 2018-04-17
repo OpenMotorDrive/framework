@@ -26,6 +26,8 @@
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
+#define bkpt() __asm volatile("BKPT #0\n")
+
 #define SIGN(x) ( (x)>=0 ? 1 : -1 )
 
 #define LEN(x) (sizeof(x)/sizeof(x[0]))
