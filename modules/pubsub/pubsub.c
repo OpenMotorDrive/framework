@@ -152,7 +152,7 @@ void pubsub_publish_message(struct pubsub_topic_s* topic, size_t size, pubsub_me
     // Wake listener threads
     listener = topic->listener_list_head;
     while (listener) {
-        if (listener->waiting_thread_reference_ptr) {
+        if (listener->waiting_thread_reference_ptr && ((thread_t*)*listener->waiting_thread_reference_ptr)->state == CH_STATE_SUSPENDED) {
             chThdResumeS(listener->waiting_thread_reference_ptr, (msg_t)listener);
         }
 
