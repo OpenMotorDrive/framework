@@ -628,17 +628,16 @@ void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay
 }
 
 float dw1000_get_temp(struct dw1000_instance_s* instance) {
-    uint8_t sar_ltemp;
     dw1000_write8(instance, 0x28, 0x11, 0x80);
     dw1000_write8(instance, 0x28, 0x12, 0x0A);
     dw1000_write8(instance, 0x28, 0x12, 0x0F);
-    dw1000_write8(instance, 0x2A, 0x00, 0x00);
     dw1000_write8(instance, 0x2A, 0x00, 0x01);
-    chThdSleep(US2ST(20));
-    dw1000_read(instance, 0x2A, 0x04, sizeof(uint8_t), &sar_ltemp);
+    chThdSleep(LL_US2ST(10));
     dw1000_write8(instance, 0x2A, 0x00, 0x00);
+    uint8_t sarl_value[2] = {};
+    dw1000_read(instance, 0x2A, 0x03, 2, sarl_value);
 
-    return ((int8_t)(sar_ltemp - instance->t_meas_23c)) * 1.14f + 23;
+    return ((int8_t)(sarl_value[1] - instance->t_meas_23c)) * 1.14f + 23;
 }
 
 void dw1000_set_tx_power(struct dw1000_instance_s* instance, uint8_t tx_power)
