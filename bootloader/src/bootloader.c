@@ -277,9 +277,7 @@ static void update_app_info(void) {
 }
 
 static void corrupt_app(void) {
-    uint8_t buf[8] = {};
-    struct flash_write_buf_s buf_struct = {1, buf};
-    flash_write(&_app_flash_sec, 1, &buf_struct);
+    erase_app_page(0);
     update_app_info();
 }
 
