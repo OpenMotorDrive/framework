@@ -161,7 +161,8 @@ static void file_beginfirmwareupdate_request_handler(size_t msg_size, const void
         uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
         char path[sizeof(req->image_file_remote_path)+1] = {};
         memcpy(path, req->image_file_remote_path.path, req->image_file_remote_path.path_len);
-        begin_flash_from_path(msg_wrapper->uavcan_idx, req->source_node_id, path);
+
+        begin_flash_from_path(msg_wrapper->uavcan_idx, req->source_node_id != 0 ? req->source_node_id : msg_wrapper->source_node_id, path);
     } else {
         res.error = UAVCAN_PROTOCOL_FILE_BEGINFIRMWAREUPDATE_RES_ERROR_IN_PROGRESS;
         uavcan_respond(msg_wrapper->uavcan_idx, msg_wrapper, &res);
