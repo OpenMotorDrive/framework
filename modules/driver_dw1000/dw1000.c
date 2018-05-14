@@ -60,8 +60,8 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
 
     spi_device_init(&instance->spi_dev, spi_idx, select_line, 3000000, 8, 0);
     instance->reset_line = reset_line;
-    instance->config.prf = DW1000_PRF_64MHZ;
-    instance->config.preamble = DW1000_PREAMBLE_128;
+    instance->config.prf = DW1000_PRF_16MHZ;
+    instance->config.preamble = DW1000_PREAMBLE_1024;
     instance->config.channel = DW1000_CHANNEL_7;
     instance->config.data_rate = DW1000_DATA_RATE_6_8M;
     instance->config.pcode = dw1000_conf_get_default_pcode(instance->config);
@@ -270,13 +270,13 @@ static void dw1000_config(struct dw1000_instance_s* instance) {
     {
         // [0x0000:0x0001] LDE_THRESH
         // [0x0806] LDE_CFG1
-        dw1000_write8(instance, 0x2E, 0x0806, 0x0D);
+        dw1000_write8(instance, 0x2E, 0x0806, 0x07);
         // [0x1000:0x1001] LDE_PPINDX
         // [0x1002:0x1003] LDE_PPAMPL
         // [0x1804:0x1805] LDE_RXANTD
         dw1000_write16(instance, 0x2E, 0x1804, config.ant_delay);
         // [0x1806:0x1807] LDE_CFG2
-        dw1000_write16(instance, 0x2E, 0x1806, dw1000_conf_lde_cfg2(config));
+        dw1000_write16(instance, 0x2E, 0x1806, 0x0003);
         // [0x2804:0x2805] LDE_REPC
         dw1000_write16(instance, 0x2E, 0x2804, dw1000_conf_lde_repc(config));
     }
