@@ -1,18 +1,18 @@
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -Os
+  USE_OPT = -O3
 endif
 
-override USE_OPT += -Wl,--wrap=log10f -ggdb -std=gnu99 --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -ffast-math
+override USE_OPT += -Wl,--wrap=log10f -ggdb --specs=nosys.specs --specs=nano.specs -Werror=double-promotion -ffast-math
 
 # C specific options here (added to USE_OPT).
 ifeq ($(USE_COPT),)
-  USE_COPT =
+  USE_COPT = -std=gnu99
 endif
 
 # C++ specific options here (added to USE_OPT).
 ifeq ($(USE_CPPOPT),)
-  USE_CPPOPT = -fno-rtti
+  USE_CPPOPT = -fno-rtti -fno-exceptions -fno-threadsafe-statics -std=c++11
 endif
 
 # Enable this if you want the linker to remove unused code and data
@@ -210,16 +210,16 @@ CPPWARN = -Wall -Wextra -Wundef
 UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS) -DCORTEX_ENABLE_WFI_IDLE=TRUE
 
 # Define ASM defines here
-UADEFS =
+UADEFS +=
 
 # List all user directories here
-UINCDIR =
+UINCDIR +=
 
 # List the user directory to look for the libraries here
-ULIBDIR =
+ULIBDIR +=
 
 # List all user libraries here
-ULIBS = -lm
+ULIBS += -lm
 
 # Select region for application
 LOAD_REGION ?= app
