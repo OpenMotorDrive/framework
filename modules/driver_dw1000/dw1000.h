@@ -120,6 +120,7 @@ struct dw1000_instance_s {
 int64_t dw1000_wrap_timestamp(int64_t ts);
 void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t select_line, uint32_t reset_line);
 struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf);
+struct dw1000_rx_frame_info_s dw1000_receive_data_only(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf);
 void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf, bool expect_response);
 bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t transmit_time, uint32_t buf_len, void* buf, bool expect_response);
 void dw1000_try_receive(struct dw1000_instance_s* instance);
@@ -144,3 +145,5 @@ float dw1000_get_rssi_est(struct dw1000_instance_s* instance, uint16_t cir_pwr, 
 float dw1000_get_fp_rssi_est(struct dw1000_instance_s* instance, uint16_t fp_ampl1, uint16_t fp_ampl2, uint16_t fp_ampl3, uint16_t rxpacc);
 int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr, int64_t ts);
 void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t status_mask);
+uint32_t dw1000_get_irq_mask(struct dw1000_instance_s* instance);
+uint32_t dw1000_get_sys_config(struct dw1000_instance_s* instance);
