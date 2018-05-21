@@ -65,8 +65,17 @@ allocator = uavcan.app.dynamic_node_id.CentralizedServer(node, node_monitor)
 node_monitor.add_update_handler(monitor_update_handler)
 
 # discover nodes
-node.spin(int(args.discovery_time[0]))
+import time
+tstart = time.time()
+while time.time()-tstart < float(args.discovery_time[0]):
+    try:
+        node.spin(1)
+    except:
+        pass
 
 # wait for updates to complete
 while False in update_complete.values():
-    node.spin(1)
+    try:
+        node.spin(1)
+    except:
+        pass
