@@ -4,6 +4,7 @@
 #include <modules/timing/timing.h>
 #include <modules/uavcan/uavcan.h>
 #include <common/bswap.h>
+#include <common/helpers.h>
 
 #ifndef DW1000_LEDS_ENABLED
 #define DW1000_LEDS_ENABLED FALSE
@@ -752,8 +753,13 @@ float dw1000_get_temp(struct dw1000_instance_s* instance) {
     return ((int8_t)(sarl_value[1] - instance->t_meas_23c)) * 1.14f + 23;
 }
 
-void dw1000_set_tx_power(struct dw1000_instance_s* instance, uint8_t tx_power)
-{
+void dw1000_set_tx_gain_dB(struct dw1000_instance_s* instance, float tx_power_dB) {
+    tx_power_dB = constrain_float(tx_power_dB, 0, 33.5);
+
+    uint8_t coarse_dB = tx_power_dB < 18 ? (uint8_t)(tx_power_dB/3)*3 : 18;
+    uint8_t fine_dB = roundf((tx_power_dB-coarse_dB)*2);
+    uint8_t tx_power = (2*fine_dB) | (0b110-coarse_dB/3)<<5;
+
     instance->config.tx_power = tx_power;
     // [0x00:0x03] TX_POWER
     dw1000_write32(instance, 0x1E, 0x00, instance->config.tx_power<<24 |
