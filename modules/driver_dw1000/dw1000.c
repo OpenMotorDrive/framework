@@ -979,3 +979,46 @@ static void dw1000_otp_read(struct dw1000_instance_s* instance, uint16_t otp_add
     dw1000_read(instance, 0x2D, 0x0A, otp_field_len, buf);
     dw1000_write8(instance, 0x2D, 0x06, 0x00);
 }
+
+void enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, uint8_t off_time_pac)
+{
+    switch (instance->config.preamble) {
+        case DW1000_PREAMBLE_64:
+        case DW1000_PREAMBLE_128:
+            // PAC size 8
+            off_time_pac *= 8;
+            if((off_time_pac) > 0xFF) {
+                off_time_pac = 0xFF;
+            }
+            dw1000_write16(instance, 0x1D, 0x00, (((off_time_pac) << 8) | on_time_pac));
+        case DW1000_PREAMBLE_256:
+        case DW1000_PREAMBLE_512:
+            // PAC size 16
+            off_time_pac *= 16;
+            if((off_time_pac) > 0xFF) {
+                off_time_pac = 0xFF;
+            }
+            dw1000_write16(instance, 0x1D, 0x00, (((off_time_pac) << 8) | on_time_pac));
+        case DW1000_PREAMBLE_1024:
+            // PAC size 32
+            off_time_pac *= 32;
+            if((off_time_pac) > 0xFF) {
+                off_time_pac = 0xFF;
+            }
+            dw1000_write16(instance, 0x1D, 0x00, (((off_time_pac) << 8) | on_time_pac));
+        case DW1000_PREAMBLE_1536:
+        case DW1000_PREAMBLE_2048:
+        case DW1000_PREAMBLE_4096:
+            // PAC size 64
+            off_time_pac *= 64;
+            if((off_time_pac) > 0xFF) {
+                off_time_pac = 0xFF;
+            }
+            dw1000_write16(instance, 0x1D, 0x00, (((off_time_pac) << 8) | on_time_pac));
+    }
+}
+
+void disable_sniff_mode(struct dw1000_instance_s* instance)
+{
+    dw1000_write16(instance, 0x1D, 0x00, 0x00);
+}

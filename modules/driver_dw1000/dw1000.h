@@ -147,3 +147,5 @@ int64_t dw1000_correct_tstamp(struct dw1000_instance_s* instance, float estRxPwr
 void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t status_mask);
 uint32_t dw1000_get_irq_mask(struct dw1000_instance_s* instance);
 uint32_t dw1000_get_sys_config(struct dw1000_instance_s* instance);
+void enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, uint8_t off_time_pac);
+void disable_sniff_mode(struct dw1000_instance_s* instance);
