@@ -16,11 +16,11 @@
 #define WT hpwork_thread
 WORKER_THREAD_DECLARE_EXTERN(WT)
 
-//static struct worker_thread_timer_task_s blink_led_green_task;
-//static struct worker_thread_timer_task_s blink_led_red_task;
-//
-//static void blink_led_green_task_func(struct worker_thread_timer_task_s* task);
-//static void blink_led_red_task_func(struct worker_thread_timer_task_s* task);
+static struct worker_thread_timer_task_s blink_led_green_task;
+static struct worker_thread_timer_task_s blink_led_red_task;
+
+static void blink_led_green_task_func(struct worker_thread_timer_task_s* task);
+static void blink_led_red_task_func(struct worker_thread_timer_task_s* task);
 
 // handle request to change blink speed on green led
 void cmd_blinkspeed(BaseSequentialStream *chp, int argc, char *argv[]) {
@@ -32,13 +32,14 @@ void cmd_blinkspeed(BaseSequentialStream *chp, int argc, char *argv[]) {
         return;
     }
     millis = atoi(argv[0]);
-    chprintf(chp, "Got speed [%d]\r\n", millis);
+    chprintf(chp, "Got speed [%d]\r\n", millis);  // TODO : add UAVCAN Debug
+
     if (millis > 5000) {
         millis = 5000;
     } else if(millis < 5) {
         millis = 5;
     }
-    //worker_thread_timer_task_reschedule(&WT, &blink_led_green_task, MS2ST(millis));
+    worker_thread_timer_task_reschedule(&WT, &blink_led_green_task, MS2ST(millis));
 }
 
 static const ShellCommand commands[] = {
@@ -97,36 +98,36 @@ bool led_red_on;
 // Function call after the end of init
 RUN_AFTER(INIT_END) {
     usb_init();
-    //led_green_on = false;
-    //led_red_on = false;
-   // palSetPad(GPIOG, GPIOG_LED3_GREEN);
-    // Add new tasks to worker thread
-    // make led blink and report every 1000ms (repeated)
-    //worker_thread_add_timer_task(&WT, &blink_led_green_task, blink_led_green_task_func, NULL, MS2ST(1000), true);
-    //worker_thread_add_timer_task(&WT, &blink_led_red_task, blink_led_red_task_func, NULL, MS2ST(2000), true);
+    led_green_on = false;
+    led_red_on = false;
+    palSetPad(GPIOG, GPIOG_LED3_GREEN);
+   //  Add new tasks to worker thread
+   //  make led blink and report every 1000ms (repeated)
+    worker_thread_add_timer_task(&WT, &blink_led_green_task, blink_led_green_task_func, NULL, MS2ST(1000), true);
+    worker_thread_add_timer_task(&WT, &blink_led_red_task, blink_led_red_task_func, NULL, MS2ST(1000), true);
 }
 
 
-//static void blink_led_green_task_func(struct worker_thread_timer_task_s* task) {
-//    if (led_green_on) {
-//        palClearPad(GPIOG, GPIOG_LED3_GREEN);
-//        led_green_on = false;
-//    } else {
-//        palSetPad(GPIOG, GPIOG_LED3_GREEN);
-//        led_green_on = true;
-//    }
-//    //uavcan_send_debug_keyvalue("LG", (unsigned long)chVTGetSystemTime());
-//}
-//
-//
-//static void blink_led_red_task_func(struct worker_thread_timer_task_s* task) {
-//    if (led_red_on) {
-//        palClearPad(GPIOG, GPIOG_LED4_RED);
-//        led_red_on = false;
-//    } else {
-//        palSetPad(GPIOG, GPIOG_LED4_RED);
-//        led_red_on = true;
-//    }
-//    //uavcan_send_debug_keyvalue("LR", (unsigned long)chVTGetSystemTime());
-//}
+static void blink_led_green_task_func(struct worker_thread_timer_task_s* task) {
+    if (led_green_on) {
+        palClearPad(GPIOG, GPIOG_LED3_GREEN);
+        led_green_on = false;
+    } else {
+        palSetPad(GPIOG, GPIOG_LED3_GREEN);
+        led_green_on = true;
+    }
+    // TODO : add UAVCAN Debug
+}
+
+
+static void blink_led_red_task_func(struct worker_thread_timer_task_s* task) {
+    if (led_red_on) {
+        palClearPad(GPIOG, GPIOG_LED4_RED);
+        led_red_on = false;
+    } else {
+        palSetPad(GPIOG, GPIOG_LED4_RED);
+        led_red_on = true;
+    }
+    // TODO : add UAVCAN Debug
+}
 
