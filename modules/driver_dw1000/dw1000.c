@@ -980,7 +980,7 @@ static void dw1000_otp_read(struct dw1000_instance_s* instance, uint16_t otp_add
     dw1000_write8(instance, 0x2D, 0x06, 0x00);
 }
 
-void enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, uint8_t off_time_pac)
+void dw1000_enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, uint8_t off_time_pac)
 {
     switch (instance->config.preamble) {
         case DW1000_PREAMBLE_64:
@@ -1010,7 +1010,7 @@ void enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, 
     }
 }
 
-void disable_sniff_mode(struct dw1000_instance_s* instance)
+void dw1000_disable_sniff_mode(struct dw1000_instance_s* instance)
 {
     dw1000_write16(instance, 0x1D, 0x00, 0x00);
 }
