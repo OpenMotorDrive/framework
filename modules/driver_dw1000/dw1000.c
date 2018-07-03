@@ -988,21 +988,25 @@ void enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, 
             // PAC size 8
             off_time_pac *= 8;
             dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
         case DW1000_PREAMBLE_256:
         case DW1000_PREAMBLE_512:
             // PAC size 16
             off_time_pac *= 16;
             dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
         case DW1000_PREAMBLE_1024:
             // PAC size 32
             off_time_pac *= 32;
             dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
         case DW1000_PREAMBLE_1536:
         case DW1000_PREAMBLE_2048:
         case DW1000_PREAMBLE_4096:
             // PAC size 64
             off_time_pac *= 64;
             dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
     }
 }
 
