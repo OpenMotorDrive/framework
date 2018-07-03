@@ -207,7 +207,7 @@ CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 CPPWARN = -Wall -Wextra -Wundef
 
 # List all user C define here, like -D_DEBUG=1
-UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS)
+UDEFS += -DGIT_HASH=0x$(shell git rev-parse --short=8 HEAD) $(MODULES_ENABLED_DEFS) -DCORTEX_ENABLE_WFI_IDLE=TRUE
 
 # Define ASM defines here
 UADEFS =
