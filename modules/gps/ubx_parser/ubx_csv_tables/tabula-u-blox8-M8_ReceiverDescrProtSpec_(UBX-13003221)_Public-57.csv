@@ -1,0 +1,11 @@
+"",Message,CFG-NAV5,,,,,
+"",Description,Navigation Engine Settings,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"See the Navigation Configuration Settings Description for a detailed description of howthese settings affect receiver operation.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x24,36,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,X2,-,mask,-,"Parameters Bitmask. Only the maskedparameters will be applied. (see graphic below)",
+"",2,U1,-,dynModel,-,"Dynamic platform model:0: portable2: stationary3: pedestrian4: automotive5: sea6: airborne with <1g acceleration7: airborne with <2g acceleration8: airborne with <4g acceleration9: wrist worn watch (not supported in protocolversions less than 18)",

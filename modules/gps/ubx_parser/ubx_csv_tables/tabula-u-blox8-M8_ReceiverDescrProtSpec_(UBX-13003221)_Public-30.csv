@@ -1,0 +1,15 @@
+Message,CFG-BATCH,,,,,
+Description,Get/Set data batching configuration,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 with protocol version 23.01",,,,,
+Type,Get/Set,,,,,
+Comment,"Gets or sets the configuration for data batching.See Data Batching for more information.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x93,8,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0x00 for this version),
+1,X1,-,flags,-,Flags (see graphic below),
+2,U2,-,bufSize,-,Size of buffer in number of epochs to store,
+4,U2,-,notifThrs,-,"Buffer fill level that triggers PIO notification, innumber of epochs stored",
+6,U1,-,pioId,-,PIO ID to use for buffer level notification,
+7,U1,-,reserved1,-,Reserved,

@@ -1,0 +1,18 @@
+"",Message,NAV-HPPOSLLH,,,,,
+"",Description,High Precision Geodetic Position Solution,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 20.01 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"See important comments concerning validity of position given in sectionNavigation Output Filters.This message outputs the Geodetic position with high precision in the currently selectedellipsoid. The default is the WGS84 Ellipsoid, but can be changed with the messageCFG-DAT.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x14,36,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+"",8,I4,1e-7,lon,deg,Longitude,
+"",12,I4,1e-7,lat,deg,Latitude,
+"",16,I4,-,height,mm,Height above ellipsoid.,
+"",20,I4,-,hMSL,mm,Height above mean sea level,
+"",24,I1,1e-9,lonHp,deg,"High precision component of longitude. Mustbe in the range -99..+99. Precise longitude indeg * 1e-7 = lon + (lonHp * 1e-2).",
+"",25,I1,1e-9,latHp,deg,"High precision component of latitude. Must bein the range -99..+99. Precise latitude in deg *1e-7 = lat + (latHp * 1e-2).",

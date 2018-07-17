@@ -1,0 +1,8 @@
+"",Message,MON-VER,,,,,
+"",Description,Poll Receiver/Software Version,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Poll Request,,,,,
+"",Comment,-,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x0A,0x04,0,see below,CK_A CK_B,
+"",No payload,,,,,,

@@ -1,0 +1,3 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+25,U1,-,active,-,"Survey-in in progress flag, 1 = in-progress,otherwise 0"
+26,U1[2],-,reserved1,-,Reserved

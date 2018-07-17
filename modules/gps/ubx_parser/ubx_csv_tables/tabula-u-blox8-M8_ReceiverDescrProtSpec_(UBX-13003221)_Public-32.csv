@@ -1,0 +1,18 @@
+"",Message,CFG-DAT,,,,,
+"",Description,Set User-defined Datum.,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Set,,,,,
+"",Comment,For more information see the description of Geodetic Systems and Frames.,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x06,44,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,R8,-,majA,m,"Semi-major Axis ( accepted range = 6,300,000.0to 6,500,000.0 meters ).",
+"",8,R8,-,flat,-,"1.0 / Flattening ( accepted range is 0.0 to 500.0).",
+"",16,R4,-,dX,m,"X Axis shift at the origin ( accepted range is +/-5000.0 meters ).",
+"",20,R4,-,dY,m,"Y Axis shift at the origin ( accepted range is +/-5000.0 meters ).",
+"",24,R4,-,dZ,m,"Z Axis shift at the origin ( accepted range is +/-5000.0 meters ).",
+"",28,R4,-,rotX,s,"Rotation about the X Axis ( accepted range is+/- 20.0 milli-arc seconds ).",
+"",32,R4,-,rotY,s,"Rotation about the Y Axis ( accepted range is+/- 20.0 milli-arc seconds ).",
+"",36,R4,-,rotZ,s,"Rotation about the Z Axis ( accepted range is +/-20.0 milli-arc seconds ).",
+"",40,R4,-,scale,ppm,"Scale change ( accepted range is 0.0 to 50.0parts per million ).",

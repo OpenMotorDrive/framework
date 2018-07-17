@@ -1,0 +1,8 @@
+Message,TIM-SMEAS,,,,,
+Description,Source measurement,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+Type,Input/Output,,,,,
+Comment,"Frequency and/or phase measurement of synchronization sources. The measurements arerelative to the nominal frequency and nominal phase.The receiver reports the measurements on its sync sources using this message. Whichmeasurements are reported can be configured using UBX-CFG-SMGR.The host may report offset of the receiver's outputs with this message as well. The receiverhas to be configured using UBX-CFG-SMGR to enable the use of the external measurementmessages. Otherwise the receiver will ignore them.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+0xB5 0x62,0x0D,0x13,12 + 24*numMeas,see below,CK_A CK_B,
+Payload Contents:,,,,,,

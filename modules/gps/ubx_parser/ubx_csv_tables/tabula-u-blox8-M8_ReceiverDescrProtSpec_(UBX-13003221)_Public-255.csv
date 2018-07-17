@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+4,U1[8],-,beacon,-,"Beacon identifier (60 bits), with bytes orderedby earliest transmitted (most significant) first.Top four bits of first byte are zero."
+12,U1,-,message,-,Message code (4 bits)
+13,U1[12],-,params,-,"Parameters (96 bits), with bytes ordered byearliest transmitted (most significant) first."
+25,U1[3],-,reserved2,-,Reserved

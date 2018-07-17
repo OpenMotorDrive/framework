@@ -1,0 +1,11 @@
+"",Message,UPD-SOS,,,,,
+"",Description,Clear Backup in Flash,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Command,,,,,
+"",Comment,"The host can send this message in order to erase the backup file present in flash. It isrecommended that the clear operation is issued after the host has received the notificationthat the memory has been restored after a reset. Alternatively the host can parse thestartup string 'Restored data saved on shutdown' or poll the UBX-UPD-SOS message forgetting the status.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x09,0x14,4,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,cmd,-,Command (must be 1),
+"",1,U1[3],-,reserved1,-,Reserved,

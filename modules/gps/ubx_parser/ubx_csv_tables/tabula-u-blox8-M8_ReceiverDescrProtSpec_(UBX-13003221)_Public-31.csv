@@ -1,0 +1,15 @@
+"",Message,CFG-CFG,,,,,
+"",Description,"Clear, Save and Load configurations",,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Command,,,,,
+"",Comment,"See Receiver Configuration for a detailed description on how Receiver Configuration shouldbe used. The three masks are made up of individual bits, each bit indicating the sub-sectionof all configurations on which the corresponding action shall be carried out. The reservedbits in the masks must be set to '0'. For detailed information refer to the Organization ofthe Configuration Sections. Note that commands can be combined. The sequence ofexecution is Clear, Save, Load.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x09,(12) or (13),see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,X4,-,clearMask,-,"Mask with configuration sub-sections to clear (i.e. load default configurations to permanentconfigurations in non-volatile memory) (seegraphic below)",
+"",4,X4,-,saveMask,-,"Mask with configuration sub-sections to save (i.e. save current configurations to non-volatilememory), see ID description of clearMask",
+"",8,X4,-,loadMask,-,"Mask with configuration sub-sections to load (i.e. load permanent configurations fromnon-volatile memory to current configurations),see ID description of clearMask",
+"",Start of optional block,,,,,,
+"",12,X1,-,deviceMask,-,"Mask which selects the memory devices for thiscommand. (see graphic below)",
+"",End of optional block,,,,,,

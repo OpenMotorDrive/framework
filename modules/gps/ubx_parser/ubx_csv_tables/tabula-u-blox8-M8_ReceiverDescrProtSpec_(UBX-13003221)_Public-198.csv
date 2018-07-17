@@ -1,0 +1,13 @@
+Message,NAV-AOPSTATUS,,,,,
+Description,AssistNow Autonomous Status,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"This message provides information on the status of the AssistNow Autonomous subsystemon the receiver. For example, a host application can determine the optimal time to shutdown the receiver by monitoring the status field for a steady 0. See the chapterAssistNow Autonomous in the receiver description for details on this feature.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x01,0x60,16,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,U1,-,aopCfg,-,"AssistNow Autonomous configuration (seegraphic below)",
+5,U1,-,status,-,"AssistNow Autonomous subsystem is idle (0) orrunning (not 0)",
+6,U1[10],-,reserved1,-,Reserved,

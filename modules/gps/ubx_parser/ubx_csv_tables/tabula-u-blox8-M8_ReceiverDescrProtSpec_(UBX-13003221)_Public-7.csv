@@ -1,0 +1,39 @@
+Page,Mnemonic,Cls/ID,Length,Type,Description
+26,MGA-GAL-TIMEOFF...,0x13 0x02,12,Input,Galileo GPS time offset assistance
+26,MGA-GAL-UTC,0x13 0x02,20,Input,Galileo UTC Assistance
+26,MGA-GLO-EPH,0x13 0x06,48,Input,GLONASS Ephemeris Assistance
+26,MGA-GLO-ALM,0x13 0x06,36,Input,GLONASS Almanac Assistance
+26,MGA-GLO-TIMEOFF...,0x13 0x06,20,Input,GLONASS Auxiliary Time Offset Assistance
+26,MGA-GPS-EPH,0x13 0x00,68,Input,GPS Ephemeris Assistance
+26,MGA-GPS-ALM,0x13 0x00,36,Input,GPS Almanac Assistance
+27,MGA-GPS-HEALTH,0x13 0x00,40,Input,GPS Health Assistance
+27,MGA-GPS-UTC,0x13 0x00,20,Input,GPS UTC Assistance
+27,MGA-GPS-IONO,0x13 0x00,16,Input,GPS Ionosphere Assistance
+27,MGA-INI-POS_XYZ,0x13 0x40,20,Input,Initial Position Assistance
+27,MGA-INI-POS_LLH,0x13 0x40,20,Input,Initial Position Assistance
+27,MGA-INI-TIME_UTC,0x13 0x40,24,Input,Initial Time Assistance
+27,MGA-INI-TIME_GNSS,0x13 0x40,24,Input,Initial Time Assistance
+27,MGA-INI-CLKD,0x13 0x40,12,Input,Initial Clock Drift Assistance
+27,MGA-INI-FREQ,0x13 0x40,12,Input,Initial Frequency Assistance
+27,MGA-INI-EOP,0x13 0x40,72,Input,Earth Orientation Parameters Assistance
+27,MGA-QZSS-EPH,0x13 0x05,68,Input,QZSS Ephemeris Assistance
+27,MGA-QZSS-ALM,0x13 0x05,36,Input,QZSS Almanac Assistance
+28,MGA-QZSS-HEALTH,0x13 0x05,12,Input,QZSS Health Assistance
+"",UBX Class MON,Monitoring Messages,,,
+28,MON-BATCH,0x0A 0x32,12,Polled,Data batching buffer status
+28,MON-GNSS,0x0A 0x28,8,Polled,Information message major GNSS selection
+28,MON-HW2,0x0A 0x0B,28,Periodic/Polled,Extended Hardware Status
+28,MON-HW,0x0A 0x09,60,Periodic/Polled,Hardware Status
+28,MON-IO,0x0A 0x02,0 + 20*N,Periodic/Polled,I/O Subsystem Status
+28,MON-MSGPP,0x0A 0x06,120,Periodic/Polled,Message Parse and Process Status
+28,MON-PATCH,0x0A 0x27,0,Poll Request,Poll Request for installed patches
+28,MON-PATCH,0x0A 0x27,4 + 16*nEntries,Polled,Output information about installed patches.
+28,MON-RXBUF,0x0A 0x07,24,Periodic/Polled,Receiver Buffer Status
+28,MON-RXR,0x0A 0x21,1,Output,Receiver Status Information
+29,MON-SMGR,0x0A 0x2E,16,Periodic/Polled,Synchronization Manager Status
+29,MON-TXBUF,0x0A 0x08,28,Periodic/Polled,Transmitter Buffer Status
+29,MON-VER,0x0A 0x04,0,Poll Request,Poll Receiver/Software Version
+29,MON-VER,0x0A 0x04,40 + 30*N,Polled,Receiver/Software Version
+"",UBX Class NAV,Navigation Results Messages,,,
+29,NAV-AOPSTATUS,0x01 0x60,16,Periodic/Polled,AssistNow Autonomous Status
+29,NAV-ATT,0x01 0x05,32,Periodic/Polled,Attitude Solution

@@ -1,0 +1,6 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+9,U1,-,mainTalkerId,-,"By default the main Talker ID (i.e. the Talker IDused for all messages other than GSV) isdetermined by the GNSS assignment of thereceiver's channels (see UBX-CFG-GNSS).This field enables the main Talker ID to beoverridden.0: Main Talker ID is not overridden1: Set main Talker ID to 'GP'2: Set main Talker ID to 'GL'3: Set main Talker ID to 'GN'4: Set main Talker ID to 'GA'5: Set main Talker ID to 'GB'"
+10,U1,-,gsvTalkerId,-,"By default the Talker ID for GSV messages isGNSS specific (as defined by NMEA).This field enables the GSV Talker ID to beoverridden.0: Use GNSS specific Talker ID (as defined byNMEA)1: Use the main Talker ID"
+11,U1,-,version,-,Message version (set to 1 for this version)
+12,CH[2],-,bdsTalkerId,-,"Sets the two characters that should be used forthe BeiDou Talker IDIf these are set to zero, the default BeiDouTalkerId will be used"
+14,U1[6],-,reserved1,-,Reserved

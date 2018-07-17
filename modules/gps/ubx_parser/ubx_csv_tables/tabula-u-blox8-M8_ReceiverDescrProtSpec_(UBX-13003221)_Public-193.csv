@@ -1,0 +1,10 @@
+Message,MON-RXR,,,,,
+Description,Receiver Status Information,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Output,,,,,
+Comment,The receiver ready message is sent when the receiver changes from or to backup mode.,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x0A,0x21,1,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,X1,-,flags,-,Receiver status flags (see graphic below),

@@ -1,0 +1,25 @@
+"",Message,UBX-MGA-QZSS-ALM,,,,,
+"",Description,QZSS Almanac Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of QZSS almanac assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x05,36,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x02 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1,-,svId,-,"QZSS Satellite identifier (see Satellite Numbering), Range 1-5",
+"",3,U1,-,svHealth,-,Almanac SV health information,
+"",4,U2,2^-21,e,-,Almanac eccentricity,
+"",6,U1,-,almWNa,week,"Reference week number of almanac (the 8 bitWNa field)",
+"",7,U1,2^12,toa,s,Reference time of almanac,
+"",8,I2,2^-19,deltaI,"semi-circles",Delta inclination angle at reference time,
+"",10,I2,2^-38,omegaDot,"semi-circles/s",Almanac rate of right ascension,
+"",12,U4,2^-11,sqrtA,m^0.5,Almanac square root of the semi-major axis A,
+"",16,I4,2^-23,omega0,"semi-circles","Almanac long of asc node of orbit plane atweekly",
+"",20,I4,2^-23,omega,"semi-circles",Almanac argument of perigee,
+"",24,I4,2^-23,m0,"semi-circles",Almanac mean anomaly at reference time,
+"",28,I2,2^-20,af0,s,Almanac time polynomial coefficient 0 (8 MSBs),
+"",30,I2,2^-38,af1,s/s,Almanac time polynomial coefficient 1,
+"",32,U1[4],-,reserved1,-,Reserved,

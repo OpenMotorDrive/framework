@@ -1,0 +1,16 @@
+Message,UBX-MGA-INI-TIME_GNSS,,,,,
+Description,Initial Time Assistance,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Input,,,,,
+Comment,"Supplying time assistance that is inaccurate by more than the specified timeaccuracy, may lead to substantially degraded receiver performance.This message allows the delivery of time assistance to a receiver in a chosen GNSStimebase. This message is equivalent to the UBX-MGA-INI-TIME_UTC message, exceptfor the time base. See the description of AssistNow Online for details.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x13,0x40,24,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,type,-,Message type (0x11 for this type),
+1,U1,-,version,-,Message version (0x00 for this version),
+2,X1,-,ref,-,"Reference to be used to set time (see graphicbelow)",
+3,U1,-,gnssId,-,"Source of time information. Currentlysupported:0:  GPS time2:  Galileo time3:  BeiDou time6:  GLONASS time: week = 834 + ((N4-1)*1461+ Nt)/7, tow = (((N4-1)*1461 + Nt) % 7) *86400 + tod",
+4,U1[2],-,reserved1,-,Reserved,
+6,U2,-,week,-,GNSS week number,
+8,U4,-,tow,s,GNSS time of week,

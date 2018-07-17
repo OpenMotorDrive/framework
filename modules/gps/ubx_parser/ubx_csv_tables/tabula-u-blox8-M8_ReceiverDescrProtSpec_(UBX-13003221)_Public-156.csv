@@ -1,0 +1,17 @@
+"",Message,UBX-MGA-GAL-ALM,,,,,
+"",Description,Galileo Almanac Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of Galileo almanac assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x02,32,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x02 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1,-,svId,-,"Galileo Satellite identifier (see SatelliteNumbering)",
+"",3,U1,-,reserved1,-,Reserved,
+"",4,U1,-,ioda,-,Almanac Issue of Data,
+"",5,U1,-,almWNa,week,Almanac reference week number,
+"",6,U2,600,toa,s,Almanac reference time,
+"",8,I2,2^-9,deltaSqrtA,m^0.5,"Difference with respect to the square root ofthe nominal semi-major axis (29 600 km)",

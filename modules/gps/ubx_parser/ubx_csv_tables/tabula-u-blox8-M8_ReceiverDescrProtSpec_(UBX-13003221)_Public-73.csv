@@ -1,0 +1,21 @@
+"",Message,CFG-PM2,,,,,
+"",Description,Extended Power Management configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 22",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"This feature is not supported for either the ADR or FTS products.-",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x3B,48,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,"Message version (0x02 for this version)Note: the message version number is the sameas for protocol version 23.01; please selectcorrect message version based on the protocolversion supported by your firmware.",
+"",1,U1,-,reserved1,-,Reserved,
+"",2,U1,-,"maxStartupStateDur",s,"Maximum time to spend in Acquisition state. If0: bound disabled (see maxStartupStateDur).(not supported in protocol versions less than 17)",
+"",3,U1,-,reserved2,-,Reserved,
+"",4,X4,-,flags,-,PSM configuration flags (see graphic below),
+"",8,U4,-,updatePeriod,ms,"Position update period. If set to 0, the receiverwill never retry a fix and it will wait for externalevents",
+"",12,U4,-,searchPeriod,ms,"Acquisition retry period if previously failed. If setto 0, the receiver will never retry a startup",
+"",16,U4,-,gridOffset,ms,Grid offset relative to GPS start of week,
+"",20,U2,-,onTime,s,Time to stay in Tracking state,
+"",22,U2,-,minAcqTime,s,minimal search time,
+"",24,U1[20],-,reserved3,-,Reserved,
+"",44,U4,-,"extintInactivityMs",ms,inactivity time out on EXTINT pint if enabled,

@@ -1,0 +1,22 @@
+Message,NAV-SAT,,,,,
+Description,Satellite Information,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"This message displays information about SVs which are either known to be visible orcurrently tracked by the receiver. All signal related information corresponds to the subset ofsignals specified in Signal Identifiers.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x01,0x35,8 + 12*numSvs,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,U1,-,version,-,Message version (1 for this version),
+5,U1,-,numSvs,-,Number of satellites,
+6,U1[2],-,reserved1,-,Reserved,
+Start of repeated block (numSvs times),,,,,,
+8 + 12*N,U1,-,gnssId,-,"GNSS identifier (see Satellite numbering) forassignment",
+9 + 12*N,U1,-,svId,-,"Satellite identifier (see Satellite numbering) forassignment",
+10 + 12*N,U1,-,cno,dBHz,Carrier to noise ratio (signal strength),
+11 + 12*N,I1,-,elev,deg,"Elevation (range: +/-90), unknown if out ofrange",
+12 + 12*N,I2,-,azim,deg,"Azimuth (range 0-360), unknown if elevation isout of range",
+14 + 12*N,I2,0.1,prRes,m,Pseudorange residual,
+16 + 12*N,X4,-,flags,-,Bitmask (see graphic below),
+End of repeated block,,,,,,

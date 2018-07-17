@@ -1,0 +1,16 @@
+"",Message,UBX-MGA-BDS-UTC,,,,,
+"",Description,BDS UTC Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of BeiDou UTC assistance to a receiver. See the descriptionof AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x03,20,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x05 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,I4,2^-30,a0UTC,s,BDT clock bias relative to UTC,
+"",8,I4,2^-50,a1UTC,s/s,BDT clock rate relative to UTC,
+"",12,I1,-,dtLS,s,"Delta time due to leap seconds before the newleap second effective",
+"",13,U1[1],-,reserved2,-,Reserved,

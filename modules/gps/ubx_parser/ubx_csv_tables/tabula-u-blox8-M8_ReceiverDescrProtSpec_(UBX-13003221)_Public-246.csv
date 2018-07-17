@@ -1,0 +1,2 @@
+Name,Description
+backup,"The receiver goes into backup mode for a time period defined by duration. Provided that it is not connected toUSB"

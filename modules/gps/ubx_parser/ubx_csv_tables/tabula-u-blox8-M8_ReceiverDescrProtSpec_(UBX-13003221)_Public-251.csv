@@ -1,0 +1,17 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",0,R8,-,rcvTow,s,"Measurement time of week in receiver localtime approximately aligned to the GPS timesystem. The receiver local time of week, weeknumber and leap second information can beused to translate the time to other time systems.More information about the difference in timesystems can be found in RINEX 3documentation. For a receiver operating inGLONASS only mode, UTC time can bedetermined by subtracting the leapS field fromGPS time regardless of whether the GPS leapseconds are valid."
+"",8,U2,-,week,weeks,GPS week number in receiver local time.
+"",10,I1,-,leapS,s,"GPS leap seconds (GPS-UTC). This fieldrepresents the receiver's best knowledge of theleap seconds offset. A flag is given in the recStatbitfield to indicate if the leap seconds areknown."
+"",11,U1,-,numMeas,-,Number of measurements to follow
+"",12,X1,-,recStat,-,"Receiver tracking status bitfield (see graphicbelow)"
+"",13,U1,-,version,-,Message version (0x01 for this version).
+"",14,U1[2],-,reserved1,-,Reserved
+"",Start of repeated block (numMeas times),,,,,
+"",16 + 32*N,R8,-,prMes,m,"Pseudorange measurement [m]. GLONASS interfrequency channel delays are compensated withan internal calibration table."
+"",24 + 32*N,R8,-,cpMes,cycles,"Carrier phase measurement [cycles]. The carrierphase initial ambiguity is initialized using anapproximate value to make the magnitude ofthe phase close to the pseudorangemeasurement. Clock resets are applied to bothphase and code measurements in accordancewith the RINEX specification."
+"",32 + 32*N,R4,-,doMes,Hz,"Doppler measurement (positive sign forapproaching satellites) [Hz]"
+"",36 + 32*N,U1,-,gnssId,-,"GNSS identifier (see Satellite Numbering for alist of identifiers)"
+"",37 + 32*N,U1,-,svId,-,Satellite identifier (see Satellite Numbering)
+"",38 + 32*N,U1,-,reserved2,-,Reserved
+"",39 + 32*N,U1,-,freqId,-,"Only used for GLONASS: This is the frequencyslot + 7 (range from 0 to 13)"
+"",40 + 32*N,U2,-,locktime,ms,"Carrier phase locktime counter (maximum64500ms)"

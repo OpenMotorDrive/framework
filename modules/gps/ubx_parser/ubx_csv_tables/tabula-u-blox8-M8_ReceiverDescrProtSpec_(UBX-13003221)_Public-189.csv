@@ -1,0 +1,16 @@
+"",Message,MON-MSGPP,,,,,
+"",Description,Message Parse and Process Status,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,-,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0A,0x06,120,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U2[8],-,msg1,msgs,"Number of successfully parsed messages foreach protocol on port0",
+"",16,U2[8],-,msg2,msgs,"Number of successfully parsed messages foreach protocol on port1",
+"",32,U2[8],-,msg3,msgs,"Number of successfully parsed messages foreach protocol on port2",
+"",48,U2[8],-,msg4,msgs,"Number of successfully parsed messages foreach protocol on port3",
+"",64,U2[8],-,msg5,msgs,"Number of successfully parsed messages foreach protocol on port4",
+"",80,U2[8],-,msg6,msgs,"Number of successfully parsed messages foreach protocol on port5",
+"",96,U4[6],-,skipped,bytes,Number skipped bytes for each port,

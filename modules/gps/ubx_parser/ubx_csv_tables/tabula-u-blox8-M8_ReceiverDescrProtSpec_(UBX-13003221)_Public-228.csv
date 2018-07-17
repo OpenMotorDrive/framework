@@ -1,0 +1,23 @@
+Message,NAV-SVINFO,,,,,
+Description,Space Vehicle Information,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"Information about satellites used or visibleThis message has only been retained for backwards compatibility; users are recommendedto use the UBX-NAV-SAT message in preference.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x01,0x30,8 + 12*numCh,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,U1,-,numCh,-,Number of channels,
+5,X1,-,globalFlags,-,Bitmask (see graphic below),
+6,U1[2],-,reserved1,-,Reserved,
+Start of repeated block (numCh times),,,,,,
+8 + 12*N,U1,-,chn,-,"Channel number, 255 for SVs not assigned to achannel",
+9 + 12*N,U1,-,svid,-,"Satellite ID, see Satellite numbering forassignment",
+10 + 12*N,X1,-,flags,-,Bitmask (see graphic below),
+11 + 12*N,X1,-,quality,-,Bitfield (see graphic below),
+12 + 12*N,U1,-,cno,dBHz,Carrier to Noise Ratio (Signal Strength),
+13 + 12*N,I1,-,elev,deg,Elevation in integer degrees,
+14 + 12*N,I2,-,azim,deg,Azimuth in integer degrees,
+16 + 12*N,I4,-,prRes,cm,Pseudo range residual in centimeters,
+End of repeated block,,,,,,

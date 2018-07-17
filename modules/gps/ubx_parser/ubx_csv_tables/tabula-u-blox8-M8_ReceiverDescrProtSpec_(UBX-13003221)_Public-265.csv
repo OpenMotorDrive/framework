@@ -1,0 +1,8 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",4,U4,-,iTOW,ms,"GPS time of week of the navigation epoch fromwhich the sync manager obtains the GNSSspecific data.Like for the NAV message, the iTOW can beused to group messages of a single syncmanager run together (See the description ofiTOW for details)"
+"",8,I4,2^-8,intDeltaFreq,ppb,Frequency increment of the internal oscillator
+"",12,U4,2^-8,"intDeltaFreqUnc",ppb,"Uncertainty of the internal oscillator frequencyincrement"
+"",16,U4,-,intRaw,-,"Current raw DAC setting commanded to theinternal oscillator"
+"",20,I4,2^-8,extDeltaFreq,ppb,Frequency increment of the external oscillator
+"",24,U4,2^-8,"extDeltaFreqUnc",ppb,"Uncertainty of the external oscillator frequencyincrement"
+"",28,U4,-,extRaw,-,"Current raw DAC setting commanded to theexternal oscillator"

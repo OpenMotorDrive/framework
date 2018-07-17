@@ -1,0 +1,4 @@
+Message,LOG-RETRIEVE
+Description,Request log data
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01"
+Type,Command

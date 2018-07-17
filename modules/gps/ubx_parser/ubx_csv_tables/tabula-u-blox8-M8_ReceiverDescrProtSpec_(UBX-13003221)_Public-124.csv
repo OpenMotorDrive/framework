@@ -1,0 +1,14 @@
+Message,LOG-CREATE,,,,,
+Description,Create Log File,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Command,,,,,
+Comment,"This message is used to create an initial logging file and activate the logging subsystem.UBX-ACK-ACK or UBX-ACK-NAK are returned to indicate success or failure.This message does not handle activation of recording or filtering of log entries (seeUBX-CFG-LOGFILTER).",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x21,0x07,8,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,The version of this message. Set to 0,
+1,X1,-,logCfg,-,Config flags (see graphic below),
+2,U1,-,reserved1,-,Reserved,
+3,U1,-,logSize,-,"Indicates the size of the log:0 (maximum safe size): Ensures that logging willnot be interrupted and enough space will be leftavailable for all other uses of the filestore1 (minimum size):2 (user defined): See 'userDefinedSize' below",
+4,U4,-,"userDefinedSize",bytes,"Sets the maximum amount of space in thefilestore that can be used by the logging task.This field is only applicable if logSize is set touser defined.",

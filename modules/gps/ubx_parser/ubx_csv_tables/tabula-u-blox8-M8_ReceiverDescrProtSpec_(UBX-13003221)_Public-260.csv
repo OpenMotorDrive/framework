@@ -1,0 +1,12 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details."
+4,I2,-,week,weeks,GPS week number of the navigation epoch
+6,U1,-,numVis,-,Number of visible satellites
+7,U1,-,numSV,-,Number of per-SV data blocks following
+Start of repeated block (numSV times),,,,,
+8 + 6*N,U1,-,svid,-,Satellite ID
+9 + 6*N,X1,-,svFlag,-,Information Flags (see graphic below)
+10 + 6*N,I2,-,azim,-,Azimuth
+12 + 6*N,I1,-,elev,-,Elevation
+13 + 6*N,X1,-,age,-,"Age of Almanac and Ephemeris: (see graphicbelow)"
+End of repeated block,,,,,

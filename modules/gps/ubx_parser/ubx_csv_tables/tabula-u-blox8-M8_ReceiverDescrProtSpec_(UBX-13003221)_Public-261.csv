@@ -1,0 +1,15 @@
+Message,SEC-SIGN,,,,,
+Description,Signature of a previous message,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+Type,Output,,,,,
+Comment,"The message is the signature of a previously sent message. The signature is generated witha hash using the SHA-256 algorithm with the programmed seeds.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x27,0x01,40,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0x01 for this version),
+1,U1[3],-,reserved1,-,Reserved,
+4,U1,-,classID,-,Class ID of the referring message,
+5,U1,-,messageID,-,Message ID of the referring message,
+6,U2,-,checksum,-,UBX Checksum of the referring message,
+8,U1[32],-,hash,-,SHA-256 hash of the referring message,

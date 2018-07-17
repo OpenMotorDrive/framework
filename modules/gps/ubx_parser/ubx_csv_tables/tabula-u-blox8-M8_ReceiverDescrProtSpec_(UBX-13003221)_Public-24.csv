@@ -1,0 +1,14 @@
+"",Message,AID-HUI,,,,,
+"",Description,"GPS Health, UTC and ionosphere parameters",,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input/Output,,,,,
+"",Comment,"All UBX-AID messages are deprecated; use UBX-MGA messages insteadThis message contains a health bit mask, UTC time and Klobuchar parameters. For moreinformation on these parameters, see the ICD-GPS-200 documentation.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0B,0x02,72,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,X4,-,health,-,"Bitmask, every bit represenst a GPS SV (1-32). Ifthe bit is set the SV is healthy.",
+"",4,R8,-,utcA0,-,UTC - parameter A0,
+"",12,R8,-,utcA1,-,UTC - parameter A1,
+"",20,I4,-,utcTOW,-,UTC - reference time of week,
+"",24,I2,-,utcWNT,-,UTC - reference week number,

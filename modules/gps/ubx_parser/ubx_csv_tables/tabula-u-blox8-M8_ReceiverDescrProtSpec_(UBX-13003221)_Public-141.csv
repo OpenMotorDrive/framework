@@ -1,0 +1,15 @@
+Message,UBX-MGA-BDS-EPH,,,,,
+Description,BDS Ephemeris Assistance,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Input,,,,,
+Comment,"This message allows the delivery of BeiDou ephemeris assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x13,0x03,88,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,type,-,Message type (0x01 for this type),
+1,U1,-,version,-,Message version (0x00 for this version),
+2,U1,-,svId,-,BDS satellite identifier (see Satellite Numbering),
+3,U1,-,reserved1,-,Reserved,
+4,U1,-,SatH1,-,Autonomous satellite Health flag,
+5,U1,-,IODC,-,"Issue of Data, Clock",

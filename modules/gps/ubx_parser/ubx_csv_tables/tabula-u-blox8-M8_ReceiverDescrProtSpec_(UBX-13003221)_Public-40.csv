@@ -1,0 +1,6 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+26 + 36*N,U2,-,"maxDevLifeTime",ppb,"Maximum frequency deviation during lifetime(must be > 0)Only used if sourceType is 1."
+28 + 36*N,I4,-,offset,ns,"Phase offset of signalOnly used if sourceType is 2."
+32 + 36*N,U4,-,"offsetUncertainty",ns,"Uncertainty of phase offset (one standarddeviation)Only used if sourceType is 2."
+36 + 36*N,U4,-,jitter,ns/s,"Phase jitter (must be > 0)Only used if sourceType is 2."
+End of repeated block,,,,,

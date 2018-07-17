@@ -1,0 +1,23 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+25,X1,-,flags,-,Fix status flags (see graphic below)
+26,X1,-,flags2,-,Additional flags
+27,U1,-,numSV,-,"Number of satellites used in Nav SolutionOnly valid if extraPvt is set."
+28,I4,1e-7,lon,deg,Longitude
+32,I4,1e-7,lat,deg,Latitude
+36,I4,-,height,mm,Height above ellipsoid
+40,I4,-,hMSL,mm,"Height above mean sea levelOnly valid if extraPvt is set."
+44,U4,-,hAcc,mm,Horizontal accuracy estimate
+48,U4,-,vAcc,mm,"Vertical accuracy estimateOnly valid if extraPvt is set."
+52,I4,-,velN,mm/s,"NED north velocityOnly valid if extraPvt is set."
+56,I4,-,velE,mm/s,"NED east velocityOnly valid if extraPvt is set."
+60,I4,-,velD,mm/s,"NED down velocityOnly valid if extraPvt is set."
+64,I4,-,gSpeed,mm/s,Ground Speed (2-D)
+68,I4,1e-5,headMot,deg,Heading of motion (2-D)
+72,U4,-,sAcc,mm/s,"Speed accuracy estimateOnly valid if extraPvt is set."
+76,U4,1e-5,headAcc,deg,"Heading accuracy estimateOnly valid if extraPvt is set."
+80,U2,0.01,pDOP,-,"Position DOPOnly valid if extraPvt is set."
+82,U1[2],-,reserved1,-,Reserved
+84,U4,-,distance,m,"Ground distance since last resetOnly valid if extraOdo is set."
+88,U4,-,totalDistance,m,"Total cumulative ground distanceOnly valid if extraOdo is set."
+92,U4,-,distanceStd,m,"Ground distance accuracy (1-sigma)Only valid if extraOdo is set."
+96,U1[4],-,reserved2,-,Reserved

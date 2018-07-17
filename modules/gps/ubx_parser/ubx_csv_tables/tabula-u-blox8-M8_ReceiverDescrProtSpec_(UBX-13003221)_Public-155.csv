@@ -1,0 +1,15 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",48,I2,2^-29,cis,radians,"Amplitude of the sine harmonic correction termto the angle of inclination"
+"",50,U2,60,toe,s,Ephemeris reference time
+"",52,I4,2^-34,af0,s,SV clock bias correction coefficient
+"",56,I4,2^-46,af1,s/s,SV clock drift correction coefficient
+"",60,I1,2^-59,af2,"s/ssquared",SV clock drift rate correction coefficient
+"",61,U1,-,"sisaIndexE1E5b",-,"Signal-In-Space Accuracy index for dualfrequency E1-E5b"
+"",62,U2,60,toc,s,Clock correction data reference Time of Week
+"",64,I2,-,bgdE1E5b,-,E1-E5b Broadcast Group Delay
+"",66,U1[2],-,reserved2,-,Reserved
+"",68,U1,-,healthE1B,-,E1-B Signal Health Status
+"",69,U1,-,"dataValidityE1B",-,E1-B Data Validity Status
+"",70,U1,-,healthE5b,-,E5b Signal Health Status
+"",71,U1,-,"dataValidityE5b",-,E5b Data Validity Status
+"",72,U1[4],-,reserved3,-,Reserved

@@ -1,0 +1,27 @@
+"",Message,NAV-SBAS,,,,,
+"",Description,SBAS Status Data,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,This message outputs the status of the SBAS sub system,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x32,12 + 12*cnt,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+"",4,U1,-,geo,-,"PRN Number of the GEO where correction andintegrity data is used from",
+"",5,U1,-,mode,-,"SBAS Mode0 Disabled1 Enabled Integrity3 Enabled Testmode",
+"",6,I1,-,sys,-,"SBAS System (WAAS/EGNOS/...)-1 Unknown0 WAAS1 EGNOS2 MSAS3 GAGAN16 GPS",
+"",7,X1,-,service,-,SBAS Services available (see graphic below),
+"",8,U1,-,cnt,-,Number of SV data following,
+"",9,U1[3],-,reserved1,-,Reserved,
+"",Start of repeated block (cnt times),,,,,,
+"",12 + 12*N,U1,-,svid,-,SV ID,
+"",13 + 12*N,U1,-,flags,-,Flags for this SV,
+"",14 + 12*N,U1,-,udre,-,Monitoring status,
+"",15 + 12*N,U1,-,svSys,-,"System (WAAS/EGNOS/...)same as SYS",
+"",16 + 12*N,U1,-,svService,-,"Services availablesame as SERVICE",
+"",17 + 12*N,U1,-,reserved2,-,Reserved,
+"",18 + 12*N,I2,-,prc,cm,Pseudo Range correction in [cm],
+"",20 + 12*N,U1[2],-,reserved3,-,Reserved,
+"",22 + 12*N,I2,-,ic,cm,Ionosphere correction in [cm],
+"",End of repeated block,,,,,,

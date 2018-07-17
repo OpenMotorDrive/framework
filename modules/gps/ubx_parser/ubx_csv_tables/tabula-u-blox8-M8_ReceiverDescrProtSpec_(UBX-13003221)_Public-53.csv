@@ -1,0 +1,11 @@
+"","It is supported to configure the data logger in the absence of a logging file. By doing so,once the logging file is created, the data logger configuration will take effect immediatelyand logging recording and filtering will activate according to the configuration.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x47,12,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,The version of this message. Set to 1,
+1,X1,-,flags,-,Flags (see graphic below),
+2,U2,-,minInterval,s,"Minimum time interval between loggedpositions (0 = not set). This is only applied incombination with the speed and/orposition thresholds. If both minInterval andtimeThreshold are set, minInterval must be lessthan or equal to timeThreshold.",
+4,U2,-,timeThreshold,s,"If the time difference is greater than thethreshold then the position is logged (0 = notset).",
+6,U2,-,"speedThreshold",m/s,"If the current speed is greater than thethreshold then the position is logged (0 = notset). minInterval also applies",
+8,U4,-,"positionThreshold",m,"If the 3D position difference is greater than thethreshold then the position is logged (0 = notset). minInterval also applies",

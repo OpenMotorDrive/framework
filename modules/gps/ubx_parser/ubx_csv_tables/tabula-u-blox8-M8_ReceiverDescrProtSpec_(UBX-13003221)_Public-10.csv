@@ -1,0 +1,11 @@
+Message,ACK-ACK,,,,,
+Description,Message Acknowledged,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Output,,,,,
+Comment,Output upon processing of an input message,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x05,0x01,2,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,clsID,-,Class ID of the Acknowledged Message,
+1,U1,-,msgID,-,Message ID of the Acknowledged Message,

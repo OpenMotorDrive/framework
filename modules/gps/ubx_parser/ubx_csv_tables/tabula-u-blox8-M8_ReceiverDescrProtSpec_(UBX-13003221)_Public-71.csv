@@ -1,0 +1,16 @@
+Message,CFG-PM2,,,,,
+Description,Extended Power Management configuration,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01This message is marked as deprecated in protocol version 18 and is likely to be removedin any future products. u-blox strongly advises to use Version 2 instead.",,,,,
+Type,Get/Set,,,,,
+Comment,"This feature is not supported for either the ADR or FTS products.-",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x3B,44,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0x01 for this version),
+1,U1,-,reserved1,-,Reserved,
+2,U1,-,"maxStartupStateDur",s,"Maximum time to spend in Acquisition state. If0: bound disabled (see maxStartupStateDur).(not supported in protocol versions less than 17)",
+3,U1,-,reserved2,-,Reserved,
+4,X4,-,flags,-,PSM configuration flags (see graphic below),
+8,U4,-,updatePeriod,ms,"Position update period. If set to 0, the receiverwill never retry a fix and it will wait for externalevents",
+12,U4,-,searchPeriod,ms,"Acquisition retry period if previously failed. If setto 0, the receiver will never retry a startup",

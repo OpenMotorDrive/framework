@@ -1,0 +1,11 @@
+"",Payload Contents:,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",0,U1,-,version,-,Message version (0x02 for this version)
+"",1,U1,-,length,-,"Number of registered messages (min. 1, max.10)"
+"",2,U1[2],-,reserved1,-,Reserved
+"",4,U4,-,seedHi,-,high word of fixed seed
+"",8,U4,-,seedLo,-,low word of fixed seed
+"",Start of repeated block (length times),,,,,
+"",12 + 2*N,U1,-,classId,-,Class ID on the message
+"",13 + 2*N,U1,-,msgId,-,Message ID on the message
+"",End of repeated block,,,,,

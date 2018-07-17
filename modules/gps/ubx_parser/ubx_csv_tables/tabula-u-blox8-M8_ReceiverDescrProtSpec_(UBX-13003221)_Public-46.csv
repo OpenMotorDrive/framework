@@ -1,0 +1,14 @@
+Message Structure,0xB5 0x62,0x06,0x3E,4 + 8*numConfigBlocks,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,msgVer,-,Message version (=0 for this version),
+1,U1,-,numTrkChHw,-,"Number of tracking channels available inhardware (read only)",
+2,U1,-,numTrkChUse,-,"(Read only in protocol versions greater than 23)Number of tracking channels to use. Must be >0, <= numTrkChHw. If 0xFF, then number oftracking channels to use will be set tonumTrkChHw.",
+3,U1,-,"numConfigBlocks",-,Number of configuration blocks following,
+Start of repeated block (numConfigBlocks times),,,,,,
+4 + 8*N,U1,-,gnssId,-,System identifier (see Satellite Numbering),
+5 + 8*N,U1,-,resTrkCh,-,"(Read only in protocol versions greater than 23)Number of reserved (minimum) trackingchannels for this system.",
+6 + 8*N,U1,-,maxTrkCh,-,"(Read only in protocol versions greater than 23)Maximum number of tracking channels used forthis system. Must be > 0, >= resTrkChn, <=numTrkChUse and <= maximum number oftracking channels supported for this system.",
+7 + 8*N,U1,-,reserved1,-,Reserved,
+8 + 8*N,X4,-,flags,-,"bitfield of flags. At least one signal must beconfigured in every enabled system. (see graphicbelow)",
+End of repeated block,,,,,,

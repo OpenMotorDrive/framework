@@ -1,0 +1,11 @@
+"",Message,CFG-DGNSS,,,,,
+"",Description,DGNSS configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 20.01 up to version 23.01 (only with HighPrecision GNSS products)",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,This message allows the user to configure the DGNSS configuration of the receiver.,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x70,4,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,dgnssMode,-,"Specifies differential mode:2:  RTK float: No attempts are made to fixambiguities.3:  RTK fixed: Ambiguities are fixed wheneverpossible.",
+"",1,U1[3],-,reserved1,-,Reserved,

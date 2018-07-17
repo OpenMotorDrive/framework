@@ -1,0 +1,11 @@
+"",Message,CFG-INF,,,,,
+"",Description,Information message configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"The value of infMsgMask[x] below are that each bit represents one of the INF classmessages (Bit 0 for ERROR, Bit 1 for WARNING and so on.). For a complete list, see theMessage Class INF. Several configurations can be concatenated to one input message.In this case the payload length can be a multiple of the normal length. Output messagesfrom the module contain only one configuration unit. Note that I/O Ports 1 and 2correspond to serial ports 1 and 2. I/O port 0 is DDC. I/O port 3 is USB. I/O port 4 is SPI. I/Oport 5 is reserved for future use.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x02,0 + 10*N,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",Start of repeated block (N times),,,,,,
+"",N*10,U1,-,protocolID,-,"Protocol Identifier, identifying for whichprotocol the configuration is set/get. Thefollowing are valid Protocol Identifiers:0: UBX Protocol1: NMEA Protocol2-255: Reserved",

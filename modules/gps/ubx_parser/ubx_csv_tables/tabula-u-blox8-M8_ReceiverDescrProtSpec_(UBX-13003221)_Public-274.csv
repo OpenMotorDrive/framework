@@ -1,0 +1,19 @@
+"",Message,TIM-TOS,,,,,
+"",Description,Time Pulse Time and Frequency Data,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+"",Type,Periodic,,,,,
+"",Comment,"This message contains information about the time pulse that has just happened and thestate of the disciplined oscillators(s) at the time of the pulse. It gives the UTC and GNSStimes and time uncertainty of the pulse together with frequency and frequency uncertaintyof the disciplined oscillators. It also supplies leap second information.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0D,0x12,56,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,U1,-,gnssId,-,"GNSS system used for reporting GNSS time (seeSatellite Numbering)",
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,X4,-,flags,-,Flags (see graphic below),
+"",8,U2,-,year,y,Year of UTC time,
+"",10,U1,-,month,month,Month of UTC time,
+"",11,U1,-,day,d,Day of UTC time,
+"",12,U1,-,hour,h,Hour of UTC time,
+"",13,U1,-,minute,min,Minute of UTC time,
+"",14,U1,-,second,s,Second of UTC time,

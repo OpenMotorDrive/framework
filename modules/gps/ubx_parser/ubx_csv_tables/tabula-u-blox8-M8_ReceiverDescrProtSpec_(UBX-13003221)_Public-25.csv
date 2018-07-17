@@ -1,0 +1,15 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+26,I2,-,utcLS,-,"UTC - time difference due to leap secondsbefore event"
+28,I2,-,utcWNF,-,"UTC - week number when next leap secondevent occurs"
+30,I2,-,utcDN,-,"UTC - day of week when next leap second eventoccurs"
+32,I2,-,utcLSF,-,"UTC - time difference due to leap seconds afterevent"
+34,I2,-,utcSpare,-,"UTC - Spare to ensure structure is a multiple of4 bytes"
+36,R4,-,klobA0,s,Klobuchar - alpha 0
+40,R4,-,klobA1,"s/semicircle",Klobuchar - alpha 1
+44,R4,-,klobA2,"s/semicircle^2",Klobuchar - alpha 2
+48,R4,-,klobA3,"s/semicircle^3",Klobuchar - alpha 3
+52,R4,-,klobB0,s,Klobuchar - beta 0
+56,R4,-,klobB1,"s/semicircle",Klobuchar - beta 1
+60,R4,-,klobB2,"s/semicircle^2",Klobuchar - beta 2
+64,R4,-,klobB3,"s/semicircle^3",Klobuchar - beta 3
+68,X4,-,flags,-,flags (see graphic below)

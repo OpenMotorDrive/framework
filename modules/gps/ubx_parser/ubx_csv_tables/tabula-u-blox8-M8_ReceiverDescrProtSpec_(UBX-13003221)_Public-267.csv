@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+1,U1,-,oscId,-,"Id of oscillator:0:  internal oscillator1:  external oscillator"
+2,U1,-,flags,-,Flags (see graphic below)
+3,U1,-,reserved1,-,Reserved
+4,I4,2^-8,value,ppb/-,"Required frequency offset or raw output,depending on the flags"

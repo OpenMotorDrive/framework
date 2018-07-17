@@ -1,0 +1,12 @@
+"",Message,AID-AOP,,,,,
+"",Description,AssistNow Autonomous data,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input/Output,,,,,
+"",Comment,"All UBX-AID messages are deprecated; use UBX-MGA messages insteadIf enabled, this message is output at irregular intervals. It is output whenever AssistNowAutonomous has produced new data for a satellite. Depending on the availability of theoptional data the receiver will output either version of the message. If this message ispolled using one of the two poll requests described above the receiver will send thismessage if AssistNow Autonomous data is available or the corresponding poll requestmessage if no AssistNow Autonomous data is available for each satellite (i.e. svid 1..32). Atthe user's choice the optional data may be chopped from the payload of a previously polledmessage when sending the message back to the receiver. Sending a valid AID-AOPmessage to the receiver will automatically enable the AssistNow Autonomous feature onthe receiver. See the section AssistNow Autonomous in the receiver description for detailson this feature.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0B,0x33,68,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,gnssId,-,GNSS identifier (see Satellite Numbering),
+"",1,U1,-,svId,-,Satellite identifier (see Satellite Numbering),
+"",2,U1[2],-,reserved1,-,Reserved,

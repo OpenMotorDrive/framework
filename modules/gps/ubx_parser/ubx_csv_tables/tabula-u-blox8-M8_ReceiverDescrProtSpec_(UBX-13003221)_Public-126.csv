@@ -1,0 +1,15 @@
+"",Message,LOG-FINDTIME,,,,,
+"",Description,Find index of a log entry based on a given time,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message can be used for a time-based search of a log. It can find the index of the firstlog entry with time equal to the given time, otherwise the index of the most recent entrywith time less than the given time. This index can then be used with theUBX-LOG-RETRIEVE message to provide time-based retrieval of log entries.Searching a log is effective for a given time later than the base date (January 1st, 2004).Searching a log for a given time earlier than the base date will result in an 'entry not found'response. (Searching a log for a given time earlier than the base date will result in aUBX-ACK-NAK message in protocol versions less than 18)Searching a log for a given time greater than the last recorded entry's time will return theindex of the last recorded entry. (If the logging has stopped due to lack of file space, such asearch will result in a UBX-ACK-NAK message in protocol versions less than 18)",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x21,0x0E,12,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (=0 for this version),
+"",1,U1,-,type,-,"Message type, 0 for request",
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,U2,-,year,-,Year (1-65635) of UTC time,
+"",6,U1,-,month,-,Month (1-12) of UTC time,
+"",7,U1,-,day,-,Day (1-31) of UTC time,

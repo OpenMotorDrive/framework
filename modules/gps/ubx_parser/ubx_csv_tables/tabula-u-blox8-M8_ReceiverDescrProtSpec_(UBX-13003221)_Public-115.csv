@@ -1,0 +1,26 @@
+Message,HNR-PVT,,,,,
+Description,High Rate Output of PVT Solution,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 19 up to version 23.01 (only with ADR orUDR products)",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"Note that during a leap second there may be more (or less) than 60 seconds in aminute; see the description of leap seconds for details.This message provides the position, velocity and time solution with high output rate.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x28,0x00,72,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,U2,-,year,y,Year (UTC),
+6,U1,-,month,month,"Month, range 1..12 (UTC)",
+7,U1,-,day,d,"Day of month, range 1..31 (UTC)",
+8,U1,-,hour,h,"Hour of day, range 0..23 (UTC)",
+9,U1,-,min,min,"Minute of hour, range 0..59 (UTC)",
+10,U1,-,sec,s,"Seconds of minute, range 0..60 (UTC)",
+11,X1,-,valid,-,Validity Flags (see graphic below),
+12,I4,-,nano,ns,"Fraction of second, range -1e9 .. 1e9 (UTC)",
+16,U1,-,gpsFix,-,"GPSfix Type, range 0..50x00 = No Fix0x01 = Dead Reckoning only0x02 = 2D-Fix0x03 = 3D-Fix0x04 = GPS + dead reckoning combined0x05 = Time only fix0x06..0xff: reserved",
+17,X1,-,flags,-,Fix Status Flags (see graphic below),
+18,U1[2],-,reserved1,-,Reserved,
+20,I4,1e-7,lon,deg,Longitude,
+24,I4,1e-7,lat,deg,Latitude,
+28,I4,-,height,mm,Height above Ellipsoid,
+32,I4,-,hMSL,mm,Height above mean sea level,
+36,I4,-,gSpeed,mm/s,Ground Speed (2-D),

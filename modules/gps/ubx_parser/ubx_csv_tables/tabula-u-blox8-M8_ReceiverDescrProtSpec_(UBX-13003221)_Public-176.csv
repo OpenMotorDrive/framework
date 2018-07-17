@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+12,U4,-,ns,ns,"GNSS time of week, nanosecond part from 0 to999,999,999"
+16,U2,-,tAccS,s,Seconds part of time accuracy
+18,U1[2],-,reserved2,-,Reserved
+20,U4,-,tAccNs,ns,"Nanoseconds part of time accuracy, from 0 to999,999,999"
