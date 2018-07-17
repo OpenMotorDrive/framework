@@ -1,0 +1,3 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+32 + 24*N,U4,2^-8,freqUnc,ppb,Frequency uncertainty (one standard deviation)
+End of repeated block,,,,,

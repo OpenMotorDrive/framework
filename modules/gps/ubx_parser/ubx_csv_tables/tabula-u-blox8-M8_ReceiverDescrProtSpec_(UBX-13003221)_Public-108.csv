@@ -1,0 +1,6 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+8,U2,-,"powerConsumption",mA,Power consumed by the device
+10,X2,-,flags,-,various configuration flags (see graphic below)
+12,CH[32],-,vendorString,-,"String containing the vendor name. 32 ASCIIbytes including 0-termination."
+44,CH[32],-,productString,-,"String containing the product name. 32 ASCIIbytes including 0-termination."
+76,CH[32],-,serialNumber,-,"String containing the serial number. 32 ASCIIbytes including 0-termination.Changing the String fields requires special Hostdrivers."

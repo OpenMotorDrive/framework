@@ -1,0 +1,5 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",15,U1,-,utcWNlsf,weeks,"Week number at the end of which the futureleap second becomes effective (the 8 bit WNLSFfield)"
+"",16,U1,-,utcDn,days,"Day number at the end of which the future leapsecond becomes effective"
+"",17,I1,-,utcDtLSF,s,Delta time due to future leap seconds
+"",18,U1[2],-,reserved2,-,Reserved

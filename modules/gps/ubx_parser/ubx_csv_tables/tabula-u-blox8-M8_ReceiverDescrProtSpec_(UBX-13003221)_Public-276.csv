@@ -1,0 +1,14 @@
+"",Message,TIM-TP,,,,,
+"",Description,Time Pulse Timedata,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 22",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"This message contains information on the timing of the next pulse at the TIMEPULSE0output. The recommended configuration when using this message is to set both themeasurement rate (CFG-RATE) and the timepulse frequency (CFG-TP5) to 1Hz. For moreinformation see section Time pulse.TIMEPULSE0 and this message are not available from DR products using the dedicated I2Csensor interface, including NEO-M8L and NEO-M8U modules",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0D,0x01,16,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,towMS,ms,Time pulse time of week according to time base,
+"",4,U4,2^-32,towSubMS,ms,Submillisecond part of TOWMS,
+"",8,I4,-,qErr,ps,"Quantization error of time pulse (not supportedfor the FTS product variant).",
+"",12,U2,-,week,weeks,"Time pulse week number according to timebase",
+"",14,X1,-,flags,-,bitmask (see graphic below),

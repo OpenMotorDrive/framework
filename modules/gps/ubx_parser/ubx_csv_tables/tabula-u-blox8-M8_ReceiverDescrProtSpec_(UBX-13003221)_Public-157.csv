@@ -1,0 +1,12 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",10,U2,2^-16,e,-,Eccentricity
+"",12,I2,2^-14,deltaI,"semi-circles","Inclination at reference time relative to i0 = 56degree"
+"",14,I2,2^-15,omega0,"semi-circles","Longitude of ascending node of orbital plane atweekly epoch"
+"",16,I2,2^-33,omegaDot,"semi-circles/s",Rate of change of right ascension
+"",18,I2,2^-15,omega,"semi-circles",Argument of perigee
+"",20,I2,2^-15,m0,"semi-circles",Satellite mean anomaly at reference time
+"",22,I2,2^-19,af0,s,Satellite clock correction bias 'truncated'
+"",24,I2,2^-38,af1,s/s,Satellite clock correction linear 'truncated'
+"",26,U1,-,healthE1B,-,Satellite E1-B signal health status
+"",27,U1,-,healthE5b,-,Satellite E5b signal health status
+"",28,U1[4],-,reserved2,-,Reserved

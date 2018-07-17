@@ -1,0 +1,5 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",21,I1,0.1,ecefYHp,mm,"High precision component of ECEF Ycoordinate. Must be in the range of -99..+99.Precise coordinate in cm = ecefY + (ecefYHp *1e-2)."
+"",22,I1,0.1,ecefZHp,mm,"High precision component of ECEF Z coordinate.Must be in the range of -99..+99. Precisecoordinate in cm = ecefZ + (ecefZHp * 1e-2)."
+"",23,U1,-,reserved2,-,Reserved
+"",24,U4,0.1,pAcc,mm,Position Accuracy Estimate

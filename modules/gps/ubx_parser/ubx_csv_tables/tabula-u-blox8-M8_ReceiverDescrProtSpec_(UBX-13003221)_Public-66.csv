@@ -1,0 +1,8 @@
+Message,CFG-NMEA,,,,,
+Description,NMEA protocol configuration V0 (deprecated),,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Get/Set,,,,,
+Comment,"This message version is provided for backwards compatibility only. Use the lastversion listed below instead (its fields are backwards compatible with this version,it just has extra fields defined).Set/Get the NMEA protocol configuration. See section NMEA Protocol Configuration for adetailed description of the configuration effects on NMEA output.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+0xB5 0x62,0x06,0x17,12,see below,CK_A CK_B,
+Payload Contents:,,,,,,

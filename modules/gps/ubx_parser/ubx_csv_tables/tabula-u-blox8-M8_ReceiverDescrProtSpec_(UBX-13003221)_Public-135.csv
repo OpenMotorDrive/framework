@@ -1,0 +1,23 @@
+Message,LOG-RETRIEVESTRING,,,,,
+Description,Byte string log entry,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Output,,,,,
+Comment,This message is used to report a byte string log entry,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x21,0x0d,16 + 1*byteCount,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,entryIndex,-,The index of this log entry,
+4,U1,-,version,-,The version of this message. Set to 0,
+5,U1,-,reserved1,-,Reserved,
+6,U2,-,year,-,"Year (1-65635) of UTC time. Will be zero if timenot known",
+8,U1,-,month,-,Month (1-12) of UTC time,
+9,U1,-,day,-,Day (1-31) of UTC time,
+10,U1,-,hour,-,Hour (0-23) of UTC time,
+11,U1,-,minute,-,Minute (0-59) of UTC time,
+12,U1,-,second,-,Second (0-60) of UTC time,
+13,U1,-,reserved2,-,Reserved,
+14,U2,-,byteCount,-,Size of string in bytes,
+Start of repeated block (byteCount times),,,,,,
+16 + 1*N,U1,-,bytes,-,The bytes of the string,
+End of repeated block,,,,,,

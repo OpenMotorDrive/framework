@@ -1,0 +1,2 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+4,X4,-,scanmode1,-,"Which SBAS PRN numbers to search for(Bitmask)If all Bits are set to zero, auto-scan (i.e. all validPRNs) are searched.Every bit corresponds to a PRN number (seegraphic below)"

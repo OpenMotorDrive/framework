@@ -1,0 +1,25 @@
+"",Message,UBX-MGA-BDS-ALM,,,,,
+"",Description,BDS Almanac Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of BeiDou almanac assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x03,40,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x02 for this version),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1,-,svId,-,"BeiDou satellite identifier (see SatelliteNumbering)",
+"",3,U1,-,reserved1,-,Reserved,
+"",4,U1,-,Wna,week,Almanac Week Number,
+"",5,U1,2^12,toa,s,Almanac reference time,
+"",6,I2,2^-19,deltaI,"semi-circles","Almanac correction of orbit reference inclinationat reference time",
+"",8,U4,2^-11,sqrtA,m^0.5,Almanac square root of semi-major axis,
+"",12,U4,2^-21,e,-,Almanac eccentricity,
+"",16,I4,2^-23,omega,"semi-circles",Almanac argument of perigee,
+"",20,I4,2^-23,M0,"semi-circles",Almanac mean anomaly at reference time,
+"",24,I4,2^-23,Omega0,"semi-circles","Almanac longitude of ascending node of orbitplane at computed according to reference time",
+"",28,I4,2^-38,omegaDot,"semi-circles/s",Almanac rate of right ascension,
+"",32,I2,2^-20,a0,s,Almanac satellite clock bias,
+"",34,I2,2^-38,a1,s/s,Almanac satellite clock rate,
+"",36,U1[4],-,reserved2,-,Reserved,

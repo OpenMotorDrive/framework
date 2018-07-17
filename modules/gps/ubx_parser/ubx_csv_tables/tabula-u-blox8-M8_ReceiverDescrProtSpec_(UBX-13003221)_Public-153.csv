@@ -1,0 +1,14 @@
+"",Message,UBX-MGA-FLASH-ACK,,,,,
+"",Description,Acknowledge last FLASH-DATA or -STOP,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Output,,,,,
+"",Comment,"This message reports an ACK/NACK to the host for the last MGA-FLASH type 1 or type 2message message received. See Flash-based AssistNow Offline for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x21,6,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x03 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1,-,ack,-,"Acknowledgment type. 0 - ACK: Messagereceived and written to flash. 1 - NACK:Problem with last message, re-transmissionrequired (this only happens whileacknowledging a UBX-MGA_FLASH_DATAmessage). 2 - NACK: problem with lastmessage, give up.",
+"",3,U1,-,reserved1,-,Reserved,
+"",4,U2,-,sequence,-,"If acknowledging a UBX-MGA-FLASH-DATAmessage this is the Message sequence numberbeing ack'ed. If acknowledging aUBX-MGA-FLASH-STOP message it will be set to0xffff.",

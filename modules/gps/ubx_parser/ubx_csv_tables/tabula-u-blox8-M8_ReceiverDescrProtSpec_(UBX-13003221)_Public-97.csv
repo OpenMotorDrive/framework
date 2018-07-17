@@ -1,0 +1,17 @@
+"",Message,CFG-TMODE3,,,,,
+"",Description,Time Mode Settings 3,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 with protocol version 20 (only with High Precision GNSSproducts)",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"Configures the receiver to be in Time Mode. The position referred to in this message is thatof the Antenna Reference Point (ARP). See the Time Mode Description for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x71,40,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0x00 for this version),
+"",1,U1,-,reserved1,-,Reserved,
+"",2,X2,-,flags,-,Receiver mode flags (see graphic below),
+"",4,I4,-,ecefXOrLat,"cm_or_deg*1e-7","WGS84 ECEF X coordinate (or latitude) of theARP position, depending on flags above",
+"",8,I4,-,ecefYOrLon,"cm_or_deg*1e-7","WGS84 ECEF Y coordinate (or longitude) of theARP position, depending on flags above",
+"",12,I4,-,ecefZOrAlt,cm,"WGS84 ECEF Z coordinate (or altitude) of theARP position, depending on flags above",
+"",16,I1,-,ecefXOrLatHP,"0.1_mm_or_deg*1e-9","High-precision WGS84 ECEF X coordinate (orlatitude) of the ARP position, depending onflags above. Must be in the range -99..+99.The precise WGS84 ECEF X coordinate in unitsof cm, or the precise WGS84 ECEF latitude inunits of 1e-7 degrees, is given byecefXOrLat + (ecefXOrLatHP * 1e-2)",
+"",17,I1,-,ecefYOrLonHP,"0.1_mm_or_deg*1e-9","High-precision WGS84 ECEF Y coordinate (orlongitude) of the ARP position, depending onflags above. Must be in the range -99..+99.The precise WGS84 ECEF Y coordinate in unitsof cm, or the precise WGS84 ECEF longitude inunits of 1e-7 degrees, is given byecefYOrLon + (ecefYOrLonHP * 1e-2)",

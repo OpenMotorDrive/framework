@@ -1,0 +1,2 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+4,U2,-,timeRef,-,"The time system to which measurements arealigned:0:  UTC time1:  GPS time2:  GLONASS time (not supported in protocolversions less than 18)3:  BeiDou time (not supported in protocolversions less than 18)4:  Galileo time (not supported in protocolversions less than 18)"

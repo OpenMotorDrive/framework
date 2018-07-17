@@ -1,0 +1,11 @@
+"",Message,UPD-SOS,,,,,
+"",Description,Create Backup File in Flash,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Command,,,,,
+"",Comment,"The host can send this message in order to save part of the BBR memory in a file in flashfile system. The feature is designed in order to emulate the presence of the backup batteryeven if it is not present; the host can issue the save on shutdown command beforeswitching off the device supply. It is recommended to issue a GNSS stop command before,in order to keep the BBR memory content consistent.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x09,0x14,4,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,cmd,-,Command (must be 0),
+"",1,U1[3],-,reserved1,-,Reserved,

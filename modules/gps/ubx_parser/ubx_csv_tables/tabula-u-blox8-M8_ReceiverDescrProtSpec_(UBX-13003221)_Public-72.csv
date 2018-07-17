@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+16,U4,-,gridOffset,ms,Grid offset relative to GPS start of week
+20,U2,-,onTime,s,Time to stay in Tracking state
+22,U2,-,minAcqTime,s,minimal search time
+24,U1[20],-,reserved3,-,Reserved

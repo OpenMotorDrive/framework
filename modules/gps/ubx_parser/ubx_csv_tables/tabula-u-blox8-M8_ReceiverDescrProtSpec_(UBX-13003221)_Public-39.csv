@@ -1,0 +1,21 @@
+"",Message,CFG-ESRC,,,,,
+"",Description,External synchronization source configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"External time or frequency source configuration. The stability of time and frequency sourcesis described using different fields, see sourceType field documentation.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x60,4 + 36*numSources,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,U1,-,numSources,-,"Number of sources (affects length of thismessage)",
+"",2,U1[2],-,reserved1,-,Reserved,
+"",Start of repeated block (numSources times),,,,,,
+"",4 + 36*N,U1,-,extInt,-,"EXTINT index of this source (0 for EXTINT0 and1 for EXTINT1)",
+"",5 + 36*N,U1,-,sourceType,-,"Source type:0:  none1:  frequency source; use withTemp, withAge,timeToTemp and maxDevLifeTime to describethe stability of the source2:  time source; use offset, offsetUncertaintyand jitter fields to describe the stability of thesource3:  feedback from external oscillator; stabilitydata is taken from the external oscillator'sconfiguration",
+"",6 + 36*N,X2,-,flags,-,Flags (see graphic below),
+"",8 + 36*N,U4,2^-2,freq,Hz,Nominal frequency of source,
+"",12 + 36*N,U1[4],-,reserved2,-,Reserved,
+"",16 + 36*N,U4,2^-8,withTemp,ppb,"Oscillator stability limit over operatingtemperature range (must be > 0)Only used if sourceType is 1.",
+"",20 + 36*N,U4,2^-8,withAge,"ppb/year","Oscillator stability with age (must be > 0)Only used if sourceType is 1.",
+"",24 + 36*N,U2,-,timeToTemp,s,"The minimum time that it could take for atemperature variation to move the oscillatorfrequency by 'withTemp' (must be > 0)Only used if sourceType is 1.",

@@ -1,0 +1,21 @@
+"",Message,NAV-SVIN,,,,,
+"",Description,Survey-in data,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 with protocol version 20 (only with High Precision GNSSproducts)",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,This message contains information about survey-in parameters.,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x3B,40,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0x00 for this version),
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+"",8,U4,-,dur,s,Passed survey-in observation time,
+"",12,I4,-,meanX,cm,"Current survey-in mean position ECEF Xcoordinate",
+"",16,I4,-,meanY,cm,"Current survey-in mean position ECEF Ycoordinate",
+"",20,I4,-,meanZ,cm,"Current survey-in mean position ECEF Zcoordinate",
+"",24,I1,-,meanXHP,"0.1_mm","Current high-precision survey-in mean positionECEF X coordinate. Must be in the range -99..+99.The current survey-in mean position ECEF Xcoordinate, in units of cm, is given bymeanX + (0.01 * meanXHP)",
+"",25,I1,-,meanYHP,"0.1_mm","Current high-precision survey-in mean positionECEF Y coordinate. Must be in the range -99..+99.The current survey-in mean position ECEF Ycoordinate, in units of cm, is given bymeanY + (0.01 * meanYHP)",
+"",26,I1,-,meanZHP,"0.1_mm","Current high-precision survey-in mean positionECEF Z coordinate. Must be in the range -99..+99.The current survey-in mean position ECEF Zcoordinate, in units of cm, is given bymeanZ + (0.01 * meanZHP)",
+"",27,U1,-,reserved2,-,Reserved,
+"",28,U4,-,meanAcc,"0.1_mm",Current survey-in mean position accuracy,

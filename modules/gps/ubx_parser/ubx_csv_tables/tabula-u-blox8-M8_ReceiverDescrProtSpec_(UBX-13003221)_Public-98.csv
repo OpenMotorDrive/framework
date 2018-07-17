@@ -1,0 +1,7 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+18,I1,-,ecefZOrAltHP,"0.1_mm","High-precision WGS84 ECEF Z coordinate (oraltitude) of the ARP position, depending onflags above. Must be in the range -99..+99.The precise WGS84 ECEF Z coordinate, oraltitude coordinate, in units of cm is given byecefZOrAlt + (ecefZOrAltHP * 1e-2)"
+19,U1,-,reserved2,-,Reserved
+20,U4,-,fixedPosAcc,"0.1_mm",Fixed position 3D accuracy
+24,U4,-,svinMinDur,s,Survey-in minimum duration
+28,U4,-,svinAccLimit,"0.1_mm",Survey-in position accuracy limit
+32,U1[8],-,reserved3,-,Reserved

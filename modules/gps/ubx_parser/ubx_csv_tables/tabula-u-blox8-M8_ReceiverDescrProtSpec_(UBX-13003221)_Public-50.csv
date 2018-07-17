@@ -1,0 +1,4 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+1 + 10*N,U1[3],-,reserved1,-,Reserved
+4 + 10*N,X1[6],-,infMsgMask,-,"A bit mask, saying which information messagesare enabled on each I/O port (see graphic below)"
+End of repeated block,,,,,

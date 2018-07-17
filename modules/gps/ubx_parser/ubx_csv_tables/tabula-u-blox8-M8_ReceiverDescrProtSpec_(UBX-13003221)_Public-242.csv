@@ -1,0 +1,4 @@
+Message,RXM-MEASX
+Description,Satellite Measurements for RRLP
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01"
+Type,Periodic

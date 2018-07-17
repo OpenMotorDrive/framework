@@ -1,0 +1,12 @@
+Message,MON-RXBUF,,,,,
+Description,Receiver Buffer Status,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,-,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x0A,0x07,24,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U2[6],-,pending,bytes,"Number of bytes pending in receiver buffer foreach target",
+12,U1[6],-,usage,%,"Maximum usage receiver buffer during the lastsysmon period for each target",
+18,U1[6],-,peakUsage,%,Maximum usage receiver buffer for each target,

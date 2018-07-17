@@ -1,0 +1,3 @@
+Name,Description
+validCurrLs,1 = Valid current number of leap seconds value.
+"validTimeToLsEvent",1 = Valid time to next leap second event or from the last leap second event if no future event scheduled.

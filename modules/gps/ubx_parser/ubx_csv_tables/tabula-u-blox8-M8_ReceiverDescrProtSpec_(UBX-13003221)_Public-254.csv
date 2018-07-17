@@ -1,0 +1,13 @@
+"",Message,RXM-RLM,,,,,
+"",Description,Galileo SAR Long-RLM report,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Output,,,,,
+"",Comment,"This message contains the contents of any Galileo Search and Rescue (SAR) Long ReturnLink Message detected by the receiver.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x02,0x59,28,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0x00 for this version),
+"",1,U1,-,type,-,Message type (0x02 for Long-RLM),
+"",2,U1,-,svId,-,"Identifier of transmitting satellite (see SatelliteNumbering)",
+"",3,U1,-,reserved1,-,Reserved,

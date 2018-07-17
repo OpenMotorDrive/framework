@@ -1,0 +1,13 @@
+Name,Class,Description
+NAV,0x01,"Navigation Results Messages: Position, Speed, Time, Acceleration, Heading, DOP, SVs used"
+RXM,0x02,"Receiver Manager Messages: Satellite Status, RTC Status"
+INF,0x04,"Information Messages: Printf-Style Messages, with IDs such as Error, Warning, Notice"
+ACK,0x05,Ack/Nak Messages: Acknowledge or Reject messages to CFG input messages
+CFG,0x06,"Configuration Input Messages: Set Dynamic Model, Set DOP Mask, Set Baud Rate, etc."
+UPD,0x09,"Firmware Update Messages: Memory/Flash erase/write, Reboot, Flash identification, etc."
+MON,0x0A,"Monitoring Messages: Communication Status, CPU Load, Stack Usage, Task Status"
+AID,0x0B,"AssistNow Aiding Messages: Ephemeris, Almanac, other A-GPS data input"
+TIM,0x0D,"Timing Messages: Time Pulse Output, Time Mark Results"
+ESF,0x10,External Sensor Fusion Messages: External Sensor Measurements and Status Information
+MGA,0x13,Multiple GNSS Assistance Messages: Assistance data for various GNSS
+LOG,0x21,"Logging Messages: Log creation, deletion, info and retrieval"

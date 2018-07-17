@@ -1,0 +1,26 @@
+"",Message,MON-HW,,,,,
+"",Description,Hardware Status,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"Status of different aspect of the hardware, such as Antenna, PIO/Peripheral Pins, NoiseLevel, Automatic Gain Control (AGC)",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0A,0x09,60,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,X4,-,pinSel,-,Mask of Pins Set as Peripheral/PIO,
+"",4,X4,-,pinBank,-,Mask of Pins Set as Bank A/B,
+"",8,X4,-,pinDir,-,Mask of Pins Set as Input/Output,
+"",12,X4,-,pinVal,-,Mask of Pins Value Low/High,
+"",16,U2,-,noisePerMS,-,Noise Level as measured by the GPS Core,
+"",18,U2,-,agcCnt,-,"AGC Monitor (counts SIGHI xor SIGLO, range 0to 8191)",
+"",20,U1,-,aStatus,-,"Status of the Antenna Supervisor State Machine(0=INIT, 1=DONTKNOW, 2=OK, 3=SHORT,4=OPEN)",
+"",21,U1,-,aPower,-,"Current PowerStatus of Antenna (0=OFF, 1=ON,2=DONTKNOW)",
+"",22,X1,-,flags,-,Flags (see graphic below),
+"",23,U1,-,reserved1,-,Reserved,
+"",24,X4,-,usedMask,-,"Mask of Pins that are used by the Virtual PinManager",
+"",28,U1[17],-,VP,-,"Array of Pin Mappings for each of the 17Physical Pins",
+"",45,U1,-,jamInd,-,"CW Jamming indicator, scaled (0 = no CWjamming, 255 = strong CW jamming)",
+"",46,U1[2],-,reserved2,-,Reserved,
+"",48,X4,-,pinIrq,-,Mask of Pins Value using the PIO Irq,
+"",52,X4,-,pullH,-,"Mask of Pins Value using the PIO Pull HighResistor",
+"",56,X4,-,pullL,-,"Mask of Pins Value using the PIO Pull LowResistor",

@@ -1,0 +1,8 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+Start of repeated block (numCh times),,,,,
+16 + 12*N,U1,-,svid,-,Satellite ID
+17 + 12*N,X1,-,flags,-,Channel number and usage (see graphic below)
+18 + 12*N,U2,-,ageC,ms,Age of latest correction data
+20 + 12*N,R4,-,prc,m,Pseudorange correction
+24 + 12*N,R4,-,prrc,m/s,Pseudorange rate correction
+End of repeated block,,,,,

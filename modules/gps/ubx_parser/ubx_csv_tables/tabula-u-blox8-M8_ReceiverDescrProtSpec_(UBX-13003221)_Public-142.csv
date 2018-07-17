@@ -1,0 +1,25 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",6,I2,2^-66,a2,s/s^2,Time polynomial coefficient 2
+"",8,I4,2^-50,a1,s/s,Time polynomial coefficient 1
+"",12,I4,2^-33,a0,s,Time polynomial coefficient 0
+"",16,U4,2^3,toc,s,Clock data reference time
+"",20,I2,0.1,TGD1,ns,Equipment Group Delay Differential
+"",22,U1,-,URAI,-,User Range Accuracy Index
+"",23,U1,-,IODE,-,"Issue of Data, Ephemeris"
+"",24,U4,2^3,toe,s,Ephemeris reference time
+"",28,U4,2^-19,sqrtA,m^0.5,Square root of semi-major axis
+"",32,U4,2^-33,e,-,Eccentricity
+"",36,I4,2^-31,omega,"semi-circles",Argument of perigee
+"",40,I2,2^-43,Deltan,"semi-circles/s",Mean motion difference from computed value
+"",42,I2,2^-43,IDOT,"semi-circles/s",Rate of inclination angle
+"",44,I4,2^-31,M0,"semi-circles",Mean anomaly at reference time
+"",48,I4,2^-31,Omega0,"semi-circles","Longitude of ascending node of orbital of planecomputed according to reference time"
+"",52,I4,2^-43,OmegaDot,"semi-circles/s",Rate of right ascension
+"",56,I4,2^-31,i0,"semi-circles",Inclination angle at reference time
+"",60,I4,2^-31,Cuc,"semi-circles","Amplitude of cosine harmonic correction termto the argument of latitude"
+"",64,I4,2^-31,Cus,"semi-circles","Amplitude of sine harmonic correction term tothe argument of latitude"
+"",68,I4,2^-6,Crc,m,"Amplitude of cosine harmonic correction termto the orbit radius"
+"",72,I4,2^-6,Crs,m,"Amplitude of sine harmonic correction term tothe orbit radius"
+"",76,I4,2^-31,Cic,"semi-circles","Amplitude of cosine harmonic correction termto the angle of inclination"
+"",80,I4,2^-31,Cis,"semi-circles","Amplitude of sine harmonic correction term tothe angle of inclination"
+"",84,U1[4],-,reserved2,-,Reserved

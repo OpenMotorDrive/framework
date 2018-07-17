@@ -1,0 +1,12 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+15,U1,-,utcStandard,-,"UTC standard identifier:0: unknown3: UTC as operated by the U.S. NavalObservatory (USNO)6: UTC as operated by the former Soviet Union7: UTC as operated by the National Time ServiceCenter, China"
+16,I4,-,utcOffset,ns,"Time offset between the preceding pulse andUTC top of second"
+20,U4,-,"utcUncertainty",ns,Uncertainty of utcOffset
+24,U4,-,week,-,GNSS week number
+28,U4,-,TOW,s,GNSS time of week
+32,I4,-,gnssOffset,ns,"Time offset between the preceding pulse andGNSS top of second"
+36,U4,-,"gnssUncertainty",ns,Uncertainty of gnssOffset
+40,I4,2^-8,intOscOffset,ppb,Internal oscillator frequency offset
+44,U4,2^-8,"intOscUncertainty",ppb,Internal oscillator frequency uncertainty
+48,I4,2^-8,extOscOffset,ppb,External oscillator frequency offset
+52,U4,2^-8,"extOscUncertainty",ppb,External oscillator frequency uncertainty

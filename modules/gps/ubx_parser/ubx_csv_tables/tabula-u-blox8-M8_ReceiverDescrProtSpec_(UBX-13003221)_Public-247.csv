@@ -1,0 +1,14 @@
+Message,RXM-PMREQ,,,,,
+Description,Requests a Power Management task,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+Type,Command,,,,,
+Comment,Request of a Power Management related task of the receiver.,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x02,0x41,16,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0x00 for this version),
+1,U1[3],-,reserved1,-,Reserved,
+4,U4,-,duration,ms,"Duration of the requested task, set to zero forinfinite duration. The maximum supported timeis 12 days.",
+8,X4,-,flags,-,task flags (see graphic below),
+12,X4,-,wakeupSources,-,"Configure pins to wakeup the receiver. Thereceiver wakes up if there is either a falling or arising edge on one of the configured pins (seegraphic below)",

@@ -1,0 +1,12 @@
+"",Message,LOG-STRING,,,,,
+"",Description,Store arbitrary string in on-board flash,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Command,,,,,
+"",Comment,"This message can be used to store an arbitrary byte string in the on-board flash memory.The maximum length that can be stored is 256 bytes.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x21,0x04,0 + 1*N,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",Start of repeated block (N times),,,,,,
+"",N*1,U1,-,bytes,-,The string of bytes to be logged (maximum 256),
+"",End of repeated block,,,,,,

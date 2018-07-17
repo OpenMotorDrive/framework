@@ -1,0 +1,25 @@
+"",Message,CFG-DOSC,,,,,
+"",Description,Disciplined oscillator configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"This message allows the characteristics of the internal or external oscillator to be describedto the receiver.The gainVco and gainUncertainty parameters are normally set using the calibration processinitiated using UBX-TIM-VCOCAL.The behavior of the system can be badly affected by setting the wrong values, so customersare advised to only change these parameters with care.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x61,4 + 32*numOsc,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,U1,-,numOsc,-,"Number of oscillators to configure (affectslength of this message)",
+"",2,U1[2],-,reserved1,-,Reserved,
+"",Start of repeated block (numOsc times),,,,,,
+"",4 + 32*N,U1,-,oscId,-,"Id of oscillator.0 - internal oscillator1 - external oscillator",
+"",5 + 32*N,U1,-,reserved2,-,Reserved,
+"",6 + 32*N,X2,-,flags,-,flags (see graphic below),
+"",8 + 32*N,U4,2^-2,freq,Hz,Nominal frequency of source,
+"",12 + 32*N,I4,-,phaseOffset,ps,"Intended phase offset of the oscillator relative tothe leading edge of the time pulse",
+"",16 + 32*N,U4,2^-8,withTemp,ppb,"Oscillator stability limit over operatingtemperature range (must be > 0)",
+"",20 + 32*N,U4,2^-8,withAge,"ppb/year",Oscillator stability with age (must be > 0),
+"",24 + 32*N,U2,-,timeToTemp,s,"The minimum time that it could take for atemperature variation to move the oscillatorfrequency by 'withTemp' (must be > 0)",
+"",26 + 32*N,U1[2],-,reserved3,-,Reserved,
+"",28 + 32*N,I4,2^-16,gainVco,"ppb/raw LSB","Oscillator control gain/slope; change offrequency per unit change in raw controlchange",
+"",32 + 32*N,U1,2^-8,"gainUncertainty",-,"Relative uncertainty (1 standard deviation) ofoscillator control gain/slope",
+"",33 + 32*N,U1[3],-,reserved4,-,Reserved,

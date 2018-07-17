@@ -1,0 +1,8 @@
+Message,NAV-RESETODO,,,,,
+Description,Reset odometer,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Command,,,,,
+Comment,"This message resets the traveled distance computed by the odometer (see UBX-NAV-ODO).UBX-ACK-ACK or UBX-ACK-NAK are returned to indicate success or failure.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+0xB5 0x62,0x01,0x10,0,see below,CK_A CK_B,
+No payload,,,,,,

@@ -1,0 +1,39 @@
+Page,Mnemonic,Cls/ID,Length,Type,Description
+23,ESF-STATUS,0x10 0x10,16 + 4*numSen,Periodic/Polled,External Sensor Fusion (ESF) status information
+"",UBX Class HNR,High Rate Navigation Results Messages,,,
+23,HNR-PVT,0x28 0x00,72,Periodic/Polled,High Rate Output of PVT Solution
+"",UBX Class INF,Information Messages,,,
+23,INF-DEBUG,0x04 0x04,0 + 1*N,Output,ASCII output with debug contents
+23,INF-ERROR,0x04 0x00,0 + 1*N,Output,ASCII output with error contents
+23,INF-NOTICE,0x04 0x02,0 + 1*N,Output,ASCII output with informational contents
+23,INF-TEST,0x04 0x03,0 + 1*N,Output,ASCII output with test contents
+23,INF-WARNING,0x04 0x01,0 + 1*N,Output,ASCII output with warning contents
+"",UBX Class LOG,Logging Messages,,,
+24,LOG-BATCH,0x21 0x11,100,Polled,Batched data
+24,LOG-CREATE,0x21 0x07,8,Command,Create Log File
+24,LOG-ERASE,0x21 0x03,0,Command,Erase Logged Data
+24,LOG-FINDTIME,0x21 0x0E,12,Input,Find index of a log entry based on a given time
+24,LOG-FINDTIME,0x21 0x0E,8,Output,Response to FINDTIME request.
+24,LOG-INFO,0x21 0x08,0,Poll Request,Poll for log information
+24,LOG-INFO,0x21 0x08,48,Output,Log information
+24,LOG-RETRIEVEBATCH,0x21 0x10,4,Command,Request batch data
+24,LOG-RETRIEVEPOSE...,0x21 0x0f,32,Output,Odometer log entry
+24,LOG-RETRIEVEPOS,0x21 0x0b,40,Output,Position fix log entry
+25,LOG-RETRIEVESTRING,0x21 0x0d,16 + 1*byteC...,Output,Byte string log entry
+25,LOG-RETRIEVE,0x21 0x09,12,Command,Request log data
+25,LOG-STRING,0x21 0x04,0 + 1*N,Command,Store arbitrary string in on-board flash
+"",UBX Class MGA,Multiple GNSS Assistance Messages,,,
+25,MGA-ACK-DATA0,0x13 0x60,8,Output,Multiple GNSS Acknowledge message
+25,MGA-ANO,0x13 0x20,76,Input,Multiple GNSS AssistNow Offline Assistance
+25,MGA-BDS-EPH,0x13 0x03,88,Input,BDS Ephemeris Assistance
+25,MGA-BDS-ALM,0x13 0x03,40,Input,BDS Almanac Assistance
+25,MGA-BDS-HEALTH,0x13 0x03,68,Input,BDS Health Assistance
+25,MGA-BDS-UTC,0x13 0x03,20,Input,BDS UTC Assistance
+25,MGA-BDS-IONO,0x13 0x03,16,Input,BDS Ionospheric Assistance
+25,MGA-DBD,0x13 0x80,0,Poll Request,Poll the Navigation Database
+25,MGA-DBD,0x13 0x80,12 + 1*N,Input/Output,Navigation Database Dump Entry
+25,MGA-FLASH-DATA,0x13 0x21,6 + 1*size,Input,Transfer MGA-ANO data block to flash
+25,MGA-FLASH-STOP,0x13 0x21,2,Input,Finish flashing MGA-ANO data
+26,MGA-FLASH-ACK,0x13 0x21,6,Output,Acknowledge last FLASH-DATA or -STOP
+26,MGA-GAL-EPH,0x13 0x02,76,Input,Galileo Ephemeris Assistance
+26,MGA-GAL-ALM,0x13 0x02,32,Input,Galileo Almanac Assistance

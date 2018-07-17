@@ -1,0 +1,5 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",26,I1,0.1,heightHp,mm,"High precision component of height aboveellipsoid. Must be in the range -9..+9. Preciseheight in mm = height + (heightHp * 0.1)."
+"",27,I1,0.1,hMSLHp,mm,"High precision component of height abovemean sea level. Must be in range -9..+9. Preciseheight in mm = hMSL + (hMSLHp * 0.1)"
+"",28,U4,0.1,hAcc,mm,Horizontal accuracy estimate
+"",32,U4,0.1,vAcc,mm,Vertical accuracy estimate

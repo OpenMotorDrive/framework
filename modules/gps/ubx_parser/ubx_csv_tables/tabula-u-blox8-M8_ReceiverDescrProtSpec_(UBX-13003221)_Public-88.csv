@@ -1,0 +1,13 @@
+Message,CFG-RINV,,,,,
+Description,Contents of Remote Inventory,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Get/Set,,,,,
+Comment,"If N is greater than 30, the excess bytes are discarded.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x34,1 + 1*N,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,X1,-,flags,-,Flags (see graphic below),
+Start of repeated block (N times),,,,,,
+1 + 1*N,U1,-,data,-,Data to store/stored in Remote Inventory.,
+End of repeated block,,,,,,

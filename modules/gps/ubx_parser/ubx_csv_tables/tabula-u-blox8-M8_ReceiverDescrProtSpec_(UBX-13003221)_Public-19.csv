@@ -1,0 +1,8 @@
+Message,AID-EPH,,,,,
+Description,Poll GPS Aiding Ephemeris Data,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Poll Request,,,,,
+Comment,"All UBX-AID messages are deprecated; use UBX-MGA messages insteadPoll GPS Aiding Data (Ephemeris) for all 32 SVs by sending this message to the receiverwithout any payload. The receiver will return 32 messages of type AID-EPH as definedbelow.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+0xB5 0x62,0x0B,0x31,0,see below,CK_A CK_B,
+No payload,,,,,,

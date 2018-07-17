@@ -1,0 +1,10 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+16,X2,-,tmCfg,-,Time mark configuration (see graphic below)
+18,U2,-,wnoOrDate,"week_or_yearMonth","Actual week number or yearSince2000/Month(YYMM), depending on flags below"
+20,U4,-,towOrTime,"ms_or_dayHourMinuteSec","Actual time of week orDayOfMonth/Hour/Minute/Second(DDHHMMSS), depending on flags below"
+24,I4,-,towNs,ns,Fractional part of time of week
+28,U4,-,tAccMs,ms,Milliseconds part of time accuracy
+32,U4,-,tAccNs,ns,Nanoseconds part of time accuracy
+36,I4,-,clkDOrFreq,"ns/s_or_Hz*1e-2","Clock drift or frequency, depending on flagsbelow"
+40,U4,-,"clkDAccOrFreqAcc","ns/s_or_ppb","Accuracy of clock drift or frequency, dependingon flags below"
+44,X4,-,flags,-,"Bitmask with the following flags (see graphicbelow)"

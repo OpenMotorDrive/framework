@@ -1,0 +1,16 @@
+Message,MON-TXBUF,,,,,
+Description,Transmitter Buffer Status,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,-,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x0A,0x08,28,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U2[6],-,pending,bytes,"Number of bytes pending in transmitter bufferfor each target",
+12,U1[6],-,usage,%,"Maximum usage transmitter buffer during thelast sysmon period for each target",
+18,U1[6],-,peakUsage,%,"Maximum usage transmitter buffer for eachtarget",
+24,U1,-,tUsage,%,"Maximum usage of transmitter buffer duringthe last sysmon period for all targets",
+25,U1,-,tPeakusage,%,"Maximum usage of transmitter buffer for alltargets",
+26,X1,-,errors,-,Error bitmask (see graphic below),
+27,U1,-,reserved1,-,Reserved,

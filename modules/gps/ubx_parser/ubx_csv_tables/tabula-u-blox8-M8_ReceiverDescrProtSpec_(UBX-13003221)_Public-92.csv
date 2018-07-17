@@ -1,0 +1,13 @@
+"",Message,CFG-SBAS,,,,,
+"",Description,SBAS Configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"This message configures the SBAS receiver subsystem (i.e. WAAS, EGNOS, MSAS). See theSBAS Configuration Settings Description for a detailed description of how these settingsaffect receiver operation.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x16,8,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,X1,-,mode,-,SBAS Mode (see graphic below),
+"",1,X1,-,usage,-,SBAS Usage (see graphic below),
+"",2,U1,-,maxSBAS,-,"Maximum Number of SBAS prioritized trackingchannels (valid range: 0 - 3) to use (obsoleteand superseeded by UBX-CFG-GNSS in protocolversions 14+).",
+"",3,X1,-,scanmode2,-,"Continuation of scanmode bitmask below (seegraphic below)",

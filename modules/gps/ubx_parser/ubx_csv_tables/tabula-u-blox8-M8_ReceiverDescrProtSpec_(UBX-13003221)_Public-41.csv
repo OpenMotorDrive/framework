@@ -1,0 +1,7 @@
+Message,CFG-FIXSEED,,,,,
+Description,Programming the fixed seed for host interface signature,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+Type,Set,,,,,
+Comment,"The message can be used to program the fixed seed for the host interface signature.Moreover it will configure the set of messages that will be signed (min. 1, max. 10). If theclass ID of the message is 0 the configuration is ignored for that message. If successfullyconfigured, the message will answer with ACK, otherwise with NAK.See the configuring the fixed seed and register messages description for feature details.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+0xB5 0x62,0x06,0x84,12 + 2*length,see below,CK_A CK_B,

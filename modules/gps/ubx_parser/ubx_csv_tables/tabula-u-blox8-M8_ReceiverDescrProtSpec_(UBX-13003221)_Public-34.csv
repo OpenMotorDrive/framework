@@ -1,0 +1,12 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",0,U2,-,datumNum,-,"Datum Number: 0 = WGS84, 0xFFFF =user-defined"
+"",2,CH[6],-,datumName,-,ASCII String: WGS84 or USER
+"",8,R8,-,majA,m,"Semi-major Axis ( accepted range = 6,300,000.0to 6,500,000.0 meters )."
+"",16,R8,-,flat,-,"1.0 / Flattening ( accepted range is 0.0 to 500.0)."
+"",24,R4,-,dX,m,"X Axis shift at the origin ( accepted range is +/-5000.0 meters )."
+"",28,R4,-,dY,m,"Y Axis shift at the origin ( accepted range is +/-5000.0 meters )."
+"",32,R4,-,dZ,m,"Z Axis shift at the origin ( accepted range is +/-5000.0 meters )."
+"",36,R4,-,rotX,s,"Rotation about the X Axis ( accepted range is+/- 20.0 milli-arc seconds )."
+"",40,R4,-,rotY,s,"Rotation about the Y Axis ( accepted range is+/- 20.0 milli-arc seconds )."
+"",44,R4,-,rotZ,s,"Rotation about the Z Axis ( accepted range is +/-20.0 milli-arc seconds )."
+"",48,R4,-,scale,ppm,"Scale change ( accepted range is 0.0 to 50.0parts per million )."

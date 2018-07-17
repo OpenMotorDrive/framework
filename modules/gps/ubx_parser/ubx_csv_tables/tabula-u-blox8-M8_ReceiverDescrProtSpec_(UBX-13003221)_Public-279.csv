@@ -1,0 +1,4 @@
+"",Message,TIM-VCOCAL
+"",Description,VCO calibration extended command
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)"
+"",Type,Command

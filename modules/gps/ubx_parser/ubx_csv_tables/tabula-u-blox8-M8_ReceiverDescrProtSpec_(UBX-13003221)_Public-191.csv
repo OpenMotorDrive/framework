@@ -1,0 +1,17 @@
+Message,MON-PATCH,,,,,
+Description,Output information about installed patches.,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Polled,,,,,
+Comment,-,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x0A,0x27,4 + 16*nEntries,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U2,-,version,-,Type of the message. 0x1 for this one.,
+2,U2,-,nEntries,-,The number of patches that is output.,
+Start of repeated block (nEntries times),,,,,,
+4 + 16*N,X4,-,patchInfo,-,"Additional information about the patch notstated in the patch header. (see graphic below)",
+8 + 16*N,U4,-,"comparatorNumber",-,The number of the comparator.,
+12 + 16*N,U4,-,patchAddress,-,The address that the targeted by the patch.,
+16 + 16*N,U4,-,patchData,-,"The data that will be inserted at thepatchAddress.",
+End of repeated block,,,,,,

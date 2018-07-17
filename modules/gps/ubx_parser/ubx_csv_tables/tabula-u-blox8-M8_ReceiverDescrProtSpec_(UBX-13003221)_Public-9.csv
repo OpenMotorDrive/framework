@@ -1,0 +1,26 @@
+Page,Mnemonic,Cls/ID,Length,Type,Description
+346,RXM-SFRBX,0x02 0x13,8 + 4*numWo..,Output,Broadcast Navigation Data Subframe
+347,RXM-SFRBX,0x02 0x13,8 + 4*numWo..,Output,Broadcast Navigation Data Subframe
+347,RXM-SVSI,0x02 0x20,8 + 6*numSV,Periodic/Polled,SV Status Info
+UBX Class SEC,Security Feature Messages,,,,
+350,SEC-SIGN,0x27 0x01,40,Output,Signature of a previous message
+350,SEC-UNIQID,0x27 0x03,9,Output,Unique Chip ID
+UBX Class TIM,Timing Messages,,,,
+351,TIM-DOSC,0x0D 0x11,8,Output,Disciplined oscillator control
+351,TIM-FCHG,0x0D 0x16,32,Periodic/Polled,Oscillator frequency changed notification
+352,TIM-HOC,0x0D 0x17,8,Input,Host oscillator control
+353,TIM-SMEAS,0x0D 0x13,12 + 24*num...,Input/Output,Source measurement
+355,TIM-SVIN,0x0D 0x04,28,Periodic/Polled,Survey-in data
+356,TIM-TM2,0x0D 0x03,28,Periodic/Polled,Time mark data
+357,TIM-TOS,0x0D 0x12,56,Periodic,Time Pulse Time and Frequency Data
+359,TIM-TP,0x0D 0x01,16,Periodic/Polled,Time Pulse Timedata
+361,TIM-VCOCAL,0x0D 0x15,1,Command,Stop calibration
+361,TIM-VCOCAL,0x0D 0x15,12,Command,VCO calibration extended command
+363,TIM-VCOCAL,0x0D 0x15,12,Periodic/Polled,Results of the calibration
+363,TIM-VRFY,0x0D 0x06,20,Periodic/Polled,Sourced Time Verification
+UBX Class UPD,Firmware Update Messages,,,,
+365,UPD-SOS,0x09 0x14,0,Poll Request,Poll Backup File Restore Status
+365,UPD-SOS,0x09 0x14,4,Command,Create Backup File in Flash
+366,UPD-SOS,0x09 0x14,4,Command,Clear Backup in Flash
+366,UPD-SOS,0x09 0x14,8,Output,Backup File Creation Acknowledge
+367,UPD-SOS,0x09 0x14,8,Output,System Restored from Backup

@@ -1,0 +1,5 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",4,I4,1e-7,lat,deg,WGS84 Latitude
+"",8,I4,1e-7,lon,deg,WGS84 Longitude
+"",12,I4,-,alt,cm,WGS84 Altitude
+"",16,U4,-,posAcc,cm,Position accuracy (stddev)

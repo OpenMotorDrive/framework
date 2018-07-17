@@ -1,0 +1,20 @@
+"",Message,RXM-SFRBX,,,,,
+"",Description,Broadcast Navigation Data Subframe,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Output,,,,,
+"",Comment,"This message reports a complete subframe of broadcast navigation data decoded from asingle signal. The number of data words reported in each message depends on the natureof the signal. See the section on Broadcast Navigation Data for further details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x02,0x13,8 + 4*numWords,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,gnssId,-,GNSS identifier (see Satellite Numbering),
+"",1,U1,-,svId,-,Satellite identifier (see Satellite Numbering),
+"",2,U1,-,reserved1,-,Reserved,
+"",3,U1,-,freqId,-,"Only used for GLONASS: This is the frequencyslot + 7 (range from 0 to 13)",
+"",4,U1,-,numWords,-,"The number of data words contained in thismessage (up to 10, for currently supportedsignals)",
+"",5,U1,-,chn,-,"The tracking channel number the message wasreceived on",
+"",6,U1,-,version,-,"Message version, (0x02 for this version)",
+"",7,U1,-,reserved2,-,Reserved,
+"",Start of repeated block (numWords times),,,,,,
+"",8 + 4*N,U4,-,dwrd,-,The data words,
+"",End of repeated block,,,,,,

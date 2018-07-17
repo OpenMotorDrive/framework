@@ -1,0 +1,8 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+10,U1,-,srcOfLsChange,-,"Information source for the future leap secondevent.0: No source2: GPS3: SBAS4: BeiDou5: Galileo6: GLONASS"
+11,I1,-,lsChange,s,"Future leap second change if one is scheduled.+1 = positive leap second, -1 = negative leapsecond, 0 = no future leap second eventscheduled or no information available."
+12,I4,-,timeToLsEvent,s,"Number of seconds until the next leap secondevent, or from the last leap second event if nofuture event scheduled. If > 0 event is in thefuture, = 0 event is now, < 0 event is in thepast. Valid only if validTimeToLsEvent = 1."
+16,U2,-,dateOfLsGpsWn,-,"GPS week number (WN) of the next leap secondevent or the last one if no future eventscheduled. Valid only if validTimeToLsEvent = 1."
+18,U2,-,dateOfLsGpsDn,-,"GPS day of week number (DN) for the next leapsecond event or the last one if no future eventscheduled. Valid only if validTimeToLsEvent = 1.(GPS and Galileo DN: from 1 = Sun to 7 = Sat.BeiDou DN: from 0 = Sun to 6 = Sat.)"
+20,U1[3],-,reserved2,-,Reserved
+23,X1,-,valid,-,Validity flags (see graphic below)

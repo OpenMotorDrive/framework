@@ -1,0 +1,28 @@
+"",Message,UBX-MGA-GAL-EPH,,,,,
+"",Description,Galileo Ephemeris Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of Galileo ephemeris assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x02,76,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x01 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1,-,svId,-,"Galileo Satellite identifier (see SatelliteNumbering)",
+"",3,U1,-,reserved1,-,Reserved,
+"",4,U2,-,iodNav,-,Ephemeris and clock correction Issue of Data,
+"",6,I2,2^-43,deltaN,"semi-circles/s",Mean motion difference from computed value,
+"",8,I4,2^-31,m0,"semi-circles",Mean anomaly at reference time,
+"",12,U4,2^-33,e,-,Eccentricity,
+"",16,U4,2^-19,sqrtA,m^0.5,Square root of the semi-major axis,
+"",20,I4,2^-31,omega0,"semi-circles","Longitude of ascending node of orbital plane atweekly epoch",
+"",24,I4,2^-31,i0,"semi-circles",Inclination angle at reference time,
+"",28,I4,2^-31,omega,"semi-circles",Argument of perigee,
+"",32,I4,2^-43,omegaDot,"semi-circles/s",Rate of change of right ascension,
+"",36,I2,2^-43,iDot,"semi-circles/s",Rate of change of inclination angle,
+"",38,I2,2^-29,cuc,radians,"Amplitude of the cosine harmonic correctionterm to the argument of latitude",
+"",40,I2,2^-29,cus,radians,"Amplitude of the sine harmonic correction termto the argument of latitude",
+"",42,I2,2^-5,crc,radians,"Amplitude of the cosine harmonic correctionterm to the orbit radius",
+"",44,I2,2^-5,crs,radians,"Amplitude of the sine harmonic correction termto the orbit radius",
+"",46,I2,2^-29,cic,radians,"Amplitude of the cosine harmonic correctionterm to the angle of inclination",

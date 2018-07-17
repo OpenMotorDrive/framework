@@ -1,0 +1,28 @@
+"",Message,RXM-IMES,,,,,
+"",Description,Indoor Messaging System Information,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"This message shows the IMES stations the receiver is currently tracking, their data rate, thesignal level, the Doppler (with respect to 1575.4282MHz) and what data (without protocolspecific overhead) it has received from these stations so far.This message is sent out at the navigation rate the receiver is currently set to. Therefore itallows users to get an overview on the receiver's current state from the IMES perspective.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x02,0x61,4 + 44*numTx,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,numTx,-,"Number of transmitters contained in themessage",
+"",1,U1,-,version,-,Message version (0x01 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",Start of repeated block (numTx times),,,,,,
+"",4 + 44*N,U1,-,reserved2,-,Reserved,
+"",5 + 44*N,U1,-,txId,-,Transmitter identifier,
+"",6 + 44*N,U1[3],-,reserved3,-,Reserved,
+"",9 + 44*N,U1,-,cno,dBHz,Carrier to Noise Ratio (Signal Strength),
+"",10 + 44*N,U1[2],-,reserved4,-,Reserved,
+"",12 + 44*N,I4,2^-12,doppler,Hz,"Doppler frequency with respect to 1575.4282MHz [IIIII.FFF Hz]",
+"",16 + 44*N,X4,-,position1_1,-,Position 1 Frame (part 1/2) (see graphic below),
+"",20 + 44*N,X4,-,position1_2,-,Position 1 Frame (part 2/2) (see graphic below),
+"",24 + 44*N,X4,-,position2_1,-,Position 2 Frame (part 1/3) (see graphic below),
+"",28 + 44*N,I4,"{180*2^-24}",lat,deg,"Latitude, Position 2 Frame (part 2/3)",
+"",32 + 44*N,I4,"{360*2^-25}",lon,deg,"Longitude, Position 2 Frame (part 3/3)",
+"",36 + 44*N,X4,-,shortIdFrame,-,Short ID Frame (see graphic below),
+"",40 + 44*N,U4,-,mediumIdLSB,-,"Medium ID LSB, Medium ID Frame (part 1/2)",
+"",44 + 44*N,X4,-,mediumId_2,-,Medium ID Frame (part 2/2) (see graphic below),
+"",End of repeated block,,,,,,

@@ -1,0 +1,7 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+36,I4,-,ecefVZ,cm/s,ECEF Z velocity
+40,U4,-,sAcc,cm/s,Speed Accuracy Estimate
+44,U2,0.01,pDOP,-,Position DOP
+46,U1,-,reserved1,-,Reserved
+47,U1,-,numSV,-,Number of SVs used in Nav Solution
+48,U1[4],-,reserved2,-,Reserved

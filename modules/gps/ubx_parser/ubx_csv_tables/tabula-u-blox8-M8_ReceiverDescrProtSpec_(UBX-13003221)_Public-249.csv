@@ -1,0 +1,21 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",10,I1,-,leapS,s,"GPS leap seconds (GPS-UTC). This fieldrepresents the receiver's best knowledge of theleap seconds offset. A flag is given in the recStatbitfield to indicate if the leap seconds areknown."
+"",11,U1,-,numMeas,-,Number of measurements to follow
+"",12,X1,-,recStat,-,"Receiver tracking status bitfield (see graphicbelow)"
+"",13,U1[3],-,reserved1,-,Reserved
+"",Start of repeated block (numMeas times),,,,,
+"",16 + 32*N,R8,-,prMes,m,"Pseudorange measurement [m]. GLONASS interfrequency channel delays are compensated withan internal calibration table."
+"",24 + 32*N,R8,-,cpMes,cycles,"Carrier phase measurement [cycles]. The carrierphase initial ambiguity is initialized using anapproximate value to make the magnitude ofthe phase close to the pseudorangemeasurement. Clock resets are applied to bothphase and code measurements in accordancewith the RINEX specification."
+"",32 + 32*N,R4,-,doMes,Hz,"Doppler measurement (positive sign forapproaching satellites) [Hz]"
+"",36 + 32*N,U1,-,gnssId,-,"GNSS identifier (see Satellite Numbering for alist of identifiers)"
+"",37 + 32*N,U1,-,svId,-,Satellite identifier (see Satellite Numbering)
+"",38 + 32*N,U1,-,reserved2,-,Reserved
+"",39 + 32*N,U1,-,freqId,-,"Only used for GLONASS: This is the frequencyslot + 7 (range from 0 to 13)"
+"",40 + 32*N,U2,-,locktime,ms,"Carrier phase locktime counter (maximum64500ms)"
+"",42 + 32*N,U1,-,cno,dBHz,"Carrier-to-noise density ratio (signal strength)[dB-Hz]"
+"",43 + 32*N,X1,"0.01*2^n",prStdev,m,"Estimated pseudorange measurement standarddeviation (see graphic below)"
+"",44 + 32*N,X1,0.004,cpStdev,cycles,"Estimated carrier phase measurement standarddeviation (note a raw value of 0x0F indicates thevalue is invalid) (see graphic below)"
+"",45 + 32*N,X1,"0.002*2^n",doStdev,Hz,"Estimated Doppler measurement standarddeviation. (see graphic below)"
+"",46 + 32*N,X1,-,trkStat,-,Tracking status bitfield (see graphic below)
+"",47 + 32*N,U1,-,reserved3,-,Reserved
+"",End of repeated block,,,,,

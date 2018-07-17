@@ -1,0 +1,20 @@
+Message,NAV-SOL,,,,,
+Description,Navigation Solution Information,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"This message combines position, velocity and time solution in ECEF, including accuracyfigures.This message has only been retained for backwards compatibility; users are recommendedto use the UBX-NAV-PVT message in preference.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x01,0x06,52,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,I4,-,fTOW,ns,"Fractional part of iTOW (range: +/-500000).The precise GPS time of week in seconds is:(iTOW * 1e-3) + (fTOW * 1e-9)",
+8,I2,-,week,weeks,GPS week number of the navigation epoch,
+10,U1,-,gpsFix,-,"GPSfix Type, range 0..50x00 = No Fix0x01 = Dead Reckoning only0x02 = 2D-Fix0x03 = 3D-Fix0x04 = GPS + dead reckoning combined0x05 = Time only fix0x06..0xff: reserved",
+11,X1,-,flags,-,Fix Status Flags (see graphic below),
+12,I4,-,ecefX,cm,ECEF X coordinate,
+16,I4,-,ecefY,cm,ECEF Y coordinate,
+20,I4,-,ecefZ,cm,ECEF Z coordinate,
+24,U4,-,pAcc,cm,3D Position Accuracy Estimate,
+28,I4,-,ecefVX,cm/s,ECEF X velocity,
+32,I4,-,ecefVY,cm/s,ECEF Y velocity,

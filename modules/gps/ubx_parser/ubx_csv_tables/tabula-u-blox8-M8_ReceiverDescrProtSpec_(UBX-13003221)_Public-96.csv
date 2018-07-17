@@ -1,0 +1,18 @@
+Message,CFG-TMODE2,,,,,
+Description,Time Mode Settings 2,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01 (only with Time &Frequency Sync or Time Sync products)",,,,,
+Type,Get/Set,,,,,
+Comment,"This message is available only for timing receiversSee the Time Mode Description for details. This message replaces the deprecatedUBX-CFG-TMODE message.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x3D,28,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,timeMode,-,"Time Transfer Mode:0 Disabled1 Survey In2 Fixed Mode (true position informationrequired)3-255 Reserved",
+1,U1,-,reserved1,-,Reserved,
+2,X2,-,flags,-,Time mode flags (see graphic below),
+4,I4,-,ecefXOrLat,"cm_or_deg*1e-7","WGS84 ECEF X coordinate or latitude,depending on flags above",
+8,I4,-,ecefYOrLon,"cm_or_deg*1e-7","WGS84 ECEF Y coordinate or longitude,depending on flags above",
+12,I4,-,ecefZOrAlt,cm,"WGS84 ECEF Z coordinate or altitude,depending on flags above",
+16,U4,-,fixedPosAcc,mm,Fixed position 3D accuracy,
+20,U4,-,svinMinDur,s,Survey-in minimum duration,
+24,U4,-,svinAccLimit,mm,Survey-in position accuracy limit,

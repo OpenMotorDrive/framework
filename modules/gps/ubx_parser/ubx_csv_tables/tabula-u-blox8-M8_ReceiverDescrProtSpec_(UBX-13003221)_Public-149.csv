@@ -1,0 +1,13 @@
+"",Message,MGA-DBD,,,,,
+"",Description,Navigation Database Dump Entry,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input/Output,,,,,
+"",Comment,"UBX-MGA-DBD messages are only intended to be sent back to the same receiverthat generated them.Navigation database entry. The data fields are firmware specific. Transmission of this typeof message will be acknowledged by MGA-ACK messages, if acknowledgment has beenenabled (see the description of flow control for details).The maximum payload size for firmware 2.01 onwards is 164 bytes (which makes themaximum message size 172 bytes).",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x80,12 + 1*N,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1[12],-,reserved1,-,Reserved,
+"",Start of repeated block (N times),,,,,,
+"",12 + 1*N,U1,-,data,-,fw specific data,
+"",End of repeated block,,,,,,

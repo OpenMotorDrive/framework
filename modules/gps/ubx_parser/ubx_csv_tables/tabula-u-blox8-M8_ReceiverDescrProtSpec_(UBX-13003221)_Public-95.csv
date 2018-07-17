@@ -1,0 +1,4 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+12,X2,-,messageCfg,-,"Sync manager message configuration (seegraphic below)"
+14,U2,-,maxSlewRate,us/s,"Maximum slew rate, the maximum timecorrection that shall be applied between lockedpulses in corrective time pulse mode.To have no limit on the slew rate, set the flagdisableMaxSlewRate to 1For maximum phase correction rate in coherenttime pulse mode see maxPhaseCorrRate."
+16,X4,-,flags,-,Flags (see graphic below)

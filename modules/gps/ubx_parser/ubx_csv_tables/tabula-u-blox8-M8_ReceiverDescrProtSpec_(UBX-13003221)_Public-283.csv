@@ -1,0 +1,6 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+8,I4,-,deltaMs,ms,"integer milliseconds of delta time (current timeminus sourced time)"
+12,I4,-,deltaNs,ns,sub-millisecond part of delta time
+16,U2,-,wno,week,week number
+18,X1,-,flags,-,information flags (see graphic below)
+19,U1,-,reserved1,-,Reserved

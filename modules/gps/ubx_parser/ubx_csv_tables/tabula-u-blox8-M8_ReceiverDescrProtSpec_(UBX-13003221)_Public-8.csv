@@ -1,0 +1,39 @@
+Page,Mnemonic,Cls/ID,Length,Type,Description
+29,NAV-CLOCK,0x01 0x22,20,Periodic/Polled,Clock Solution
+29,NAV-DGPS,0x01 0x31,16 + 12*numC,Periodic/Polled,DGPS Data Used for NAV
+29,NAV-DOP,0x01 0x04,18,Periodic/Polled,Dilution of precision
+29,NAV-EOE,0x01 0x61,4,Periodic,End Of Epoch
+29,NAV-GEOFENCE,0x01 0x39,8 + 2*numFen..,Periodic/Polled,Geofencing status
+30,NAV-HPPOSECEF,0x01 0x13,28,Periodic/Polled,High Precision Position Solution in ECEF
+30,NAV-HPPOSLLH,0x01 0x14,36,Periodic/Polled,High Precision Geodetic Position Solution
+30,NAV-ODO,0x01 0x09,20,Periodic/Polled,Odometer Solution
+30,NAV-ORB,0x01 0x34,8 + 6*numSv,Periodic/Polled,GNSS Orbit Database Info
+30,NAV-POSECEF,0x01 0x01,20,Periodic/Polled,Position Solution in ECEF
+30,NAV-POSLLH,0x01 0x02,28,Periodic/Polled,Geodetic Position Solution
+30,NAV-PVT,0x01 0x07,92,Periodic/Polled,Navigation Position Velocity Time Solution
+31,NAV-RELPOSNED,0x01 0x3C,40,Periodic/Polled,Relative Positioning Information in NED frame
+31,NAV-RESETODO,0x01 0x10,0,Command,Reset odometer
+31,NAV-SAT,0x01 0x35,8 + 12*numSvs,Periodic/Polled,Satellite Information
+31,NAV-SBAS,0x01 0x32,12 + 12*cnt,Periodic/Polled,SBAS Status Data
+31,NAV-SOL,0x01 0x06,52,Periodic/Polled,Navigation Solution Information
+31,NAV-STATUS,0x01 0x03,16,Periodic/Polled,Receiver Navigation Status
+31,NAV-SVINFO,0x01 0x30,8 + 12*numCh,Periodic/Polled,Space Vehicle Information
+32,NAV-SVIN,0x01 0x3B,40,Periodic/Polled,Survey-in data
+32,NAV-TIMEBDS,0x01 0x24,20,Periodic/Polled,BDS Time Solution
+32,NAV-TIMEGAL,0x01 0x25,20,Periodic/Polled,Galileo Time Solution
+32,NAV-TIMEGLO,0x01 0x23,20,Periodic/Polled,GLO Time Solution
+32,NAV-TIMEGPS,0x01 0x20,16,Periodic/Polled,GPS Time Solution
+32,NAV-TIMELS,0x01 0x26,24,Periodic/Polled,Leap second event information
+32,NAV-TIMEUTC,0x01 0x21,20,Periodic/Polled,UTC Time Solution
+32,NAV-VELECEF,0x01 0x11,20,Periodic/Polled,Velocity Solution in ECEF
+33,NAV-VELNED,0x01 0x12,36,Periodic/Polled,Velocity Solution in NED
+"",UBX Class RXM,Receiver Manager Messages,,,
+33,RXM-IMES,0x02 0x61,4 + 44*numTx,Periodic/Polled,Indoor Messaging System Information
+33,RXM-MEASX,0x02 0x14,44 + 24*numSV,Periodic,Satellite Measurements for RRLP
+33,RXM-PMREQ,0x02 0x41,8,Command,Requests a Power Management task
+33,RXM-PMREQ,0x02 0x41,16,Command,Requests a Power Management task
+33,RXM-RAWX,0x02 0x15,16 + 32*num...,Periodic/Polled,Multi-GNSS Raw Measurement Data
+34,RXM-RAWX,0x02 0x15,16 + 32*num...,Periodic/Polled,Multi-GNSS Raw Measurement Data
+34,RXM-RLM,0x02 0x59,16,Output,Galileo SAR Short-RLM report
+34,RXM-RLM,0x02 0x59,28,Output,Galileo SAR Long-RLM report
+34,RXM-RTCM,0x02 0x32,8,Output,RTCM input status

@@ -1,0 +1,39 @@
+Page,Mnemonic,Cls/ID,Length,Type,Description
+17,CFG-MSG,0x06 0x01,3,Get/Set,Set Message Rate
+17,CFG-NAV5,0x06 0x24,36,Get/Set,Navigation Engine Settings
+17,CFG-NAVX5,0x06 0x23,40,Get/Set,Navigation Engine Expert Settings
+17,CFG-NAVX5,0x06 0x23,40,Get/Set,Navigation Engine Expert Settings
+18,CFG-NAVX5,0x06 0x23,44,Get/Set,Navigation Engine Expert Settings
+18,CFG-NMEA,0x06 0x17,4,Get/Set,NMEA protocol configuration (deprecated)
+18,CFG-NMEA,0x06 0x17,12,Get/Set,NMEA protocol configuration V0 (deprecated)
+18,CFG-NMEA,0x06 0x17,20,Get/Set,Extended NMEA protocol configuration V1
+19,CFG-ODO,0x06 0x1E,20,Get/Set,"Odometer, Low-speed COG Engine Settings"
+19,CFG-PM2,0x06 0x3B,44,Get/Set,Extended Power Management configuration
+19,CFG-PM2,0x06 0x3B,48,Get/Set,Extended Power Management configuration
+19,CFG-PM2,0x06 0x3B,48,Get/Set,Extended Power Management configuration
+19,CFG-PMS,0x06 0x86,8,Get/Set,Power Mode Setup
+19,CFG-PRT,0x06 0x00,1,Poll Request,Polls the configuration for one I/O Port
+19,CFG-PRT,0x06 0x00,20,Get/Set,Port Configuration for UART
+20,CFG-PRT,0x06 0x00,20,Get/Set,Port Configuration for USB Port
+20,CFG-PRT,0x06 0x00,20,Get/Set,Port Configuration for SPI Port
+20,CFG-PRT,0x06 0x00,20,Get/Set,Port Configuration for DDC Port
+20,CFG-PWR,0x06 0x57,8,Set,Put receiver in a defined power state.
+21,CFG-RATE,0x06 0x08,6,Get/Set,Navigation/Measurement Rate Settings
+21,CFG-RINV,0x06 0x34,1 + 1*N,Get/Set,Contents of Remote Inventory
+21,CFG-RST,0x06 0x04,4,Command,Reset Receiver / Clear Backup Data Structures
+21,CFG-RXM,0x06 0x11,2,Get/Set,RXM configuration
+21,CFG-RXM,0x06 0x11,2,Get/Set,RXM configuration
+21,CFG-SBAS,0x06 0x16,8,Get/Set,SBAS Configuration
+21,CFG-SMGR,0x06 0x62,20,Get/Set,Synchronization manager configuration
+21,CFG-TMODE2,0x06 0x3D,28,Get/Set,Time Mode Settings 2
+22,CFG-TMODE3,0x06 0x71,40,Get/Set,Time Mode Settings 3
+22,CFG-TP5,0x06 0x31,0,Poll Request,Poll Time Pulse Parameters for Time Pulse 0
+22,CFG-TP5,0x06 0x31,1,Poll Request,Poll Time Pulse Parameters
+22,CFG-TP5,0x06 0x31,32,Get/Set,Time Pulse Parameters
+22,CFG-TP5,0x06 0x31,32,Get/Set,Time Pulse Parameters
+22,CFG-TXSLOT,0x06 0x53,16,Set,TX buffer time slots configuration
+22,CFG-USB,0x06 0x1B,108,Get/Set,USB Configuration
+"",UBX Class ESF,External Sensor Fusion Messages,,,
+22,ESF-INS,0x10 0x15,36,Periodic/Polled,Vehicle dynamics information
+22,ESF-MEAS,0x10 0x02,(8 + 4*N) or (1..,Input/Output,External Sensor Fusion Measurements
+23,ESF-RAW,0x10 0x03,4 + 8*N,Output,Raw sensor measurements

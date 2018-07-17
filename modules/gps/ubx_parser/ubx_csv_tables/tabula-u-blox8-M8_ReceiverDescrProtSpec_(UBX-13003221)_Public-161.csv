@@ -1,0 +1,24 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",0,U1,-,type,-,Message type (0x01 for this type)
+"",1,U1,-,version,-,Message version (0x00 for this version)
+"",2,U1,-,svId,-,"GLONASS Satellite identifier (see SatelliteNumbering)"
+"",3,U1,-,reserved1,-,Reserved
+"",4,U1,-,FT,-,User range accuracy
+"",5,U1,-,B,-,Health flag from string 2
+"",6,U1,-,M,-,"Type of GLONASS satellite (1 indicatesGLONASS-M)"
+"",7,I1,-,H,-,"Carrier frequency number of navigation RFsignal, Range=(-7 .. 6), -128 for unknown"
+"",8,I4,2^-11,x,km,"X component of the SV position in PZ-90.02coordinate System"
+"",12,I4,2^-11,y,km,"Y component of the SV position in PZ-90.02coordinate System"
+"",16,I4,2^-11,z,km,"Z component of the SV position in PZ-90.02coordinate System"
+"",20,I4,2^-20,dx,km/s,"X component of the SV velocity in PZ-90.02coordinate System"
+"",24,I4,2^-20,dy,km/s,"Y component of the SV velocity in PZ-90.02coordinate System"
+"",28,I4,2^-20,dz,km/s,"Z component of the SV velocity in PZ-90.02coordinate System"
+"",32,I1,2^-30,ddx,km/s^2,"X component of the SV acceleration in PZ-90.02coordinate System"
+"",33,I1,2^-30,ddy,km/s^2,"Y component of the SV acceleration in PZ-90.02coordinate System"
+"",34,I1,2^-30,ddz,km/s^2,"Z component of the SV acceleration in PZ-90.02coordinate System"
+"",35,U1,15,tb,minutes,"Index of a time interval within current dayaccording to UTC(SU)"
+"",36,I2,2^-40,gamma,-,Relative carrier frequency deviation
+"",38,U1,-,E,days,Ephemeris data age indicator
+"",39,I1,2^-30,deltaTau,s,Time difference between L2 and L1 band
+"",40,I4,2^-30,tau,s,SV clock bias
+"",44,U1[4],-,reserved2,-,Reserved

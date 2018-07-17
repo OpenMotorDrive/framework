@@ -1,0 +1,6 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+2,U1,-,refTp,-,"Reference timepulse source0 - Timepulse1 - Timepulse 2"
+3,U1,-,reserved1,-,Reserved
+Start of repeated block (3 times),,,,,
+4 + 4*N,U4,-,end,-,End of timeslot in milliseconds after time pulse
+End of repeated block,,,,,

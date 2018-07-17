@@ -1,0 +1,10 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+12,U1,-,fusionMode,-,"Fusion mode:0: Initialization mode: receiver is initializingsome unknown values required for doing sensorfusion1: Fusion mode: GNSS and sensor data are usedfor navigation solution computation2: Suspended fusion mode: sensor fusion istemporarily disabled due to e.g. invalid sensordata or detected ferry3: Disabled fusion mode: sensor fusion ispermanently disabled until receiver reset due e.g. to sensor errorMore details can be found in the Fusion Modessection."
+13,U1[2],-,reserved2,-,Reserved
+15,U1,-,numSens,-,Number of sensors
+Start of repeated block (numSens times),,,,,
+16 + 4*N,X1,-,sensStatus1,-,"Sensor status, part 1 (see graphic below)"
+17 + 4*N,X1,-,sensStatus2,-,"Sensor status, part 2 (see graphic below)"
+18 + 4*N,U1,-,freq,Hz,Observation frequency
+19 + 4*N,X1,-,faults,-,Sensor faults (see graphic below)
+End of repeated block,,,,,

@@ -1,0 +1,15 @@
+Message,CFG-PRT,,,,,
+Description,Port Configuration for SPI Port,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Get/Set,,,,,
+Comment,"Several configurations can be concatenated to one input message. In this case the payloadlength can be a multiple of the normal length (see the other versions of CFG-PRT). Outputmessages from the module contain only one configuration unit.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x00,20,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,portID,-,Port Identifier Number (= 4 for SPI port),
+1,U1,-,reserved1,-,Reserved,
+2,X2,-,txReady,-,TX ready PIN configuration (see graphic below),
+4,X4,-,mode,-,SPI Mode Flags (see graphic below),
+8,U1[4],-,reserved2,-,Reserved,
+12,X2,-,inProtoMask,-,"A mask describing which input protocols areactive.Each bit of this mask is used for a protocol.Through that, multiple protocols can be definedon a single port.(The bitfield inRtcm3 is not supported inprotocol versions less than 20) (see graphicbelow)",

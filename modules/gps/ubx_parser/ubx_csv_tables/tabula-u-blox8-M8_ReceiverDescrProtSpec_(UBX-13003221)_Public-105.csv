@@ -1,0 +1,11 @@
+"",Message,CFG-TXSLOT,,,,,
+"",Description,TX buffer time slots configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+"",Type,Set,,,,,
+"",Comment,"This message configures how transmit time slots are defined for the receiver interfaces.These time slots are relative to the chosen time pulse. A receiver that supports this messageoffers 3 time slots: nr. 0, 1 and 2. These time pulses follow each other and their associatedpriorities decrease in this order. The end of each can be specified in this message, thebeginning is when the circularly previous slot ends (i.e. slot 0 starts when slot 2 finishes).",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x53,16,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,X1,-,enable,-,"Bitfield of ports for which the slots are enabled.(see graphic below)",

@@ -1,0 +1,9 @@
+Message,RXM-RAWX,,,,,
+Description,Multi-GNSS Raw Measurement Data,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01 (only with TimeSync products)",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"This message contains the information needed to be able to generate a RINEX 3multi-GNSS observation file.This message contains pseudorange, Doppler, carrier phase, phase lock and signal qualityinformation for GNSS satellites once signals have been synchronized. This message supportsall active GNSS.The only difference between this version of the message and the previous version isthe addition of the version field.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x02,0x15,16 + 32*numMeas,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,

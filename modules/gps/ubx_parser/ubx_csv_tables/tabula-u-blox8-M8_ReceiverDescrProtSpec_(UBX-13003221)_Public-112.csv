@@ -1,0 +1,7 @@
+Payload Contents:,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+0,U1[4],-,reserved1,-,Reserved
+Start of repeated block (N times),,,,,
+4 + 8*N,X4,-,data,-,"dataIts scaling and unit depends on the type and isthe same as in ESF-MEAS (see graphic below)"
+8 + 8*N,U4,-,sTtag,-,sensor time tag
+End of repeated block,,,,,

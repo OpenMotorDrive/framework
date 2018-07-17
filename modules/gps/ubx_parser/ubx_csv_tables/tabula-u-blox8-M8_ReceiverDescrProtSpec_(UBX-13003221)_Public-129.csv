@@ -1,0 +1,8 @@
+"",Message,LOG-INFO,,,,,
+"",Description,Poll for log information,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Poll Request,,,,,
+"",Comment,"Upon sending of this message, the receiver returns UBX-LOG-INFO as defined below.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x21,0x08,0,see below,CK_A CK_B,
+"",No payload,,,,,,

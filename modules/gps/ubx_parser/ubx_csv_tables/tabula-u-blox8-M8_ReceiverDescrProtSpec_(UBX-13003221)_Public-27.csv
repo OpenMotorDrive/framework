@@ -1,0 +1,13 @@
+"",Message,AID-INI,,,,,
+"",Description,"Aiding position, time, frequency, clock drift",,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input/Output,,,,,
+"",Comment,"All UBX-AID messages are deprecated; use UBX-MGA messages insteadThis message contains position, time and clock drift information. The position can be inputin either the ECEF X/Y/Z coordinate system or as lat/lon/height. The time can either be inputas inexact value via the standard communication interface, suffering from latencydepending on the baud rate, or using hardware time synchronization where an accuratetime pulse is input on the external interrupts. It is also possible to supply hardwarefrequency aiding by connecting a continuous signal to an external interrupt.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0B,0x01,48,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,I4,-,ecefXOrLat,"cm_or_deg*1e-7","WGS84 ECEF X coordinate or latitude,depending on flags below",
+"",4,I4,-,ecefYOrLon,"cm_or_deg*1e-7","WGS84 ECEF Y coordinate or longitude,depending on flags below",
+"",8,I4,-,ecefZOrAlt,cm,"WGS84 ECEF Z coordinate or altitude,depending on flags below",
+"",12,U4,-,posAcc,cm,Position accuracy (stddev),
