@@ -126,7 +126,9 @@ bool gps_spin(struct gps_handle_s* gps_handle, uint8_t byte)
     gps_handle->parser_buffer[gps_handle->parser_cnt++] = byte;
     size_t msg_len;
     gps_handle->state = check_ubx_message(gps_handle, &msg_len);
-
+    if (gps_handle->parser_cnt == PARSER_BUFFER_SIZE && (gps_handle->state != MESSAGE_INVALID || gps_handle->state != MESSAGE_VALID)) {
+        gps_handle->state = MESSAGE_INVALID;
+    }
     while (gps_handle->state == MESSAGE_INVALID) {
         gps_handle->parser_cnt--;
         memmove(gps_handle->parser_buffer, gps_handle->parser_buffer+1, gps_handle->parser_cnt);
