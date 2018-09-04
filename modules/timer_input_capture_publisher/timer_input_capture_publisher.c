@@ -1,10 +1,11 @@
 #include <common/ctor.h>
 #include <common/helpers.h>
+#include <platform.h>
 #include <modules/worker_thread/worker_thread.h>
 #include "timer_input_capture_publisher.h"
 
 #ifndef TIMER_INPUT_CAPTURE_PUBLISHER_QUEUE_DEPTH
-#define TIMER_INPUT_CAPTURE_PUBLISHER_QUEUE_DEPTH 4
+#define TIMER_INPUT_CAPTURE_PUBLISHER_QUEUE_DEPTH 2
 #endif
 
 #ifndef TIMER_INPUT_CAPTURE_PUBLISHER_WORKER_THREAD
@@ -26,17 +27,19 @@ static struct worker_thread_publisher_task_s publisher_task;
 
 struct timer_input_capture_msg_s timer_input_capture_msg;
 static ICUDriver icu_T1;
-struct timer_input_capture_publisher_topic_s* irq_topic_T1;
+struct timer_input_capture_publisher_topic_s* irq_topic_T1 = NULL;
 
 RUN_ON(PUBSUB_TOPIC_INIT) {
+    worker_thread_add_publisher_task(&WT, &publisher_task, sizeof(struct timer_input_capture_msg_s), TIMER_INPUT_CAPTURE_PUBLISHER_QUEUE_DEPTH);
 }
 
 MEMORYPOOL_DECL(timer_input_capture_publisher_topic_list_pool, sizeof(struct timer_input_capture_publisher_topic_s), chCoreAllocAlignedI);
 
 static bool timer_input_capture_publisher_enable_T1_with_mask_option(struct pubsub_topic_s* topic, bool mask_until_handled);
 
-static void icuperiodcb(ICUDriver *icup) {
-    if (irq_topic_T1) {
+void icuperiodcb(ICUDriver *icup) {
+//    __asm__("bkpt");
+    if (irq_topic_T1 != NULL) {
         chSysLockFromISR();
         if (irq_topic_T1->mask_until_handled) {
             icu_lld_disable_notifications(&icu_T1);
@@ -60,8 +63,9 @@ bool timer_input_capture_publisher_enable_T1_oneshot(struct pubsub_topic_s* topi
 }
 
 static bool timer_input_capture_publisher_enable_T1_with_mask_option(struct pubsub_topic_s* topic, bool mask_until_handled) {
+    eventLog_debugEvent("ic_en");
     chSysLock();
-
+//    __asm__("bkpt");
     if (!topic) {
         chSysUnlock();
         return false;
@@ -79,7 +83,7 @@ static bool timer_input_capture_publisher_enable_T1_with_mask_option(struct pubs
 
     const ICUConfig icucfg = {
       ICU_INPUT_ACTIVE_HIGH,
-      1000000,                                    /* 1MHz ICU clock frequency.   */
+      100000,                                    /* 1MHz ICU clock frequency.   */
       NULL,                                       /* icuwidthcb */
       icuperiodcb,
       NULL,
@@ -87,13 +91,14 @@ static bool timer_input_capture_publisher_enable_T1_with_mask_option(struct pubs
       0
     };
 
+    palSetPadMode(GPIOA, 8, PAL_MODE_ALTERNATE(6));
+    __asm__("bkpt");
     icuStart(&ICUD1, &icucfg);
-    palSetPadMode(GPIOC, 6, PAL_MODE_ALTERNATE(2));
-    icuStartCapture(&ICUD1);
-    icuEnableNotifications(&ICUD1);
-    worker_thread_add_publisher_task(&WT, &publisher_task, sizeof(struct timer_input_capture_msg_s), TIMER_INPUT_CAPTURE_PUBLISHER_QUEUE_DEPTH);
+//    icuStartCapture(&ICUD1);
+//    icuEnableNotifications(&ICUD1);
 
     chSysUnlock();
+    eventLog_debugEvent("-ic_en");
 
     return true;
 }
