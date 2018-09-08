@@ -153,10 +153,14 @@ enum param_type_t param_get_type_by_index(uint16_t param_idx) {
 }
 
 int16_t param_get_index_by_name(uint8_t name_len, char* name) {
+    if (name_len > 92) {
+        return -1;
+    }
+    
     for (uint16_t i=0; i<num_params_registered; i++) {
         const struct param_descriptor_header_s* descriptor = param_descriptor_table[i];
 
-        if(!strncmp(name, descriptor->name, MIN(name_len,92))) {
+        if(!strncmp(name, descriptor->name, name_len) && name_len == strnlen(descriptor->name, 92)) {
             return i;
         }
     }
