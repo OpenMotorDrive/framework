@@ -14,6 +14,8 @@ system \
 pubsub \
 worker_thread \
 flash \
+param \
+uavcan_param_interface \
 can_driver_stm32 \
 can \
 can_autobaud \

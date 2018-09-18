@@ -33,7 +33,8 @@ static void delayed_restart_func(struct worker_thread_timer_task_s* task) {
 #ifdef MODULE_BOOT_MSG_ENABLED
     union shared_msg_payload_u msg;
     boot_msg_fill_shared_canbus_info(&msg.canbus_info);
-    shared_msg_finalize_and_write(SHARED_MSG_CANBUS_INFO, &msg);
+    msg.boot_msg.boot_reason = SHARED_BOOT_REASON_REBOOT_COMMAND;
+    shared_msg_finalize_and_write(SHARED_MSG_BOOT, &msg);
 #endif
 
     NVIC_SystemReset();

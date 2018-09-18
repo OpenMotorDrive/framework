@@ -701,12 +701,15 @@ static uint8_t param_get_data_max_size(uint16_t param_idx) {
         case PARAM_TYPE_INT64:
             return sizeof(uint64_t);
         case PARAM_TYPE_UINT32:
+            return sizeof(uint32_t)+1;
         case PARAM_TYPE_INT32:
             return sizeof(uint32_t);
         case PARAM_TYPE_UINT16:
+            return sizeof(uint16_t)+1;
         case PARAM_TYPE_INT16:
             return sizeof(uint16_t);
         case PARAM_TYPE_UINT8:
+            return sizeof(uint8_t)+1;
         case PARAM_TYPE_INT8:
         case PARAM_TYPE_BOOL:
             return sizeof(uint8_t);

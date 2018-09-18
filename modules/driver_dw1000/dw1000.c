@@ -4,6 +4,7 @@
 #include <modules/timing/timing.h>
 #include <modules/uavcan/uavcan.h>
 #include <common/bswap.h>
+#include <common/helpers.h>
 
 #ifndef DW1000_LEDS_ENABLED
 #define DW1000_LEDS_ENABLED FALSE
@@ -92,6 +93,13 @@ void dw1000_init(struct dw1000_instance_s* instance, uint8_t spi_idx, uint32_t s
     dw1000_clock_enable_all_seq(instance);
 
     dw1000_config(instance);
+}
+
+
+uint32_t dw1000_get_sys_config(struct dw1000_instance_s* instance) {
+    uint32_t sys_cfg;
+    dw1000_read(instance, DW1000_SYSTEM_CONFIGURATION_FILE, 0, sizeof(sys_cfg), &sys_cfg);
+    return sys_cfg;
 }
 
 static void dw1000_config(struct dw1000_instance_s* instance) {
@@ -310,6 +318,13 @@ void dw1000_setup_irq(struct dw1000_instance_s* instance, uint32_t status_mask)
     dw1000_clear_status(instance, status_mask);
 }
 
+uint32_t dw1000_get_irq_mask(struct dw1000_instance_s* instance)
+{
+    uint32_t status_mask = 0;
+    dw1000_read(instance, DW1000_SYSTEM_EVENT_MASK_REGISTER_FILE, 0, sizeof(status_mask), &status_mask);
+    return status_mask;
+}
+
 void dw1000_clear_status(struct dw1000_instance_s* instance, uint32_t status_mask)
 {
     dw1000_write(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(status_mask), &status_mask);
@@ -489,8 +504,87 @@ struct dw1000_rx_frame_info_s dw1000_receive(struct dw1000_instance_s* instance,
     return ret;
 }
 
+struct dw1000_rx_frame_info_s dw1000_receive_data_only(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf)
+{
+    struct dw1000_rx_frame_info_s ret;
+    memset(&ret,0,sizeof(ret));
+    if (!instance || !buf) {
+        ret.err_code = DW1000_RX_ERROR_NULLPTR;
+        return ret;
+    }
+
+    struct dw1000_sys_status_s sys_status;
+    struct dw1000_rx_finfo_s rx_finfo;
+    
+    // Read SYS_STATUS
+    dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
+
+    // Check RXOVRR
+    if (sys_status.RXOVRR || sys_status.LDEERR || sys_status.RXFCE || sys_status.RXPTO || sys_status.RXSFDTO || sys_status.RXPHE || sys_status.RXRFSL || sys_status.RXRFTO) {
+        // Frames must be discarded (do not read frames) due to corrupted registers and TRXOFF command issued
+        dw1000_disable_transceiver(instance);
+        dw1000_swap_rx_buffers(instance);
+        dw1000_rx_softreset(instance);
+    
+        // Receiver must be reset to exit errored state
+        dw1000_rx_enable(instance);
+
+        memset(&ret,0,sizeof(ret));
+        ret.err_code = DW1000_RX_ERROR_RXOVRR;
+        return ret;
+    }
+
+    // Check if a good frame is in the buffer
+    if (!sys_status.RXFCG) {
+        ret.err_code = DW1000_RX_ERROR_NO_FRAME_PRESENT;
+        return ret;
+    }
+
+    if (!sys_status.LDEDONE) {
+        ret.err_code = DW1000_RX_ERROR_TIMESTAMP_PENDING;
+        return ret;
+    }
+
+    // Read RX_FINFO
+    dw1000_read(instance, DW1000_RX_FRAME_INFORMATION_REGISTER_FILE, 0, sizeof(rx_finfo), &rx_finfo);
+    ret.len = (((uint16_t)rx_finfo.RXFLEN) | (((uint16_t)rx_finfo.RXFLE) << 7)) - 2;
+    // Check if the frame fits in the provided buffer
+    if (ret.len > 0 && ret.len <= buf_len) {
+        // Read RX_BUFFER
+        dw1000_read(instance, DW1000_RX_FRAME_BUFFER_FILE, 0, ret.len, buf);
+    } else {
+        ret.err_code = DW1000_RX_ERROR_PROVIDED_BUFFER_TOO_SMALL;
+    }
+
+    // Read SYS_STATUS
+    dw1000_read(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
+    // Check RXOVRR Again, We might have received a packet while we were reading data
+    if (sys_status.RXOVRR) {
+        // Frames must be discarded (do not read frames) due to corrupted registers and TRXOFF command issued
+        dw1000_disable_transceiver(instance);
+        dw1000_swap_rx_buffers(instance);
+        dw1000_rx_softreset(instance);
+    
+        // Receiver must be reset to exit errored state
+        dw1000_rx_enable(instance);
+
+        memset(&ret,0,sizeof(ret));
+        ret.err_code = DW1000_RX_ERROR_RXOVRR;
+        return ret;
+    }
+    // Check HSRBP==ICRBP
+    if (sys_status.HSRBP == sys_status.ICRBP) {
+        // Mask, clear and unmask RX event flags in SYS_STATUS reg:0F; bits FCE, FCG, DFR, LDE_DONE
+        dw1000_clear_double_buffered_status_bits(instance);
+    }
+
+    // Issue the HRBPT command
+    dw1000_swap_rx_buffers(instance);
+    return ret;
+}
+
 void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void* buf, bool expect_response) {
-    if (!instance) {
+    if (!instance || !buf) {
         return;
     }
 
@@ -499,18 +593,26 @@ void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void*
         return;
     }
 
+    //Turn off Transceiver
+    {
+        struct dw1000_sys_ctrl_s sys_ctrl;
+        // Issue TRXOFF
+        memset(&sys_ctrl, 0, sizeof(sys_ctrl));
+        sys_ctrl.TRXOFF = 1;
+        dw1000_write(instance, DW1000_SYSTEM_CONTROL_REGISTER_FILE, 0, sizeof(sys_ctrl), &sys_ctrl);
+    }
+
+    //Clear RX Status Bits
+    {
+        uint32_t sys_status =  DW1000_IRQ_MASK(DW1000_SYS_STATUS_RXFCE) |
+                                  DW1000_IRQ_MASK(DW1000_SYS_STATUS_RXFCG) |
+                                  DW1000_IRQ_MASK(DW1000_SYS_STATUS_RXDFR) |
+                                  DW1000_IRQ_MASK(DW1000_SYS_STATUS_LDEDONE);
+        dw1000_write(instance, DW1000_SYSTEM_EVENT_STATUS_REGISTER_FILE, 0, sizeof(sys_status), &sys_status);
+    }
+
     // Write tx data to data buffer
     dw1000_write(instance, DW1000_TRANSMIT_DATA_BUFFER_FILE, 0, buf_len, buf);
-
-    // Configure tx parameters
-    {
-        struct dw1000_tx_fctrl_s tx_fctrl;
-        dw1000_read(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
-        tx_fctrl.reserved = 0;
-        tx_fctrl.TFLEN = (buf_len+2) & 0x7F;
-        tx_fctrl.TFLE = ((buf_len+2) >> 7) & 0x7;
-        dw1000_write(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
-    }
 
     // Start tx
     {
@@ -519,9 +621,20 @@ void dw1000_transmit(struct dw1000_instance_s* instance, uint32_t buf_len, void*
         sys_ctrl.TXSTRT = 1;
         if (expect_response) {
             sys_ctrl.WAIT4RESP = 1;
-        }
+        } 
         dw1000_write(instance, DW1000_SYSTEM_CONTROL_REGISTER_FILE, 0, sizeof(sys_ctrl), &sys_ctrl);
     }
+
+    // Configure tx parameters
+    {
+        struct dw1000_tx_fctrl_s tx_fctrl = dw1000_conf_tx_fctrl(instance->config);
+        tx_fctrl.reserved = 0;
+        tx_fctrl.TFLEN = (buf_len+2) & 0x7F;
+        tx_fctrl.TFLE = ((buf_len+2) >> 7) & 0x7;
+        dw1000_write(instance, DW1000_TRANSMIT_FRAME_CONTROL_FILE, 0, sizeof(tx_fctrl), &tx_fctrl);
+    }
+
+    //chHeapFree(data);
 }
 
 bool dw1000_scheduled_transmit(struct dw1000_instance_s* instance, uint64_t transmit_time, uint32_t buf_len, void* buf, bool expect_response) {
@@ -628,21 +741,25 @@ void dw1000_set_ant_delay(struct dw1000_instance_s* instance, uint16_t ant_delay
 }
 
 float dw1000_get_temp(struct dw1000_instance_s* instance) {
-    uint8_t sar_ltemp;
     dw1000_write8(instance, 0x28, 0x11, 0x80);
     dw1000_write8(instance, 0x28, 0x12, 0x0A);
     dw1000_write8(instance, 0x28, 0x12, 0x0F);
-    dw1000_write8(instance, 0x2A, 0x00, 0x00);
     dw1000_write8(instance, 0x2A, 0x00, 0x01);
-    chThdSleep(US2ST(20));
-    dw1000_read(instance, 0x2A, 0x04, sizeof(uint8_t), &sar_ltemp);
+    chThdSleep(LL_US2ST(10));
     dw1000_write8(instance, 0x2A, 0x00, 0x00);
+    uint8_t sarl_value[2] = {};
+    dw1000_read(instance, 0x2A, 0x03, 2, sarl_value);
 
-    return ((int8_t)(sar_ltemp - instance->t_meas_23c)) * 1.14f + 23;
+    return ((int8_t)(sarl_value[1] - instance->t_meas_23c)) * 1.14f + 23;
 }
 
-void dw1000_set_tx_power(struct dw1000_instance_s* instance, uint8_t tx_power)
-{
+void dw1000_set_tx_gain_dB(struct dw1000_instance_s* instance, float tx_power_dB) {
+    tx_power_dB = constrain_float(tx_power_dB, 0, 33.5);
+
+    uint8_t coarse_dB = tx_power_dB < 18 ? (uint8_t)(tx_power_dB/3)*3 : 18;
+    uint8_t fine_dB = roundf((tx_power_dB-coarse_dB)*2);
+    uint8_t tx_power = (2*fine_dB) | (0b110-coarse_dB/3)<<5;
+
     instance->config.tx_power = tx_power;
     // [0x00:0x03] TX_POWER
     dw1000_write32(instance, 0x1E, 0x00, instance->config.tx_power<<24 |
@@ -809,7 +926,20 @@ static void dw1000_write(struct dw1000_instance_s* instance, uint8_t regfile, ui
     header.regfile = regfile;
     header.addressl = reg;
     header.addressh = reg>>7;
-
+    if (len <= 4) {
+        struct __attribute__((packed)) pkt_s {
+            struct __attribute__((packed)) dw1000_transaction_header_s header;
+            uint8_t data[4];
+        } pkt;
+        pkt.header = header;
+        for (uint8_t i = 0; i < len; i++) {
+            pkt.data[i] = ((uint8_t*)buf)[i];
+        }
+        spi_device_begin(&instance->spi_dev);
+        spi_device_send(&instance->spi_dev, sizeof(struct dw1000_transaction_header_s) + len, &pkt);
+        spi_device_end(&instance->spi_dev);
+        return;
+    }
     spi_device_begin(&instance->spi_dev);
     spi_device_send(&instance->spi_dev, sizeof(header), &header);
     spi_device_send(&instance->spi_dev, len, buf);
@@ -848,4 +978,39 @@ static void dw1000_otp_read(struct dw1000_instance_s* instance, uint16_t otp_add
     dw1000_write8(instance, 0x2D, 0x06, 0x01);
     dw1000_read(instance, 0x2D, 0x0A, otp_field_len, buf);
     dw1000_write8(instance, 0x2D, 0x06, 0x00);
+}
+
+void dw1000_enable_sniff_mode(struct dw1000_instance_s* instance, uint8_t on_time_pac, uint8_t off_time_pac)
+{
+    switch (instance->config.preamble) {
+        case DW1000_PREAMBLE_64:
+        case DW1000_PREAMBLE_128:
+            // PAC size 8
+            off_time_pac *= 8;
+            dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
+        case DW1000_PREAMBLE_256:
+        case DW1000_PREAMBLE_512:
+            // PAC size 16
+            off_time_pac *= 16;
+            dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
+        case DW1000_PREAMBLE_1024:
+            // PAC size 32
+            off_time_pac *= 32;
+            dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
+        case DW1000_PREAMBLE_1536:
+        case DW1000_PREAMBLE_2048:
+        case DW1000_PREAMBLE_4096:
+            // PAC size 64
+            off_time_pac *= 64;
+            dw1000_write16(instance, 0x1D, 0x00, ((((uint16_t)off_time_pac) << 8) | (uint16_t)on_time_pac));
+            break;
+    }
+}
+
+void dw1000_disable_sniff_mode(struct dw1000_instance_s* instance)
+{
+    dw1000_write16(instance, 0x1D, 0x00, 0x00);
 }
