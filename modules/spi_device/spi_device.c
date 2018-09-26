@@ -124,7 +124,7 @@ void spi_device_exchange(struct spi_device_s* dev, uint32_t n, const void* txbuf
 
 static SPIConfig spi_make_config(struct spi_device_s* dev) {
     uint8_t br_regval;
-    for (br_regval=0; br_regval<8; br_regval++) {
+    for (br_regval=0; br_regval<7; br_regval++) {
         if ((uint32_t)STM32_SPIx_CLK(dev->bus_idx)/(2<<br_regval) < dev->max_speed_hz) {
             break;
         }
