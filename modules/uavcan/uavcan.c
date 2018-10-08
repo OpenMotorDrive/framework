@@ -5,6 +5,7 @@
 #include <string.h>
 #include <modules/can/can.h>
 #include <modules/worker_thread/worker_thread.h>
+#include <app_config.h>
 
 #ifdef MODULE_BOOT_MSG_ENABLED
 #include <modules/boot_msg/boot_msg.h>
@@ -94,7 +95,10 @@ static struct uavcan_instance_s* uavcan_instance_list_head;
 
 #ifdef MODULE_PARAM_ENABLED
 #include <modules/param/param.h>
-PARAM_DEFINE_UINT8_PARAM_STATIC(node_id_param, "uavcan.node_id", 0, 0, 125)
+#ifndef UAVCAN_DEFAULT_NODE_ID
+#define UAVCAN_DEFAULT_NODE_ID 0
+#endif
+PARAM_DEFINE_UINT8_PARAM_STATIC(node_id_param, "uavcan.node_id", UAVCAN_DEFAULT_NODE_ID, 0, 125)
 #endif
 
 RUN_ON(UAVCAN_INIT) {
@@ -144,7 +148,7 @@ static void uavcan_init(uint8_t can_dev_idx) {
 #endif
 
 #ifdef MODULE_PARAM_ENABLED
-    if (node_id_param != 0) {
+    if (node_id_param != 0 && node_id == 0) {
         node_id = node_id_param;
     }
 #endif
