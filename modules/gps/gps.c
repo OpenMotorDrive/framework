@@ -53,7 +53,7 @@ bool gps_init(struct gps_handle_s* gps_handle)
         return false;
     }
     gps_handle->state = MESSAGE_EMPTY;
-    memset(gps_handle->parser_buffer, 0, sizeof(struct gps_handle_s));
+    memset(gps_handle->parser_buffer, 0, PARSER_BUFFER_SIZE * sizeof(uint8_t));
     gps_handle->parser_cnt = 0;
     return true;
 }
