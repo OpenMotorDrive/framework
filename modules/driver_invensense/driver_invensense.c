@@ -50,8 +50,8 @@ bool invensense_init(struct invensense_instance_s* instance, uint8_t spi_idx, ui
     // Reset value of PWR_MGMT_1 is 0x41 - clear sleep bit
     invensense_write8(instance, INVENSENSE_REG_PWR_MGMT_1, 1);
 
-    // Configure gyro for 2000 dps FSR and max sample rate
-    invensense_write8(instance, INVENSENSE_REG_GYRO_CONFIG, 0x18 | 0x01);
+    // Configure gyro for 2000 dps FSR and 8khz sample rate
+    invensense_write8(instance, INVENSENSE_REG_GYRO_CONFIG, 0x18);
 
     // Configure accelerometer for 16 G FSR
     invensense_write8(instance, INVENSENSE_REG_ACCEL_CONFIG, 0x18);
