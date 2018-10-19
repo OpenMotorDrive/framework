@@ -177,13 +177,30 @@ void _decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, uint32_t*
 @(ind)*bit_ofs += @(array_len_field_bitlen(field.type));
 @[          if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() >= 8]@
 @{indent -= 1}@{ind = '    '*indent}@
+@[              if field.type.value_type.category == field.type.value_type.CATEGORY_PRIMITIVE]@
 @(ind)} else {
 @{indent += 1}@{ind = '    '*indent}@
 @(ind)msg->@(field.name)_len = ((transfer->payload_len*8)-*bit_ofs)/@(field.type.value_type.bitlen);
 @{indent -= 1}@{ind = '    '*indent}@
+@[              end if]@
 @(ind)}
 
 @[          end if]@
+@[              if field.type.value_type.category == field.type.value_type.CATEGORY_COMPOUND]@
+
+@(ind)if (tao) {
+@{indent += 1}@{ind = '    '*indent}@
+msg->@(field.name)_len = 0;
+@(ind)while (((transfer->payload_len*8)-*bit_ofs) > 0) {
+@{indent += 1}@{ind = '    '*indent}@
+@(ind)_decode_@(underscored_name(field.type.value_type))(transfer, bit_ofs, &msg->@(field.name)[msg->@(field.name)_len], @[if field == msg_fields[-1] and field.type.value_type.get_min_bitlen() < 8]tao && i==msg->@(field.name)_len@[else]false@[end if]@);
+@(ind)msg->@(field.name)_len++;
+@{indent -= 1}@{ind = '    '*indent}@
+@(ind)}
+@{indent -= 1}@{ind = '    '*indent}@
+@(ind)} else {
+@{indent += 1}@{ind = '    '*indent}@
+@[              end if]@
 @(ind)for (size_t i=0; i < msg->@(field.name)_len; i++) {
 @[        else]@
 @(ind)for (size_t i=0; i < @(field.type.max_size); i++) {
@@ -205,6 +222,10 @@ void _decode_@(msg_underscored_name)(const CanardRxTransfer* transfer, uint32_t*
 @[        end if]@
 @{indent -= 1}@{ind = '    '*indent}@
 @(ind)}
+@[              if field.type.value_type.category == field.type.value_type.CATEGORY_COMPOUND]@
+@{indent -= 1}@{ind = '    '*indent}@
+@(ind)}
+@[              end if]@
 @[      elif field.type.category == field.type.CATEGORY_VOID]@
 @(ind)*bit_ofs += @(field.type.bitlen);
 @[      end if]@
