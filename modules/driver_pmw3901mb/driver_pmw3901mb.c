@@ -3,29 +3,14 @@
 #include <common/bswap.h>
 #include <modules/uavcan_debug/uavcan_debug.h>
 
-// void pmw3901_get_motion(struct pmw3901mb_instance_s* instance, uint16_t* motion_x, uint16_t* motion_y) {
-//     
-//     *motion_x = 0;
-//     *motion_y = 0;
-//     
-//     spi_device_begin(&instance->spi_dev);
-//     uint8_t motion_reg = PMW3901MB_MOTION;
-//     spi_device_send(&instance->spi_dev, 1, &motion_reg);
-//     spi_device_receive(&instance->spi_dev, 1, &motion_reg);
-//     if (motion_reg & 0x80) {
-//         
-//     }
-//     spi_device_end(&instance->spi_dev);
-// }
-// 
-
-
- bool pmw3901mb_burst_read(struct pmw3901mb_instance_s* instance, struct pmw3901mb_motion_report_s* ret) {    
+bool pmw3901mb_burst_read(struct pmw3901mb_instance_s* instance, struct pmw3901mb_motion_report_s* ret) {
     spi_device_begin(&instance->spi_dev);
     const uint8_t motion_burst = PMW3901MB_MOTION_BURST;
     spi_device_send(&instance->spi_dev, 1, &motion_burst);
+    chThdSleepMicroseconds(PMW3901MB_TSRAD_US);
     spi_device_receive(&instance->spi_dev, sizeof(*ret), ret);
     spi_device_end(&instance->spi_dev);
+    chThdSleepMicroseconds(PMW3901MB_TSR_US);
     
     ret->delta_x = le16_to_cpu(ret->delta_x);
     ret->delta_y = le16_to_cpu(ret->delta_y);
@@ -188,11 +173,6 @@ bool pmw3901mb_init(struct pmw3901mb_instance_s* instance, uint8_t spi_idx, uint
     pmw3901mb_write(instance, 0x4E, 0xA8);
     pmw3901mb_write(instance, 0x5A, 0x50);
     pmw3901mb_write(instance, 0x40, 0x80);
-    
-    uint8_t who = pmw3901mb_read(instance, PMW3901MB_PRODUCT_ID);
-    uavcan_send_debug_keyvalue("who", who);
-    uint8_t who_inverse = pmw3901mb_read(instance, PMW3901MB_INVERSE_PRODUCT_ID);
-    uavcan_send_debug_keyvalue("who inverse", who_inverse);
     
     return true;
 }

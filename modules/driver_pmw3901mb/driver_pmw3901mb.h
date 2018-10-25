@@ -30,5 +30,5 @@ bool pmw3901mb_burst_read(struct pmw3901mb_instance_s* instance, struct pmw3901m
 bool pmw3901mb_motion_detected(struct pmw3901mb_instance_s* instance);
 int16_t pmw3901mb_read_dx(struct pmw3901mb_instance_s* instance);
 int16_t pmw3901mb_read_dy(struct pmw3901mb_instance_s* instance);
-void pmw3901mb_write_tsxx(struct pmw3901mb_instance_s* instance, uint8_t reg, uint8_t value);
+void pmw3901mb_write(struct pmw3901mb_instance_s* instance, uint8_t reg, uint8_t value);
 uint8_t pmw3901mb_read(struct pmw3901mb_instance_s* instance, uint8_t reg);
