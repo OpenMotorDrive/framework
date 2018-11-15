@@ -41,11 +41,12 @@ static void load_print_task_func(struct worker_thread_timer_task_s* task) {
     chTMStopMeasurementX(&cumtime);
     chTMStartMeasurementX(&cumtime);
 
-    thread = chRegFirstThread();
+    thread_t* thread = chRegFirstThread();
     while(thread) {
         uint32_t load = 10000*thread->stats.cumulative/cumtime.cumulative;
         uavcan_send_debug_msg(UAVCAN_PROTOCOL_DEBUG_LOGLEVEL_INFO, "load", "%s: %u.%02u%% %u", thread->name, load/100, load%100, (unsigned)thread->stats.cumulative);
         thread->stats.cumulative = 0;
         thread = chRegNextThread(thread);
     }
+    cumtime.cumulative = 0;
 }
