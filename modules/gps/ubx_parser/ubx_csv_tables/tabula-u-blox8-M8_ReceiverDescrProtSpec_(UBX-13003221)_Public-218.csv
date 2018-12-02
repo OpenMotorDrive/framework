@@ -1,0 +1,14 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+44,U4,-,vAcc,mm,Vertical accuracy estimate
+48,I4,-,velN,mm/s,NED north velocity
+52,I4,-,velE,mm/s,NED east velocity
+56,I4,-,velD,mm/s,NED down velocity
+60,I4,-,gSpeed,mm/s,Ground Speed (2-D)
+64,I4,1e-5,headMot,deg,Heading of motion (2-D)
+68,U4,-,sAcc,mm/s,Speed accuracy estimate
+72,U4,1e-5,headAcc,deg,"Heading accuracy estimate (both motion andvehicle)"
+76,U2,0.01,pDOP,-,Position DOP
+78,U1[6],-,reserved1,-,Reserved
+84,I4,1e-5,headVeh,deg,Heading of vehicle (2-D)
+88,I2,1e-2,magDec,deg,Magnetic declination
+90,U2,1e-2,magAcc,deg,Magnetic declination accuracy

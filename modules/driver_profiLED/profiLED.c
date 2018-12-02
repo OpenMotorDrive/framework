@@ -2,6 +2,7 @@
 #include <string.h>
 #include "profiLED.h"
 #include <common/helpers.h>
+#include <app_config.h>
 
 #define MAX_NUM_PROFILEDS 64
 #define PROFILED_OUTPUT_BUFFER_SIZE PROFILED_GEN_BUF_SIZE(MAX_NUM_PROFILEDS)
@@ -32,7 +33,10 @@ void profiLED_init(struct profiLED_instance_s* instance, uint8_t spi_bus_idx, ui
 #endif
 
     size_t colors_size = sizeof(struct profiLED_gen_color_s) * num_leds;
+#ifndef PROFILED_COLOR_ALLOCATED
     instance->colors = chHeapAlloc(NULL, colors_size);
+#endif
+
     if (!instance->colors) goto fail;
     memset(instance->colors, 0, colors_size);
 
@@ -46,7 +50,9 @@ void profiLED_init(struct profiLED_instance_s* instance, uint8_t spi_bus_idx, ui
     return;
 
 fail:
+#ifndef PROFILED_COLOR_ALLOCATED
     chHeapFree(instance->colors);
+#endif
     instance->colors = NULL;
 }
 

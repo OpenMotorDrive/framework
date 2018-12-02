@@ -1,0 +1,35 @@
+Message,CFG-SMGR,,,,,
+Description,Synchronization manager configuration,,,,,
+Firmware,"Supported on:
+•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &
+Frequency Sync products)",,,,,
+Type,Get/Set,,,,,
+Comment,-,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x62,20,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"Number
+Format",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0 for this version),
+1,U1,-,minGNSSFix,-,"Minimum number of GNSS fixes before we
+commit to use it as a source",
+2,U2,-,"maxFreqChange
+Rate",ppb/s,"Maximum frequency change rate during
+disciplining. Must not exceed 30ppb/s",
+4,U2,-,"maxPhaseCorrR
+ate",ns/s,"Maximum phase correction rate in coherent
+time pulse mode.
+For maximum phase correction rate in corrective
+time pulse mode see maxSlewRate.
+Note that in coherent time pulse mode phase
+correction is achieved by intentional frequency
+offset. Allowing for a high phase correction rate
+can result in large intentional frequency offset.
+Must not exceed 100ns/s",
+6,U1[2],-,reserved1,-,Reserved,
+8,U2,-,freqTolerance,ppb,"Limit of possible deviation from nominal before
+TIM-TOS indicates that frequency is out of
+tolerance",
+10,U2,-,timeTolerance,ns,"Limit of possible deviation from nominal before
+TIM-TOS indicates that time pulse is out of
+tolerance",

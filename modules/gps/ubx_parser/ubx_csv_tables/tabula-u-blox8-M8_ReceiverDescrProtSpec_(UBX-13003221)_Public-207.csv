@@ -1,0 +1,8 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",5,U1,-,status,-,"Geofencing status0 - Geofencing not available or not reliable1 - Geofencing active"
+"",6,U1,-,numFences,-,Number of geofences
+"",7,U1,-,combState,-,"Combined (logical OR) state of all geofences0 - Unknown1 - Inside2 - Outside"
+"",Start of repeated block (numFences times),,,,,
+"",8 + 2*N,U1,-,state,-,"Geofence state0 - Unknown1 - Inside2 - Outside"
+"",9 + 2*N,U1[1],-,reserved1,-,Reserved
+"",End of repeated block,,,,,

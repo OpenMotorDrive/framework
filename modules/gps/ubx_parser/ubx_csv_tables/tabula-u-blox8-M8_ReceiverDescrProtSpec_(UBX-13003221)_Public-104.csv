@@ -1,0 +1,11 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+1,U1,-,version,-,Message version (0x01 for this version)
+2,U1[2],-,reserved1,-,Reserved
+4,I2,-,antCableDelay,ns,Antenna cable delay
+6,I2,-,rfGroupDelay,ns,RF group delay
+8,U4,-,freqPeriod,"Hz_or_us","Frequency or period time, depending on settingof bit 'isFreq'"
+12,U4,-,"freqPeriodLock","Hz_or_us","Frequency or period time when locked to GNSStime, only used if 'lockedOtherSet' is set"
+16,U4,-,pulseLenRatio,"us_or_2^-32","Pulse length or duty cycle, depending on'isLength'"
+20,U4,-,"pulseLenRatioLock","us_or_2^-32","Pulse length or duty cycle when locked to GNSStime, only used if 'lockedOtherSet' is set"
+24,I4,-,"userConfigDelay",ns,User configurable time pulse delay
+28,X4,-,flags,-,Configuration flags (see graphic below)

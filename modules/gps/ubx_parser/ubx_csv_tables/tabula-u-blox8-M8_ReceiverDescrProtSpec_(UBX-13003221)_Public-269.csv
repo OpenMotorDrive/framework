@@ -1,0 +1,16 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",0,U1,-,version,-,Message version (0 for this version)
+"",1,U1,-,numMeas,-,Number of measurements in repeated block
+"",2,U1[2],-,reserved1,-,Reserved
+"",4,U4,-,iTOW,ms,Time of the week
+"",8,U1[4],-,reserved2,-,Reserved
+"",Start of repeated block (numMeas times),,,,,
+"",12 + 24*N,U1,-,sourceId,-,"Index of source. SMEAS can provide sixmeasurement sources. The first four sourceIdvalues represent measurements made by thereceiver and sent to the host. The first of thesewith a sourceId value of 0 is a measurement ofthe internal oscillator against the currentreceiver time-and-frequency estimate. Theinternal oscillator is being disciplined againstthat estimate and this result represents thecurrent offset between the actual and desiredinternal oscillator states. The next three sourceIdvalues represent frequency and timemeasurements made by the receiver against theinternal oscillator. sourceId 1 represents theGNSS-derived frequency and time comparedwith the internal oscillator frequency and time.sourceId2 give measurements of a signalcoming in on EXTINT0. sourceId 3 correspondsto a similar measurement on EXTINT1. Theremaining two of these measurements (sourceId4 and 5) are made by the host and sent to thereceiver. A measurement with sourceId 4 is ameasurement by the host of the internaloscillator and sourceId 5 indicates a hostmeasurement of the external oscillator."
+"",13 + 24*N,X1,-,flags,-,Flags (see graphic below)
+"",14 + 24*N,I1,2^-8,"phaseOffsetFrac",ns,"Sub-nanosecond phase offset; the total offset isthe sum of phaseOffset and phaseOffsetFrac"
+"",15 + 24*N,U1,2^-8,phaseUncFrac,ns,Sub-nanosecond phase uncertainty
+"",16 + 24*N,I4,-,phaseOffset,ns,"Phase offset, positive if the source lags accuratephase and negative if the source is early"
+"",20 + 24*N,U4,-,phaseUnc,ns,Phase uncertainty (one standard deviation)
+"",24 + 24*N,U1[4],-,reserved3,-,Reserved
+"",28 + 24*N,I4,2^-8,freqOffset,ppb,"Frequency offset, positive if the sourcefrequency is too high, negative if the frequencyis too low."

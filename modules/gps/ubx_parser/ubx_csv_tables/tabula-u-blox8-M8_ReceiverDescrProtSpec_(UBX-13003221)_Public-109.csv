@@ -1,0 +1,18 @@
+Message,ESF-INS,,,,,
+Description,Vehicle dynamics information,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 19 up to version 23.01 (only with ADR orUDR products)",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"This message outputs information about vehicle dynamics computed by the InertialNavigation System (INS) during ESF-based navigation.For ADR products, the output dynamics information (angular rates and accelerations) isexpressed with respect to the vehicle-frame. More information can be found in the ADRNavigation Output section.For UDR products, the output dynamics information (angular rates and accelerations) isexpressed with respect to the body-frame. More information can be found in the UDRNavigation Output section.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x10,0x15,36,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,bitfield0,-,Bitfield (see graphic below),
+4,U1[4],-,reserved1,-,Reserved,
+8,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+12,I4,1e-3,xAngRate,deg/s,Compensated x-axis angular rate.,
+16,I4,1e-3,yAngRate,deg/s,Compensated y-axis angular rate.,
+20,I4,1e-3,zAngRate,deg/s,Compensated z-axis angular rate.,
+24,I4,-,xAccel,mg,Compensated x-axis acceleration (gravity-free).,
+28,I4,-,yAccel,mg,Compensated y-axis acceleration (gravity-free).,
+32,I4,-,zAccel,mg,Compensated z-axis acceleration (gravity-free).,

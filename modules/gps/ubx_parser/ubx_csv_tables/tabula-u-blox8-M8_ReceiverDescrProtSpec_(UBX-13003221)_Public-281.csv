@@ -1,0 +1,15 @@
+"",Message,TIM-VCOCAL,,,,,
+"",Description,Results of the calibration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"This message is sent when the oscillator gain calibration process is finished (successful orunsuccessful). It notifies the user of the calibrated oscillator gain. If the oscillator gaincalibration process was successful, this message will contain the measured gain (fieldgainVco) and its uncertainty (field gainUncertainty). The calibration process can howeverfail. In that case the two fields gainVco and gainUncertainty are set to zero.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0D,0x15,12,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (3 for this message),
+"",1,U1,-,version,-,Message version (0 for this version),
+"",2,U1,-,oscId,-,"Id of oscillator:0: internal oscillator1: external oscillator",
+"",3,U1[3],-,reserved1,-,Reserved,
+"",6,U2,2^-16,"gainUncertainty",1/1,"Relative gain uncertainty after calibration, 0 ifcalibration failed",
+"",8,I4,2^-16,gainVco,"ppb/raw LSB",Calibrated gain or 0 if calibration failed,

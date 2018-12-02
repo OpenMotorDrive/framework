@@ -1,0 +1,5 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",8,U1,-,hour,-,Hour (0-23) of UTC time
+"",9,U1,-,minute,-,Minute (0-59) of UTC time
+"",10,U1,-,second,-,Second (0-60) of UTC time
+"",11,U1,-,reserved2,-,Reserved

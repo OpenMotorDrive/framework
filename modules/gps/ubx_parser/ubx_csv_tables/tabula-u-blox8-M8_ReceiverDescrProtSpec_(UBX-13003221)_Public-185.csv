@@ -1,0 +1,15 @@
+Message,MON-GNSS,,,,,
+Description,Information message major GNSS selection,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Polled,,,,,
+Comment,"This message reports major GNSS selection. It does this by means of bit masks in U1 fields.Each bit in a bit mask corresponds to one major GNSS. Augmentation systems are notreported.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x0A,0x28,8,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0x01for this version),
+1,X1,-,supported,-,"A bit mask showing the major GNSS that can besupported by this receiver (see graphic below)",
+2,X1,-,defaultGnss,-,"A bit mask showing the default major GNSSselection. If the default major GNSS selection iscurrently configured in the efuse for thisreceiver, it takes precedence over the defaultmajor GNSS selection configured in theexecuting firmware of this receiver. (see graphicbelow)",
+3,X1,-,enabled,-,"A bit mask showing the current major GNSSselection enabled for this receiver (see graphicbelow)",
+4,U1,-,simultaneous,-,"Maximum number of concurrent major GNSSthat can be supported by this receiver",
+5,U1[3],-,reserved1,-,Reserved,

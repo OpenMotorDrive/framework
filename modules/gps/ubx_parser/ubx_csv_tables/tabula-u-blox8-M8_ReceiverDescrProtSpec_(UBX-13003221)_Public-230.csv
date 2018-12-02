@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+32,U4,-,obs,-,"Number of position observations used duringsurvey-in"
+36,U1,-,valid,-,"Survey-in position validity flag, 1 = valid,otherwise 0"
+37,U1,-,active,-,"Survey-in in progress flag, 1 = in-progress,otherwise 0"
+38,U1[2],-,reserved3,-,Reserved

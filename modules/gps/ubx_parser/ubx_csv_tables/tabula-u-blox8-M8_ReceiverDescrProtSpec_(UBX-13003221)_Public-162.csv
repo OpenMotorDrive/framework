@@ -1,0 +1,26 @@
+"",Message,UBX-MGA-GLO-ALM,,,,,
+"",Description,GLONASS Almanac Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of GLONASS almanac assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x06,36,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x02 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1,-,svId,-,"GLONASS Satellite identifier (see SatelliteNumbering)",
+"",3,U1,-,reserved1,-,Reserved,
+"",4,U2,-,N,days,"Reference calender day number of almanacwithin the four-year period (from string 5)",
+"",6,U1,-,M,-,"Type of GLONASS satellite (1 indicatesGLONASS-M)",
+"",7,U1,-,C,-,"Unhealthy flag at instant of almanac upload (1indicates operability of satellite)",
+"",8,I2,2^-18,tau,s,Coarse time correction to GLONASS time,
+"",10,U2,2^-20,epsilon,-,Eccentricity,
+"",12,I4,2^-20,lambda,"semi-circles","Longitude of the first (within the N-day)ascending node of satellite orbit in PC-90.02coordinate system",
+"",16,I4,2^-20,deltaI,"semi-circles",Correction to the mean value of inclination,
+"",20,U4,2^-5,tLambda,s,Time of the first ascending node passage,
+"",24,I4,2^-9,deltaT,"s/orbital-period","Correction to the mean value of Draconianperiod",
+"",28,I1,2^-14,deltaDT,"s/orbital-period^2",Rate of change of Draconian perion,
+"",29,I1,-,H,-,"Carrier frequency number of navigation RFsignal, Range=(-7 .. 6)",
+"",30,I2,-,omega,-,Argument of perigee,
+"",32,U1[4],-,reserved2,-,Reserved,

@@ -1,0 +1,8 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+42 + 32*N,U1,-,cno,dBHz,"Carrier-to-noise density ratio (signal strength)[dB-Hz]"
+43 + 32*N,X1,"0.01*2^n",prStdev,m,"Estimated pseudorange measurement standarddeviation (see graphic below)"
+44 + 32*N,X1,0.004,cpStdev,cycles,"Estimated carrier phase measurement standarddeviation (note a raw value of 0x0F indicates thevalue is invalid) (see graphic below)"
+45 + 32*N,X1,"0.002*2^n",doStdev,Hz,"Estimated Doppler measurement standarddeviation. (see graphic below)"
+46 + 32*N,X1,-,trkStat,-,Tracking status bitfield (see graphic below)
+47 + 32*N,U1,-,reserved3,-,Reserved
+End of repeated block,,,,,

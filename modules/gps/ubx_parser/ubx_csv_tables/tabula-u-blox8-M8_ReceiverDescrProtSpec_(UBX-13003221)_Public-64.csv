@@ -1,0 +1,8 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+28,U1[2],-,reserved7,-,Reserved
+30,U2,-,aopOrbMaxErr,m,"Maximum acceptable (modeled) AssistNowAutonomous orbit error (valid range = 5..1000,or 0 = reset to firmware default)"
+32,U1[4],-,reserved8,-,Reserved
+36,U1[3],-,reserved9,-,Reserved
+39,U1,-,useAdr,-,"Only supported on certain productsEnable/disable ADR/UDR sensor fusion (if 0:sensor fusion is disabled - if 1: sensor fusion isenabled)."
+40,U1[2],-,reserved10,-,Reserved
+42,U1[2],-,reserved11,-,Reserved

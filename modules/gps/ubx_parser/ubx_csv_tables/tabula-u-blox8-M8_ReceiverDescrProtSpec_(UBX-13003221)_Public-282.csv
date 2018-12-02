@@ -1,0 +1,11 @@
+"",Message,TIM-VRFY,,,,,
+"",Description,Sourced Time Verification,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"This message contains verification information about previous time received via AID-INI orfrom RTC",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0D,0x06,20,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,I4,-,itow,ms,integer millisecond tow received by source,
+"",4,I4,-,frac,ns,sub-millisecond part of tow,

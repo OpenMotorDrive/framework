@@ -1,0 +1,10 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",4,U1,-,pioEnabled,-,"1 = Enable PIO combined fence state output, 0= disable"
+"",5,U1,-,pinPolarity,-,"PIO pin polarity. 0 = Low means inside, 1 = Lowmeans outside. Unknown state is always high."
+"",6,U1,-,pin,-,PIO pin number
+"",7,U1[1],-,reserved2,-,Reserved
+"",Start of repeated block (numFences times),,,,,
+"",8 + 12*N,I4,1e-7,lat,deg,Latitude of the geofence circle center
+"",12 + 12*N,I4,1e-7,lon,deg,Longitude of the geofence circle center
+"",16 + 12*N,U4,1e-2,radius,m,Radius of the geofence circle
+"",End of repeated block,,,,,

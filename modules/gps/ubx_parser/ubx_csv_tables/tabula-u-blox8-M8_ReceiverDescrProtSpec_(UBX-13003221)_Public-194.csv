@@ -1,0 +1,18 @@
+"",Message,MON-SMGR,,,,,
+"",Description,Synchronization Manager Status,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 23.01 (only with Time &Frequency Sync products)",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"This message reports the status of internal and external oscillators and sources as well aswhether GNSS is used for disciplining.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0A,0x2E,16,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U4,-,iTOW,ms,Time of the week,
+"",8,X2,-,intOsc,-,"A bit mask, indicating the status of the localoscillator (see graphic below)",
+"",10,X2,-,extOsc,-,"A bit mask, indicating the status of the externaloscillator (see graphic below)",
+"",12,U1,-,discSrc,-,"Disciplining source identifier:0: internal oscillator1: GNSS2: EXTINT03: EXTINT14: internal oscillator measured by the host5: external oscillator measured by the host",
+"",13,X1,-,gnss,-,"A bit mask, indicating the status of the GNSS(see graphic below)",
+"",14,X1,-,extInt0,-,"A bit mask, indicating the status of the externalinput 0 (see graphic below)",
+"",15,X1,-,extInt1,-,"A bit mask, indicating the status of the externalinput 1 (see graphic below)",

@@ -1,0 +1,19 @@
+Message,MGA-ANO,,,,,
+Description,Multiple GNSS AssistNow Offline Assistance,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Input,,,,,
+Comment,"This message is created by the AssistNow Offline service to deliver AssistNow Offlineassistance to the receiver. See the description of AssistNow Offline for details.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x13,0x20,76,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,type,-,Message type (0x00 for this type),
+1,U1,-,version,-,Message version (0x00 for this version),
+2,U1,-,svId,-,Satellite identifier (see Satellite Numbering),
+3,U1,-,gnssId,-,GNSS identifier (see Satellite Numbering),
+4,U1,-,year,-,years since the year 2000,
+5,U1,-,month,-,month (1..12),
+6,U1,-,day,-,day (1..31),
+7,U1,-,reserved1,-,Reserved,
+8,U1[64],-,data,-,assistance data,
+72,U1[4],-,reserved2,-,Reserved,

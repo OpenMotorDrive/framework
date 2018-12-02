@@ -1,0 +1,16 @@
+"",Message,UBX-MGA-INI-POS_XYZ,,,,,
+"",Description,Initial Position Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"Supplying position assistance that is inaccurate by more than the specifiedposition accuracy, may lead to substantially degraded receiver performance.This message allows the delivery of initial position assistance to a receiver in cartesian ECEFcoordinates. This message is equivalent to the UBX-MGA-INI-POS_LLH message, exceptfor the coordinate system. See the description of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x40,20,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x00 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,I4,-,ecefX,cm,WGS84 ECEF X coordinate,
+"",8,I4,-,ecefY,cm,WGS84 ECEF Y coordinate,
+"",12,I4,-,ecefZ,cm,WGS84 ECEF Z coordinate,
+"",16,U4,-,posAcc,cm,Position accuracy (stddev),

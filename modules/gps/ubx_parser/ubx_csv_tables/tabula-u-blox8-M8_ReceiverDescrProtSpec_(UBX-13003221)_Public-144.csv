@@ -1,0 +1,14 @@
+"",Message,UBX-MGA-BDS-HEALTH,,,,,
+"",Description,BDS Health Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of BeiDou health assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x03,68,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x04 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,U2[30],-,healthCode,-,"Each two-byte value represents a BDS SV (1-30).The 9 LSBs of each byte contain the 9 bit healthcode from subframe 5 pages 7,8 of the D1message, and from subframe 5 pages 35,36 ofthe D1 message.",
+"",64,U1[4],-,reserved2,-,Reserved,

@@ -1,0 +1,15 @@
+"",Message,CFG-NMEA,,,,,
+"",Description,Extended NMEA protocol configuration V1,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"Set/Get the NMEA protocol configuration. See section NMEA Protocol Configuration for adetailed description of the configuration effects on NMEA output.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x17,20,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,X1,-,filter,-,filter flags (see graphic below),
+"",1,U1,-,nmeaVersion,-,"0x41: NMEA version 4.10x40: NMEA version 4.00x23: NMEA version 2.30x21: NMEA version 2.1",
+"",2,U1,-,numSV,-,"Maximum Number of SVs to report per TalkerId.0: unlimited8: 8 SVs12: 12 SVs16: 16 SVs",
+"",3,X1,-,flags,-,flags (see graphic below),
+"",4,X4,-,gnssToFilter,-,"Filters out satellites based on their GNSS. If abitfield is enabled, the corresponding satelliteswill be not output. (see graphic below)",
+"",8,U1,-,svNumbering,-,"Configures the display of satellites that do nothave an NMEA-defined value.Note: this does not apply to satellites with anunknown ID.0: Strict - Satellites are not output1: Extended - Use proprietary numbering (seeSatellite numbering)",

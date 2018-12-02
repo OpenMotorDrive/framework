@@ -1,0 +1,11 @@
+"",Message,NAV-GEOFENCE,,,,,
+"",Description,Geofencing status,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"This message outputs the evaluated states of all configured geofences for the currentepoch's position.See the Geofencing description for feature details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x39,8 + 2*numFences,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+"",4,U1,-,version,-,Message version (0x00 for this version),

@@ -1,0 +1,14 @@
+"",Message,NAV-TIMELS,,,,,
+"",Description,Leap second event information,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,Information about the upcoming leap second event if one is scheduled.,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x26,24,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+"",4,U1,-,version,-,Message version (0x00 for this version).,
+"",5,U1[3],-,reserved1,-,Reserved,
+"",8,U1,-,srcOfCurrLs,-,"Information source for the current number ofleap seconds.0: Default (hardcoded in the firmware, can beoutdated)1: Derived from time difference between GPSand GLONASS time2: GPS3: SBAS4: BeiDou5: Galileo6: Aided data7: Configured255: Unknown",
+"",9,I1,-,currLs,s,"Current number of leap seconds since start ofGPS time (Jan 6, 1980). It reflects how muchGPS time is ahead of UTC time. Galileo numberof leap seconds is the same as GPS. BeiDounumber of leap seconds is 14 less than GPS.GLONASS follows UTC time, so no leapseconds.",

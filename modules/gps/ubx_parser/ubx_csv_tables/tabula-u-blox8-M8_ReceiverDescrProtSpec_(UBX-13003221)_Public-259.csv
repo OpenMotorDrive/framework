@@ -1,0 +1,9 @@
+"",Message,RXM-SVSI,,,,,
+"",Description,SV Status Info,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"Status of the receiver manager knowledge about GPS Orbit ValidityThis message has only been retained for backwards compatibility; users are recommendedto use the UBX-NAV-ORB message in preference.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x02,0x20,8 + 6*numSV,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,

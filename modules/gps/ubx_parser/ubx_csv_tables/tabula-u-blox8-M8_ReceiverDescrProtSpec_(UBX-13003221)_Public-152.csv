@@ -1,0 +1,4 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",0,U1,-,type,-,Message type (0x02 for this type)
+"",1,U1,-,version,-,Message version (0x00 for this version)

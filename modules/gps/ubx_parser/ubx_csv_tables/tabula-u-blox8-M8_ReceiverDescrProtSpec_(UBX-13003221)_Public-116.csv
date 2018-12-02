@@ -1,0 +1,9 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+40,I4,-,speed,mm/s,Speed (3-D)
+44,I4,1e-5,headMot,deg,Heading of motion (2-D)
+48,I4,1e-5,headVeh,deg,Heading of vehicle (2-D)
+52,U4,-,hAcc,mm,Horizontal accuracy
+56,U4,-,vAcc,mm,Vertical accuracy
+60,U4,-,sAcc,mm/s,Speed accuracy
+64,U4,1e-5,headAcc,deg,Heading accuracy
+68,U1[4],-,reserved2,-,Reserved

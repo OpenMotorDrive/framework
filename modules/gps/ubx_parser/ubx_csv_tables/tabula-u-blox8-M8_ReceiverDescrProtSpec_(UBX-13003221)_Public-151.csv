@@ -1,0 +1,8 @@
+"",Message,UBX-MGA-FLASH-STOP,,,,,
+"",Description,Finish flashing MGA-ANO data,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message is used to tell the receiver that there are no more MGA-FLASH type 1messages coming, and that it can do any final internal operations needed to commit thedata to flash as a background activity. A UBX-MGA-ACK message will be sent at the end ofthis process. Note that there may be a delay of several seconds before the UBX-MGA-ACKfor this message is sent because of the time taken for this processing. See Flash-basedAssistNow Offline for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x13,0x21,2,see below,CK_A CK_B,
+"",Payload Contents:,,,,,,

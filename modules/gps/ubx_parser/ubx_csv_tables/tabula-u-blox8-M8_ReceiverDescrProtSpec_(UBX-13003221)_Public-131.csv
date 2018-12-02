@@ -1,0 +1,6 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+41,U1,-,newestMinute,-,Newest minute (0-59)
+42,U1,-,newestSecond,-,Newest second (0-60)
+43,U1,-,reserved4,-,Reserved
+44,X1,-,status,-,Log status flags (see graphic below)
+45,U1[3],-,reserved5,-,Reserved

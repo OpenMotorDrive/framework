@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+24,U4,0.1,accN,mm,Accuracy of relative position North component
+28,U4,0.1,accE,mm,Accuracy of relative position East component
+32,U4,0.1,accD,mm,Accuracy of relative position Down component
+36,X4,-,flags,-,Flags (see graphic below)

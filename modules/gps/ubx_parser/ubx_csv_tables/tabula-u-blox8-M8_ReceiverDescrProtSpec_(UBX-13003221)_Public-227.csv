@@ -1,0 +1,7 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+4,U1,-,gpsFix,-,"GPSfix Type, this value does not qualify a fix asvalid and within the limits. See note on flaggpsFixOk below.0x00 = no fix0x01 = dead reckoning only0x02 = 2D-fix0x03 = 3D-fix0x04 = GPS + dead reckoning combined0x05 = Time only fix0x06..0xff = reserved"
+5,X1,-,flags,-,Navigation Status Flags (see graphic below)
+6,X1,-,fixStat,-,Fix Status Information (see graphic below)
+7,X1,-,flags2,-,"further information about navigation output(see graphic below)"
+8,U4,-,ttff,ms,Time to first fix (millisecond time tag)
+12,U4,-,msss,ms,Milliseconds since Startup / Reset

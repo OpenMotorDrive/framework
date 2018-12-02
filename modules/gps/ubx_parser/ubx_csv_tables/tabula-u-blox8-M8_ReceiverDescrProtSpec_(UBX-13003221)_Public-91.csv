@@ -1,0 +1,11 @@
+"",Message,CFG-RXM,,,,,
+"",Description,RXM configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,For a detailed description see section Power Management.,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x11,2,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,reserved1,-,Reserved,
+"",1,U1,-,lpMode,-,"Low Power Mode0: Continuous Mode1: Power Save Mode4: Continuous Mode",

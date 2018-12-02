@@ -1,0 +1,3 @@
+Name,Class,Description
+SEC,0x27,Security Feature Messages
+HNR,0x28,"High Rate Navigation Results Messages: High rate time, position, speed, heading"

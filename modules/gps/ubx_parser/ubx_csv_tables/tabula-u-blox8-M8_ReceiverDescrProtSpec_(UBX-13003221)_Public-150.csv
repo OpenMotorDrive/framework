@@ -1,0 +1,16 @@
+"",Message,UBX-MGA-FLASH-DATA,,,,,
+"",Description,Transfer MGA-ANO data block to flash,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message is used to transfer a block of MGA-ANO data from host to the receiver. Uponreception of this message, the receiver will write the payload data to its internalnon-volatile memory (flash). Also, on reception of the first MGA-FLASH-DATA message, thereceiver will erase the flash allocated to storing any existing MGA-ANO data. The payloadcan be up to 512 bytes. Payloads larger than this would exceed the receiver's internalbuffering capabilities. The receiver will ACK/NACK this message using the messagealternatives given below. The host shall wait for an acknowledge message before sendingthe next data block. See Flash-based AssistNow Offline for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x21,6 + 1*size,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x01 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U2,-,sequence,-,"Message sequence number, starting at 0 andincreamenting by 1 for each MGA-FLASH-DATAmessage sent.",
+"",4,U2,-,size,-,Payload size in bytes.,
+"",Start of repeated block (size times),,,,,,
+"",6 + 1*N,U1,-,data,-,Payload data.,
+"",End of repeated block,,,,,,

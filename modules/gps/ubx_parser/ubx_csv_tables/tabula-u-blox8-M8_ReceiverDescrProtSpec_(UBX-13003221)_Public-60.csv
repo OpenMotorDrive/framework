@@ -1,0 +1,15 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+12,U1,-,minCNO,dBHz,Minimum satellite signal level for navigation
+13,U1,-,reserved2,-,Reserved
+14,U1,-,iniFix3D,-,1 = initial fix must be 3D
+15,U1[2],-,reserved3,-,Reserved
+17,U1,-,ackAiding,-,"1 = issue acknowledgements for assistancemessage input"
+18,U2,-,wknRollover,-,"GPS week rollover number; GPS week numberswill be set correctly from this week up to 1024weeks after this week. Setting this to 0 revertsto firmware default."
+20,U1[6],-,reserved4,-,Reserved
+26,U1,-,usePPP,-,"1 = use Precise Point Positioning (only availablewith the PPP product variant)"
+27,U1,-,aopCfg,-,"AssistNow Autonomous configuration (seegraphic below)"
+28,U1[2],-,reserved5,-,Reserved
+30,U2,-,aopOrbMaxErr,m,"Maximum acceptable (modeled) AssistNowAutonomous orbit error (valid range = 5..1000,or 0 = reset to firmware default)"
+32,U1[4],-,reserved6,-,Reserved
+36,U1[3],-,reserved7,-,Reserved
+39,U1,-,useAdr,-,"Only supported on certain productsEnable/disable ADR sensor fusion (if 0: sensorfusion is disabled - if 1: sensor fusion isenabled)."

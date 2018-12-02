@@ -1,0 +1,10 @@
+"",Message,AID-EPH,,,,,
+"",Description,GPS Aiding Ephemeris Input/Output Message,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input/Output,,,,,
+"",Comment,"All UBX-AID messages are deprecated; use UBX-MGA messages instead•SF1D0 to SF3D7 is only sent if ephemeris is available for this SV. If not, the payload maybe reduced to 8 Bytes, or all bytes are set to zero, indicating that this SV Number doesnot have valid ephemeris for the moment. This may happen even if NAV-SVINFO andRXM-SVSI are indicating ephemeris availability as the internal data may not represent thecontent of an original broadcast ephemeris (or only parts thereof).•SF1D0 to SF3D7 contain the 24 words following the Hand-Over Word ( HOW ) from theGPS navigation message, subframes 1 to 3. The Truncated TOW Count is not valid andcannot be used. See IS-GPS-200 for a full description of the contents of the Subframes.•In SF1D0 to SF3D7, the parity bits have been removed, and the 24 bits of data arelocated in Bits 0 to 23. Bits 24 to 31 shall be ignored.•When polled, the data contained in this message does not represent the full originalephemeris broadcast. Some fields that are irrelevant to u-blox receivers may be missing.The week number in Subframe 1 has already been modified to match the Time OfEphemeris (TOE).",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0B,0x31,(8) or (104),see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,svid,-,"SV ID for which this ephemeris data is (ValidRange: 1 .. 32).",

@@ -1,0 +1,2 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",4,U4,-,state,-,"Enter system state0x52554E20: GNSS running0x53544F50: GNSS stopped0x42434B50: Software Backup. USB interfacewill be disabled, other wakeup source isneeded."

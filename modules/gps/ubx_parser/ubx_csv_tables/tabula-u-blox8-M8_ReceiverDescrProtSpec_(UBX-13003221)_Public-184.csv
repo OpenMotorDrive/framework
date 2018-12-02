@@ -1,0 +1,15 @@
+"",Message,MON-BATCH,,,,,
+"",Description,Data batching buffer status,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 with protocol version 23.01",,,,,
+"",Type,Polled,,,,,
+"",Comment,"This message contains status information about the batching buffer.It can be polled and it can also be sent by the receiver as a response to aUBX-LOG-RETRIEVEBATCH message before the UBX-LOG-BATCH messages.See Data Batching for more information.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0A,0x32,12,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0x00 for this version),
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U2,-,fillLevel,-,"Current buffer fill level, i.e. number of epochscurrently stored",
+"",6,U2,-,dropsAll,-,"Number of dropped epochs since startupNote: changing the batching configuration willreset this counter.",
+"",8,U2,-,dropsSinceMon,-,"Number of dropped epochs since lastMON-BATCH message",
+"",10,U2,-,nextMsgCnt,-,"The next retrieved UBX-LOG-BATCH will havethis msgCnt value.",

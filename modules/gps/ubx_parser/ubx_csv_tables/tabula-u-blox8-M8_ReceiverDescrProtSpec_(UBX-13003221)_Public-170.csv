@@ -1,0 +1,21 @@
+"",Message,UBX-MGA-GPS-IONO,,,,,
+"",Description,GPS Ionosphere Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of GPS ionospheric assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x00,16,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x06 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,I1,2^-30,ionoAlpha0,s,Ionospheric parameter alpha0 [s],
+"",5,I1,2^-27,ionoAlpha1,"s/semi-circle",Ionospheric parameter alpha1 [s/semi-circle],
+"",6,I1,2^-24,ionoAlpha2,"s/(semi-circle^2)",Ionospheric parameter alpha2 [s/semi-circle^2],
+"",7,I1,2^-24,ionoAlpha3,"s/(semi-circle^3)",Ionospheric parameter alpha3 [s/semi-circle^3],
+"",8,I1,2^11,ionoBeta0,s,Ionospheric parameter beta0 [s],
+"",9,I1,2^14,ionoBeta1,"s/semi-circle",Ionospheric parameter beta1 [s/semi-circle],
+"",10,I1,2^16,ionoBeta2,"s/(semi-circle^2)",Ionospheric parameter beta2 [s/semi-circle^2],
+"",11,I1,2^16,ionoBeta3,"s/(semi-circle^3)",Ionospheric parameter beta3 [s/semi-circle^3],
+"",12,U1[4],-,reserved2,-,Reserved,

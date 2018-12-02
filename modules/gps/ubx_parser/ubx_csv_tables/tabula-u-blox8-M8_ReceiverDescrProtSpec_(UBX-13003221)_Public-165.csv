@@ -1,0 +1,26 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",6,U1,-,svHealth,-,SV health
+"",7,I1,2^-31,tgd,s,Group delay differential
+"",8,U2,-,iodc,-,IODC
+"",10,U2,2^4,toc,s,Clock data reference time
+"",12,U1,-,reserved2,-,Reserved
+"",13,I1,2^-55,af2,"s/ssquared",Time polynomial coefficient 2
+"",14,I2,2^-43,af1,s/s,Time polynomial coefficient 1
+"",16,I4,2^-31,af0,s,Time polynomial coefficient 0
+"",20,I2,2^-5,crs,m,Crs
+"",22,I2,2^-43,deltaN,"semi-circles/s",Mean motion difference from computed value
+"",24,I4,2^-31,m0,"semi-circles",Mean anomaly at reference time
+"",28,I2,2^-29,cuc,radians,"Amplitude of cosine harmonic correction termto argument of latitude"
+"",30,I2,2^-29,cus,radians,"Amplitude of sine harmonic correction term toargument of latitude"
+"",32,U4,2^-33,e,-,Eccentricity
+"",36,U4,2^-19,sqrtA,m^0.5,Square root of the semi-major axis
+"",40,U2,2^4,toe,s,Reference time of ephemeris
+"",42,I2,2^-29,cic,radians,"Amplitude of cos harmonic correction term toangle of inclination"
+"",44,I4,2^-31,omega0,"semi-circles","Longitude of ascending node of orbit plane atweekly epoch"
+"",48,I2,2^-29,cis,radians,"Amplitude of sine harmonic correction term toangle of inclination"
+"",50,I2,2^-5,crc,m,"Amplitude of cosine harmonic correction termto orbit radius"
+"",52,I4,2^-31,i0,"semi-circles",Inclination angle at reference time
+"",56,I4,2^-31,omega,"semi-circles",Argument of perigee
+"",60,I4,2^-43,omegaDot,"semi-circles/s",Rate of right ascension
+"",64,I2,2^-43,idot,"semi-circles/s",Rate of inclination angle
+"",66,U1[2],-,reserved3,-,Reserved

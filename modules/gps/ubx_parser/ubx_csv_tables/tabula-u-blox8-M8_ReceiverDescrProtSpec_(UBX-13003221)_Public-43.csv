@@ -1,0 +1,13 @@
+"",Message,CFG-GEOFENCE,,,,,
+"",Description,Geofencing configuration,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"Gets or sets the geofencing configurationSee the Geofencing description for feature details.If the receiver is sent a valid new configuration, it will respond with a UBX-ACK-ACKmessage and immediately change to the new configuration. Otherwise the receiver willreject the request, by issuing a UBX-ACK-NAK and continuing operation with the previousconfiguration.Note that the acknowledge message does not indicate whether the PIO configuration hasbeen successfully applied (pin assigned), it only indicates the successful configuration of thefeature. The configured PIO must be previously unoccupied for successful assignment.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x69,8 + 12*numFences,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (=0x00 for this version),
+"",1,U1,-,numFences,-,"Number of geofences contained in thismessage. Note that the receiver can only store alimited number of geofences (currently 4).",
+"",2,U1,-,confLvl,-,"Required confidence level for state evaluation.This value times the position's standarddeviation (sigma) defines the confidence band.0=no confidence required, 1=68%, 2=95%,3=99.7% etc.",
+"",3,U1[1],-,reserved1,-,Reserved,

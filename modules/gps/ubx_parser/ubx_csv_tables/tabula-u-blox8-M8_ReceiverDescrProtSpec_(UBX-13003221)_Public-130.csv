@@ -1,0 +1,27 @@
+"",Message,LOG-INFO,,,,,
+"",Description,Log information,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Output,,,,,
+"",Comment,"This message is used to report information about the logging subsystem.Note:•The reported maximum log size will be smaller than that originally specified inLOG-CREATE due to logging and filestore implementation overheads.•Log entries are compressed in a variable length fashion, so it may be difficult to predictlog space usage with any precision.•There may be times when the receiver does not have an accurate time (e.g. if the weeknumber is not yet known), in which case some entries will not have a timestamp. Thismay result in the oldest/newest entry time values not taking account of these entries.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x21,0x08,48,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,The version of this message. Set to 1,
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U4,-,"filestoreCapacity",bytes,The capacity of the filestore,
+"",8,U1[8],-,reserved2,-,Reserved,
+"",16,U4,-,"currentMaxLogSize",bytes,"The maximum size the current log is allowed togrow to",
+"",20,U4,-,"currentLogSize",bytes,"Approximate amount of space in log currentlyoccupied",
+"",24,U4,-,entryCount,-,"Number of entries in the log.Note: for circular logs this value will decreasewhen a group of entries is deleted to makespace for new ones.",
+"",28,U2,-,oldestYear,-,"Oldest entry UTC year year (1-65635) or zero ifthere are no entries with known time",
+"",30,U1,-,oldestMonth,-,Oldest month (1-12),
+"",31,U1,-,oldestDay,-,Oldest day (1-31),
+"",32,U1,-,oldestHour,-,Oldest hour (0-23),
+"",33,U1,-,oldestMinute,-,Oldest minute (0-59),
+"",34,U1,-,oldestSecond,-,Oldest second (0-60),
+"",35,U1,-,reserved3,-,Reserved,
+"",36,U2,-,newestYear,-,"Newest year (1-65635) or zero if there are noentries with known time",
+"",38,U1,-,newestMonth,-,Newest month (1-12),
+"",39,U1,-,newestDay,-,Newest day (1-31),
+"",40,U1,-,newestHour,-,Newest hour (0-23),

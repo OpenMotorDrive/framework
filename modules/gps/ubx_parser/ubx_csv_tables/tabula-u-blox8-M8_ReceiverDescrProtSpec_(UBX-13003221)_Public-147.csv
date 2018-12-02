@@ -1,0 +1,21 @@
+"",Message,UBX-MGA-BDS-IONO,,,,,
+"",Description,BDS Ionospheric Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of BeiDou ionospheric assistance to a receiver. See thedescription of AssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x03,16,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x06 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,I1,2^-30,alpha0,s,Ionospheric parameter alpha0,
+"",5,I1,2^-27,alpha1,s/pi,Ionospheric parameter alpha1,
+"",6,I1,2^-24,alpha2,s/pi^2,Ionospheric parameter alpha2,
+"",7,I1,2^-24,alpha3,s/pi^3,Ionospheric parameter alpha3,
+"",8,I1,2^11,beta0,s,Ionospheric parameter beta0,
+"",9,I1,2^14,beta1,s/pi,Ionospheric parameter beta1,
+"",10,I1,2^16,beta2,s/pi^2,Ionospheric parameter beta2,
+"",11,I1,2^16,beta3,s/pi^3,Ionospheric parameter beta3,
+"",12,U1[4],-,reserved2,-,Reserved,

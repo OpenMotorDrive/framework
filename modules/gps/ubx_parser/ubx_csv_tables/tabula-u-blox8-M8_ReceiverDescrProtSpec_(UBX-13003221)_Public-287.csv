@@ -1,0 +1,13 @@
+"",Message,UPD-SOS,,,,,
+"",Description,Backup File Creation Acknowledge,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Output,,,,,
+"",Comment,"The message is sent from the device as confirmation of creation of a backup file in flash.The host can safely shut down the device after received this message.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x09,0x14,8,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,cmd,-,Command (must be 2),
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U1,-,response,-,"0:  Not acknowledged1:  Acknowledged",
+"",5,U1[3],-,reserved2,-,Reserved,

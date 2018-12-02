@@ -1,0 +1,13 @@
+Message,CFG-NMEA,,,,,
+Description,NMEA protocol configuration (deprecated),,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Get/Set,,,,,
+Comment,"This message version is provided for backwards compatibility only. Use the lastversion listed below instead (its fields are backwards compatible with this version,it just has extra fields defined).Set/Get the NMEA protocol configuration. See section NMEA Protocol Configuration for adetailed description of the configuration effects on NMEA output.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x17,4,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,X1,-,filter,-,filter flags (see graphic below),
+1,U1,-,nmeaVersion,-,"0x23: NMEA version 2.30x21: NMEA version 2.1",
+2,U1,-,numSV,-,"Maximum Number of SVs to report per TalkerId.0: unlimited8: 8 SVs12: 12 SVs16: 16 SVs",
+3,X1,-,flags,-,flags (see graphic below),

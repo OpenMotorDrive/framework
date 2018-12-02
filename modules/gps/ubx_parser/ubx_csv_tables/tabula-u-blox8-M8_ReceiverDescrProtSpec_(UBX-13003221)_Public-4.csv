@@ -1,0 +1,38 @@
+Page,Mnemonic,Cls/ID,Length,Type,Description
+"",UBX Class ACK,Ack/Nak Messages,,,
+14,ACK-ACK,0x05 0x01,2,Output,Message Acknowledged
+14,ACK-NAK,0x05 0x00,2,Output,Message Not-Acknowledged
+"",UBX Class AID,AssistNow Aiding Messages,,,
+14,AID-ALM,0x0B 0x30,0,Poll Request,Poll GPS Aiding Almanac Data
+14,AID-ALM,0x0B 0x30,1,Poll Request,Poll GPS Aiding Almanac Data for a SV
+14,AID-ALM,0x0B 0x30,(8) or (40),Input/Output,GPS Aiding Almanac Input/Output Message
+14,AID-AOP,0x0B 0x33,0,Poll Request,"Poll AssistNow Autonomous data, all satellites"
+14,AID-AOP,0x0B 0x33,1,Poll Request,"Poll AssistNow Autonomous data, one GPS..."
+14,AID-AOP,0x0B 0x33,68,Input/Output,AssistNow Autonomous data
+14,AID-EPH,0x0B 0x31,0,Poll Request,Poll GPS Aiding Ephemeris Data
+15,AID-EPH,0x0B 0x31,1,Poll Request,Poll GPS Aiding Ephemeris Data for a SV
+15,AID-EPH,0x0B 0x31,(8) or (104),Input/Output,GPS Aiding Ephemeris Input/Output Message
+15,AID-HUI,0x0B 0x02,0,Poll Request,"Poll GPS Health, UTC, ionosphere parameters"
+15,AID-HUI,0x0B 0x02,72,Input/Output,"GPS Health, UTC and ionosphere parameters"
+15,AID-INI,0x0B 0x01,0,Poll Request,Poll GPS Initial Aiding Data
+15,AID-INI,0x0B 0x01,48,Input/Output,"Aiding position, time, frequency, clock drift"
+"",UBX Class CFG,Configuration Input Messages,,,
+15,CFG-ANT,0x06 0x13,4,Get/Set,Antenna Control Settings
+15,CFG-BATCH,0x06 0x93,8,Get/Set,Get/Set data batching configuration
+15,CFG-CFG,0x06 0x09,(12) or (13),Command,"Clear, Save and Load configurations"
+16,CFG-DAT,0x06 0x06,44,Set,Set User-defined Datum.
+16,CFG-DAT,0x06 0x06,52,Get,The currently defined Datum
+16,CFG-DGNSS,0x06 0x70,4,Get/Set,DGNSS configuration
+16,CFG-DOSC,0x06 0x61,4 + 32*numOsc,Get/Set,Disciplined oscillator configuration
+16,CFG-DYNSEED,0x06 0x85,12,Set,Programming the dynamic seed for the host...
+16,CFG-ESRC,0x06 0x60,4 + 36*numSo..,Get/Set,External synchronization source configuration
+16,CFG-FIXSEED,0x06 0x84,12 + 2*length,Set,Programming the fixed seed for host...
+16,CFG-GEOFENCE,0x06 0x69,8 + 12*numFe..,Get/Set,Geofencing configuration
+16,CFG-GNSS,0x06 0x3E,4 + 8*numCo...,Get/Set,GNSS system configuration
+16,CFG-HNR,0x06 0x5C,4,Get/Set,High Navigation Rate Settings
+17,CFG-INF,0x06 0x02,1,Poll Request,Poll configuration for one protocol
+17,CFG-INF,0x06 0x02,0 + 10*N,Get/Set,Information message configuration
+17,CFG-ITFM,0x06 0x39,8,Get/Set,Jamming/Interference Monitor configuration
+17,CFG-LOGFILTER,0x06 0x47,12,Get/Set,Data Logger Configuration
+17,CFG-MSG,0x06 0x01,2,Poll Request,Poll a message configuration
+17,CFG-MSG,0x06 0x01,8,Get/Set,Set Message Rate(s)

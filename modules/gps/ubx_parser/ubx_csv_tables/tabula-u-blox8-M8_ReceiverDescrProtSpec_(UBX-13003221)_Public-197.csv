@@ -1,0 +1,14 @@
+"",Message,MON-VER,,,,,
+"",Description,Receiver/Software Version,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Polled,,,,,
+"",Comment,-,,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0A,0x04,40 + 30*N,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,CH[30],-,swVersion,-,Zero-terminated Software Version String.,
+"",30,CH[10],-,hwVersion,-,Zero-terminated Hardware Version String,
+"",Start of repeated block (N times),,,,,,
+"",40 + 30*N,CH[30],-,extension,-,"Extended software information strings.A series of zero-terminated strings. Eachextension field is 30 characters long andcontains varying software information. Not allextension fields may appear.Example reported information can be: thesoftware version string of the underlying ROM(when the receiver's firmware is running fromflash), the firmware version, the supportedprotocol version, the module identifier, the FlashInformation Structure (FIS) file information, thesupported major GNSS, the supportedaugmentation systems.",
+"",End of repeated block,,,,,,

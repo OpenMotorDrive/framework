@@ -1,0 +1,5 @@
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+12,X2,-,inProtoMask,-,"A mask describing which input protocols areactive.Each bit of this mask is used for a protocol.Through that, multiple protocols can be definedon a single port. (see graphic below)"
+14,X2,-,outProtoMask,-,"A mask describing which output protocols areactive.Each bit of this mask is used for a protocol.Through that, multiple protocols can be definedon a single port. (see graphic below)"
+16,X2,-,flags,-,Flags bit mask (see graphic below)
+18,U1[2],-,reserved2,-,Reserved

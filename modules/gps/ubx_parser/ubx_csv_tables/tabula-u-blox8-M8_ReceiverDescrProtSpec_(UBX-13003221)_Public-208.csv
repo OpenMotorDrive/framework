@@ -1,0 +1,16 @@
+"",Message,NAV-HPPOSECEF,,,,,
+"",Description,High Precision Position Solution in ECEF,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 20.01 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"See important comments concerning validity of position given in sectionNavigation Output Filters.-",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x13,28,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,Message version (0 for this version),
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+"",8,I4,-,ecefX,cm,ECEF X coordinate,
+"",12,I4,-,ecefY,cm,ECEF Y coordinate,
+"",16,I4,-,ecefZ,cm,ECEF Z coordinate,
+"",20,I1,0.1,ecefXHp,mm,"High precision component of ECEF Xcoordinate. Must be in the range of -99..+99.Precise coordinate in cm = ecefX + (ecefXHp *1e-2).",

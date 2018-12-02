@@ -1,0 +1,19 @@
+"",Message,MON-HW2,,,,,
+"",Description,Extended Hardware Status,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Periodic/Polled,,,,,
+"",Comment,"Status of different aspects of the hardware such as Imbalance, Low-Level Configurationand POST Results.The first four parameters of this message represent the complex signal from the RF frontend. The following rules of thumb apply:•The smaller the absolute value of the variable ofsI and ofsQ, the better.•Ideally, the magnitude of the I-part (magI) and the Q-part (magQ) of the complex signalshould be the same.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0A,0x0B,28,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,I1,-,ofsI,-,"Imbalance of I-part of complex signal, scaled(-128 = max. negative imbalance, 127 = max.positive imbalance)",
+"",1,U1,-,magI,-,"Magnitude of I-part of complex signal, scaled (0= no signal, 255 = max. magnitude)",
+"",2,I1,-,ofsQ,-,"Imbalance of Q-part of complex signal, scaled(-128 = max. negative imbalance, 127 = max.positive imbalance)",
+"",3,U1,-,magQ,-,"Magnitude of Q-part of complex signal, scaled(0 = no signal, 255 = max. magnitude)",
+"",4,U1,-,cfgSource,-,"Source of low-level configuration(114 = ROM, 111 = OTP, 112 = config pins, 102= flash image)",
+"",5,U1[3],-,reserved1,-,Reserved,
+"",8,U4,-,lowLevCfg,-,"Low-level configuration (obsolete in protocolversions greater than 15)",
+"",12,U1[8],-,reserved2,-,Reserved,
+"",20,U4,-,postStatus,-,POST status word,
+"",24,U1[4],-,reserved3,-,Reserved,

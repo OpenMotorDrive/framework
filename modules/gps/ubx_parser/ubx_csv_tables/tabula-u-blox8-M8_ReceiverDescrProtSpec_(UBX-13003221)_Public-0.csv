@@ -1,0 +1,14 @@
+"",Short,Type,"Size(Bytes)",Comment,Min/Max,Resolution
+"",U1,Unsigned Char,1,,0..255,1
+"",RU1_3,Unsigned Char,1,"binary floatingpoint with 3 bitexponent, eeebbbbb, (Value &0x1F) << (Value>> 5)","0..(31*2^7)non-continuous",~ 2^(Value >> 5)
+"",I1,Signed Char,1,2's complement,-128..127,1
+"",X1,Bitfield,1,,n/a,n/a
+"",U2,Unsigned Short,2,,0..65535,1
+"",I2,Signed Short,2,2's complement,-32768..32767,1
+"",X2,Bitfield,2,,n/a,n/a
+"",U4,Unsigned Long,4,,0..4 '294'967'295,1
+"",I4,Signed Long,4,2's complement,"-2'147'483'648 ..2'147'483'647",1
+"",X4,Bitfield,4,,n/a,n/a
+"",R4,IEEE 754 Single Precision,4,,"-1*2^+127 ..2^+127",~ Value * 2^-24
+"",R8,IEEE 754 Double Precision,8,,"-1*2^+1023 ..2^+1023",~ Value * 2^-53
+"",CH,ASCII / ISO 8859.1 Encoding,1,,,

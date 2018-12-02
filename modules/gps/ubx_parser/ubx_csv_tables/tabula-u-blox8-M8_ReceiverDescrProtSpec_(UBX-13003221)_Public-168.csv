@@ -1,0 +1,17 @@
+"",Message,UBX-MGA-GPS-UTC,,,,,
+"",Description,GPS UTC Assistance,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Input,,,,,
+"",Comment,"This message allows the delivery of GPS UTC assistance to a receiver. See the description ofAssistNow Online for details.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x13,0x00,20,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (0x05 for this type),
+"",1,U1,-,version,-,Message version (0x00 for this version),
+"",2,U1[2],-,reserved1,-,Reserved,
+"",4,I4,2^-30,utcA0,s,First parameter of UTC polynomial,
+"",8,I4,2^-50,utcA1,s/s,Second parameter of UTC polynomial,
+"",12,I1,-,utcDtLS,s,Delta time due to current leap seconds,
+"",13,U1,2^12,utcTot,s,"UTC parameters reference time of week (GPStime)",
+"",14,U1,-,utcWNt,weeks,"UTC parameters reference week number (the 8bit WNt field)",

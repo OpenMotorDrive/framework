@@ -1,0 +1,14 @@
+Message,NAV-DOP,,,,,
+Description,Dilution of precision,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,"•DOP values are dimensionless.•All DOP values are scaled by a factor of 100. If the unit transmits a value of e.g. 156, theDOP value is 1.56.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x01,0x04,18,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,U2,0.01,gDOP,-,Geometric DOP,
+6,U2,0.01,pDOP,-,Position DOP,
+8,U2,0.01,tDOP,-,Time DOP,
+10,U2,0.01,vDOP,-,Vertical DOP,

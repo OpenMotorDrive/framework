@@ -1,0 +1,21 @@
+Message,NAV-ORB,,,,,
+Description,GNSS Orbit Database Info,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Periodic/Polled,,,,,
+Comment,Status of the GNSS orbit database knowledge.,,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x01,0x34,8 + 6*numSv,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",
+4,U1,-,version,-,"Message version (1, for this version)",
+5,U1,-,numSv,-,Number of SVs in the database,
+6,U1[2],-,reserved1,-,Reserved,
+Start of repeated block (numSv times),,,,,,
+8 + 6*N,U1,-,gnssId,-,GNSS ID,
+9 + 6*N,U1,-,svId,-,Satellite ID,
+10 + 6*N,X1,-,svFlag,-,Information Flags (see graphic below),
+11 + 6*N,X1,-,eph,-,Ephemeris data (see graphic below),
+12 + 6*N,X1,-,alm,-,Almanac data (see graphic below),
+13 + 6*N,X1,-,otherOrb,-,Other orbit data available (see graphic below),
+End of repeated block,,,,,,

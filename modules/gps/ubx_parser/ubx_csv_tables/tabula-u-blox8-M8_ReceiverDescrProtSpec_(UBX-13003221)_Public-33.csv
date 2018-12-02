@@ -1,0 +1,9 @@
+"",Message,CFG-DAT,,,,,
+"",Description,The currently defined Datum,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get,,,,,
+"",Comment,"Returns the parameters of the currently defined datum. If no user-defined datum has beenset, this will default to WGS84.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x06,52,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,

@@ -1,0 +1,10 @@
+Message,CFG-TP5,,,,,
+Description,Time Pulse Parameters,,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 16 up to version 22",,,,,
+Type,Get/Set,,,,,
+Comment,"This message is used to get/set time pulse parameters. For more information see sectionTime pulse.",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x31,32,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,tpIdx,-,"Time pulse selection (0 = TIMEPULSE, 1 =TIMEPULSE2)",

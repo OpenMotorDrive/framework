@@ -1,0 +1,9 @@
+"",,"by using a high data rate and temporarily stopping the GPS processing (see UBX-CFG-RST).",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x21,0x09,12,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,startNumber,-,"Index of first log entry to be transferred. If it islarger than the index of the last available logentry, then the first log entry to be transferred isthe last available log entry. The indexing of logentries is zero based.",
+"",4,U4,-,entryCount,-,"Number of log entries to transfer in totalincluding the first entry to be transferred. If it islarger than the log entries available startingfrom the first entry to be transferred, then onlythe available log entries are transferred followedby a UBX-ACK-NAK. The maximum is 256.",
+"",8,U1,-,version,-,The version of this message. Set to 0.,
+"",9,U1[3],-,reserved1,-,Reserved,

@@ -1,0 +1,12 @@
+"",Message,CFG-MSG,,,,,
+"",Description,Set Message Rate,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"Set message rate configuration for the current port. See also section How to changebetween protocols.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x01,3,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,msgClass,-,Message Class,
+"",1,U1,-,msgID,-,Message Identifier,
+"",2,U1,-,rate,-,Send rate on current Port,

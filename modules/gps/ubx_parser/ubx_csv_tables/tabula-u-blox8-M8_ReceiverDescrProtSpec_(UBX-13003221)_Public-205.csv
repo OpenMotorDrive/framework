@@ -1,0 +1,10 @@
+"",Message,NAV-EOE,,,,,
+"",Description,End Of Epoch,,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 18 up to version 23.01",,,,,
+"",Type,Periodic,,,,,
+"",Comment,"This message is intended to be used as a marker to collect all navigation messages of anepoch. It is output after all enabled NAV class messages (except NAV-HNR) and after allenabled NMEA messages.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x01,0x61,4,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U4,-,iTOW,ms,"GPS time of week of the navigation epoch.See the description of iTOW for details.",

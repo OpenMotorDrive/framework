@@ -1,0 +1,6 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",14,U1,-,wnRec,week,"BeiDou week number of reception of this UTCparameter set (8 bit truncated)"
+"",15,U1,-,wnLSF,week,Week number of the new leap second
+"",16,U1,-,dN,day,Day number of the new leap second
+"",17,I1,-,dtLSF,s,"Delta time due to leap seconds after the newleap second effective"
+"",18,U1[2],-,reserved3,-,Reserved

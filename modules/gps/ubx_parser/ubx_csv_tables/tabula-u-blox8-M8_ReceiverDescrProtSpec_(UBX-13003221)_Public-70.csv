@@ -1,0 +1,20 @@
+Message,CFG-ODO,,,,,
+Description,"Odometer, Low-speed COG Engine Settings",,,,,
+Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+Type,Get/Set,,,,,
+Comment,"This feature is not supported for the FTS product variant.-",,,,,
+Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",0xB5 0x62,0x06,0x1E,20,see below,CK_A CK_B
+Payload Contents:,,,,,,
+Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+0,U1,-,version,-,Message version (0 for this version),
+1,U1[3],-,reserved1,-,Reserved,
+4,U1,-,flags,-,"Odometer/Low-speed COG filter flags (seegraphic below)",
+5,X1,-,odoCfg,-,Odometer filter settings (see graphic below),
+6,U1[6],-,reserved2,-,Reserved,
+12,U1,1e-1,cogMaxSpeed,m/s,"Speed below which course-over-ground (COG)is computed with the low-speed COG filter",
+13,U1,-,cogMaxPosAcc,m,"Maximum acceptable position accuracy forcomputing COG with the low-speed COG filter",
+14,U1[2],-,reserved3,-,Reserved,
+16,U1,-,velLpGain,-,"Velocity low-pass filter level, range 0..255",
+17,U1,-,cogLpGain,-,"COG low-pass filter level (at speed < 8 m/s),range 0..255",
+18,U1[2],-,reserved4,-,Reserved,

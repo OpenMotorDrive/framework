@@ -1,0 +1,33 @@
+"",,"response to the SMLC.Reference: [1] ETSI TS 144 031 V11.0.0 (2012-10), Digital cellular telecommunicationssystem (Phase 2+), Location Services (LCS), Mobile Station (MS) - Serving Mobile LocationCentre (SMLC), Radio Resource LCS Protocol (RRLP), (3GPP TS 44.031 version 11.0.0Release 11).",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x02,0x14,44 + 24*numSV,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,version,-,"Message version, currently 0x00",
+"",1,U1[3],-,reserved1,-,Reserved,
+"",4,U4,-,gpsTOW,ms,GPS measurement reference time,
+"",8,U4,-,gloTOW,ms,GLONASS measurement reference time,
+"",12,U4,-,bdsTOW,ms,BeiDou measurement reference time,
+"",16,U1[4],-,reserved2,-,Reserved,
+"",20,U4,-,qzssTOW,ms,QZSS measurement reference time,
+"",24,U2,2^-4,gpsTOWacc,ms,"GPS measurement reference time accuracy(0xffff = > 4s)",
+"",26,U2,2^-4,gloTOWacc,ms,"GLONASS measurement reference timeaccuracy (0xffff = > 4s)",
+"",28,U2,2^-4,bdsTOWacc,ms,"BeiDou measurement reference time accuracy(0xffff = > 4s)",
+"",30,U1[2],-,reserved3,-,Reserved,
+"",32,U2,2^-4,qzssTOWacc,ms,"QZSS measurement reference time accuracy(0xffff = > 4s)",
+"",34,U1,-,numSV,-,Number of satellites in repeated block,
+"",35,U1,-,flags,-,Flags (see graphic below),
+"",36,U1[8],-,reserved4,-,Reserved,
+"",Start of repeated block (numSV times),,,,,,
+"",44 + 24*N,U1,-,gnssId,-,GNSS ID (see Satellite Numbering),
+"",45 + 24*N,U1,-,svId,-,Satellite ID (see Satellite Numbering),
+"",46 + 24*N,U1,-,cNo,-,carrier noise ratio (0..63),
+"",47 + 24*N,U1,-,mpathIndic,-,"multipath index (according to [1]) (0 = notmeasured, 1 = low, 2 = medium, 3 = high)",
+"",48 + 24*N,I4,0.04,dopplerMS,m/s,Doppler measurement,
+"",52 + 24*N,I4,0.2,dopplerHz,Hz,Doppler measurement,
+"",56 + 24*N,U2,-,wholeChips,-,"whole value of the code phase measurement (0..1022 for GPS)",
+"",58 + 24*N,U2,-,fracChips,-,"fractional value of the code phase measurement(0..1023)",
+"",60 + 24*N,U4,2^-21,codePhase,ms,Code phase,
+"",64 + 24*N,U1,-,intCodePhase,ms,Integer (part of the) code phase,
+"",65 + 24*N,U1,-,"pseuRangeRMSErr",-,"pseudorange RMS error index (according to [1])(0..63)",
+"",66 + 24*N,U1[2],-,reserved5,-,Reserved,

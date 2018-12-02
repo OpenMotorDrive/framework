@@ -1,0 +1,18 @@
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description
+"",3,U1,-,fixMode,-,"Position Fixing Mode:1: 2D only2: 3D only3: auto 2D/3D"
+"",4,I4,0.01,fixedAlt,m,Fixed altitude (mean sea level) for 2D fix mode.
+"",8,U4,0.0001,fixedAltVar,m^2,Fixed altitude variance for 2D mode.
+"",12,I1,-,minElev,deg,"Minimum Elevation for a GNSS satellite to beused in NAV"
+"",13,U1,-,drLimit,s,Reserved
+"",14,U2,0.1,pDop,-,Position DOP Mask to use
+"",16,U2,0.1,tDop,-,Time DOP Mask to use
+"",18,U2,-,pAcc,m,Position Accuracy Mask
+"",20,U2,-,tAcc,m,Time Accuracy Mask
+"",22,U1,-,"staticHoldThresh",cm/s,Static hold threshold
+"",23,U1,-,dgnssTimeout,s,DGNSS timeout
+"",24,U1,-,"cnoThreshNumSVs",-,"Number of satellites required to have C/N0above cnoThresh for a fix to be attempted"
+"",25,U1,-,cnoThresh,dBHz,"C/N0 threshold for deciding whether to attempta fix"
+"",26,U1[2],-,reserved1,-,Reserved
+"",28,U2,-,"staticHoldMaxDist",m,"Static hold distance threshold (before quittingstatic hold)"
+"",30,U1,-,utcStandard,-,"UTC standard to be used:0: Automatic; receiver selects based on GNSSconfiguration (see GNSS time bases).3: UTC as operated by the U.S. NavalObservatory (USNO); derived from GPS time6: UTC as operated by the former Soviet Union;derived from GLONASS time7: UTC as operated by the National Time ServiceCenter, China; derived from BeiDou time(not supported in protocol versions less than 16)."
+"",31,U1[5],-,reserved2,-,Reserved

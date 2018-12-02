@@ -1,0 +1,13 @@
+"",,"measured result. Normal operation then resumes. If the control value movement is less thanmaxStepSize then the transition will happen in one step - this will give fast calibration.Care must be taken when calibrating the internal oscillator against the GNSS source. In thatcase the changes applied to the oscillator frequency could be severe enough to lose satellitesignal tracking, especially when signals are weak. If too many signals are lost, the GNSSsystem will lose its fix and be unable to measure the oscillator frequency - the calibrationwill then fail. In this case maxStepSize must be reasonably small.It is also important that only the chosen frequency source is enabled during the calibrationprocess and that it remains stable throughout the calibration period; otherwise incorrectoscillator measurements will be made and this will lead to miscalibration and poorsubsequent operation of the receiver.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x0D,0x15,12,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,type,-,Message type (2 for this message),
+"",1,U1,-,version,-,Message version (0 for this version),
+"",2,U1,-,oscId,-,"Oscillator to be calibrated:0: internal oscillator1: external oscillator",
+"",3,U1,-,srcId,-,"Reference source:0: internal oscillator1: GNSS2: EXTINT03: EXTINT1Option 0 should be used when calibrating theexternal oscillator. Options 1-3 should be usedwhen calibrating the internal oscillator.",
+"",4,U1[2],-,reserved1,-,Reserved,
+"",6,U2,-,raw0,-,First value used for calibration,
+"",8,U2,-,raw1,-,Second value used for calibration,
+"",10,U2,-,maxStepSize,"rawvalue/s",Maximum step size to be used,

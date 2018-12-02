@@ -1,0 +1,12 @@
+"",Message,CFG-MSG,,,,,
+"",Description,Set Message Rate(s),,,,,
+"",Firmware,"Supported on:•u-blox 8 / u-blox M8 from protocol version 15 up to version 23.01",,,,,
+"",Type,Get/Set,,,,,
+"",Comment,"Set/Get message rate configuration (s) to/from the receiver. See also section How to changebetween protocols.•Send rate is relative to the event a message is registered on. For example, if the rate of anavigation message is set to 2, the message is sent every second navigation solution. Forconfiguring NMEA messages, the section NMEA Messages Overview describes Class andIdentifier numbers used.",,,,,
+"",Message Structure,Header,Class,ID,Length (Bytes),Payload,Checksum
+"",,0xB5 0x62,0x06,0x01,8,see below,CK_A CK_B
+"",Payload Contents:,,,,,,
+"",Byte Offset,"NumberFormat",Scaling,Name,Unit,Description,
+"",0,U1,-,msgClass,-,Message Class,
+"",1,U1,-,msgID,-,Message Identifier,
+"",2,U1[6],-,rate,-,Send rate on I/O Port (6 Ports),
