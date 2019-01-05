@@ -148,7 +148,7 @@ static void uavcan_init(uint8_t can_dev_idx) {
 #endif
 
 #ifdef MODULE_PARAM_ENABLED
-    if (node_id_param != 0 && node_id == 0) {
+    if (node_id_param > 0 && node_id_param <= 127) {
         node_id = node_id_param;
     }
 #endif
