@@ -32,8 +32,6 @@ static uint32_t _profiLED_gen_write(uint32_t num_leds, struct profiLED_gen_color
     const uint32_t min_bits = num_leds*25+50;
     const uint32_t output_stream_length = (min_bits+7)/8;
 
-    uint8_t* profiLED_gen_color_byte_array = (uint8_t*)profiLED_gen_colors;
-
     for (uint32_t output_idx = 0; output_idx < output_stream_length; output_idx++) {
         uint8_t out_byte = 0;
         for (uint8_t i=0; i<8; i++) {
