@@ -4,7 +4,10 @@
 #include <common/helpers.h>
 #include <app_config.h>
 
+#ifndef MAX_NUM_PROFILEDS
 #define MAX_NUM_PROFILEDS 64
+#endif
+
 #define PROFILED_OUTPUT_BUFFER_SIZE PROFILED_GEN_BUF_SIZE(MAX_NUM_PROFILEDS)
 #define PROFILED_WORKER_THREAD_STACK_SIZE 256
 #define PROFILED_WORKER_MAILBOX_DEPTH 2
@@ -33,10 +36,8 @@ void profiLED_init(struct profiLED_instance_s* instance, uint8_t spi_bus_idx, ui
 #endif
 
     size_t colors_size = sizeof(struct profiLED_gen_color_s) * num_leds;
-#ifndef PROFILED_COLOR_ALLOCATED
-    instance->colors = chHeapAlloc(NULL, colors_size);
-#endif
 
+    instance->colors = chCoreAlloc(colors_size);
     if (!instance->colors) goto fail;
     memset(instance->colors, 0, colors_size);
 
@@ -50,9 +51,6 @@ void profiLED_init(struct profiLED_instance_s* instance, uint8_t spi_bus_idx, ui
     return;
 
 fail:
-#ifndef PROFILED_COLOR_ALLOCATED
-    chHeapFree(instance->colors);
-#endif
     instance->colors = NULL;
 }
 
