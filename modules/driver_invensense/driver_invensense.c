@@ -18,7 +18,7 @@ static uint8_t invensense_get_whoami(enum invensense_imu_type_t imu_type);
 
 bool invensense_init(struct invensense_instance_s* instance, uint8_t spi_idx, uint32_t select_line, enum invensense_imu_type_t imu_type) {
     // Ensure sufficient power-up time has elapsed
-    chThdSleep(MS2ST(100));
+    chThdSleep(LL_MS2ST(100));
 
     spi_device_init(&instance->spi_dev, spi_idx, select_line, 10000, 8, SPI_DEVICE_FLAG_CPHA|SPI_DEVICE_FLAG_CPOL);
 
@@ -36,13 +36,13 @@ bool invensense_init(struct invensense_instance_s* instance, uint8_t spi_idx, ui
         uint32_t tbegin = chVTGetSystemTimeX();
         while (invensense_read8(instance, INVENSENSE_REG_PWR_MGMT_1) & 1<<7) {
             uint32_t tnow = chVTGetSystemTimeX();
-            if (tnow-tbegin > MS2ST(100)) {
+            if (tnow-tbegin > LL_MS2ST(100)) {
                 return false;
             }
         }
     }
 
-    chThdSleep(MS2ST(10));
+    chThdSleep(LL_MS2ST(10));
 
     // Reset value of CONFIG is 0x80 - datasheet instructs us to clear bit 7
     invensense_write8(instance, INVENSENSE_REG_CONFIG, 0);
