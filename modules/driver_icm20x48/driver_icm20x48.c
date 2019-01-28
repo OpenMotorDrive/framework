@@ -13,11 +13,11 @@ static uint8_t icm20x48_get_whoami(enum icm20x48_imu_type_t imu_type);
 
 bool icm20x48_init(struct icm20x48_instance_s* instance, uint8_t spi_idx, uint32_t select_line, enum icm20x48_imu_type_t imu_type) {
     // Ensure sufficient power-up time has elapsed
-    chThdSleep(MS2ST(100));
+    chThdSleep(LL_MS2ST(100));
 
     instance->curr_bank = 99;
 
-    spi_device_init(&instance->spi_dev, spi_idx, select_line, 8000000, 16, SPI_DEVICE_FLAG_CPHA|SPI_DEVICE_FLAG_CPOL);
+    spi_device_init(&instance->spi_dev, spi_idx, select_line, 7000000, 16, SPI_DEVICE_FLAG_CPHA|SPI_DEVICE_FLAG_CPOL);
 
     if (icm20x48_read_reg(instance, ICM20948_REG_WHO_AM_I) != icm20x48_get_whoami(imu_type)) {
         return false;
@@ -25,11 +25,11 @@ bool icm20x48_init(struct icm20x48_instance_s* instance, uint8_t spi_idx, uint32
 
     // Read USER_CTRL, disable MST_I2C, write USER_CTRL, and wait long enough for any active I2C transaction to complete
     icm20x48_write_reg(instance, ICM20948_REG_USER_CTRL,  icm20x48_read_reg(instance, ICM20948_REG_USER_CTRL) & ~(1<<5));
-    chThdSleep(MS2ST(10));
+    chThdSleep(LL_MS2ST(10));
     // Perform a device reset, wait for completion, then wake the device
     // Datasheet is unclear on time required for wait time after reset, but mentions 100ms under "start-up time for register read/write from power-up"
     icm20x48_write_reg(instance, ICM20948_REG_PWR_MGMT_1, 1<<7);
-    usleep(10000);
+    chThdSleep(LL_MS2ST(100));
 
     icm20x48_write_reg(instance, ICM20948_REG_PWR_MGMT_1, 1);
     // Wait for reset to complete
@@ -37,11 +37,13 @@ bool icm20x48_init(struct icm20x48_instance_s* instance, uint8_t spi_idx, uint32
         uint32_t tbegin = chVTGetSystemTimeX();
         while (icm20x48_read_reg(instance, ICM20948_REG_PWR_MGMT_1) & 1<<7) {
             uint32_t tnow = chVTGetSystemTimeX();
-            if (tnow-tbegin > MS2ST(100)) {
+            if (tnow-tbegin > LL_MS2ST(100)) {
                 return false;
             }
         }
     }
+
+    chThdSleep(LL_MS2ST(10));
 
     return true;
 }
@@ -88,6 +90,7 @@ uint8_t icm20x48_read_reg(struct icm20x48_instance_s* instance, uint16_t reg){
     }
     spi_device_begin(&instance->spi_dev);
     spi_device_exchange(&instance->spi_dev, 1, &_reg, &ret);
+    chThdSleepMicroseconds(2);
     spi_device_end(&instance->spi_dev);
     return ret;
 }
@@ -100,6 +103,7 @@ void icm20x48_write_reg(struct icm20x48_instance_s* instance, uint16_t reg, uint
     }
     spi_device_begin(&instance->spi_dev);
     spi_device_send(&instance->spi_dev, 1 , &data);
+    chThdSleepMicroseconds(2);
     spi_device_end(&instance->spi_dev);
 }
 
