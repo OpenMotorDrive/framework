@@ -16,6 +16,7 @@ WORKER_THREAD_DECLARE_EXTERN(WT)
 
 struct allocatee_instance_s;
 
+static void allocation_init(void);
 static float getRandomFloat(void);
 static void allocation_message_handler(size_t msg_size, const void* buf, void* ctx);
 static void allocation_start_request_timer(struct allocatee_instance_s* instance);
@@ -28,15 +29,17 @@ struct allocatee_instance_s {
     uint32_t unique_id_offset;
     struct worker_thread_timer_task_s request_transmit_task;
     struct worker_thread_listener_task_s allocation_listener_task;
+    struct allocatee_instance_s* next;
 };
 
+static struct allocatee_instance_s* allocatee_instance_list_head;
 
 RUN_AFTER(UAVCAN_INIT) {
-     for (uint8_t i=0; i<uavcan_get_num_instances(); i++) {
-        if (uavcan_get_node_id(i) != 0) {
-            continue;
-        }
+    allocation_init();
+}
 
+static void allocation_init(void) {
+    for (uint8_t i=0; i<uavcan_get_num_instances(); i++) {
         struct allocatee_instance_s* instance = chCoreAlloc(sizeof(struct allocatee_instance_s));
 
         chDbgCheck(instance != NULL);
@@ -44,12 +47,47 @@ RUN_AFTER(UAVCAN_INIT) {
             continue;
         }
 
-        struct pubsub_topic_s* allocation_topic = uavcan_get_message_topic(i, &uavcan_protocol_dynamic_node_id_Allocation_descriptor);
-
+        memset(instance, 0, sizeof(struct allocatee_instance_s));
         instance->uavcan_idx = i;
         instance->unique_id_offset = 0;
-        worker_thread_add_listener_task(&WT, &instance->allocation_listener_task, allocation_topic, allocation_message_handler, instance);
-        allocation_start_request_timer(instance);
+        LINKED_LIST_APPEND(struct allocatee_instance_s, allocatee_instance_list_head, instance);
+        if (uavcan_get_node_id(i) == 0) {
+            struct pubsub_topic_s* allocation_topic = uavcan_get_message_topic(i, &uavcan_protocol_dynamic_node_id_Allocation_descriptor);
+            worker_thread_add_listener_task(&WT, &instance->allocation_listener_task, allocation_topic, allocation_message_handler, instance);
+            allocation_start_request_timer(instance);
+        }
+    }
+}
+
+static struct allocatee_instance_s* allocation_get_instance(uint8_t idx) {
+    struct allocatee_instance_s* instance = allocatee_instance_list_head;
+    while (instance && idx != 0) {
+        idx--;
+        instance = instance->next;
+    }
+    return instance;
+}
+
+uint8_t allocation_get_num_instances(void) {
+    struct allocatee_instance_s* instance = allocatee_instance_list_head;
+    uint8_t count = 0;
+    while (instance) {
+        count++;
+        instance = instance->next;
+    }
+    return count;
+}
+
+void allocation_forget_nodeid(void) {
+    for (uint8_t allocatee_idx=0; allocatee_idx<allocation_get_num_instances(); allocatee_idx++) {
+        struct allocatee_instance_s* instance = allocation_get_instance(allocatee_idx);
+        uint8_t nodeId_uavcan_instance = uavcan_get_node_id(instance->uavcan_idx);
+        if (nodeId_uavcan_instance != 0) {
+            uavcan_forget_nodeid(instance->uavcan_idx);
+            struct pubsub_topic_s* allocation_topic = uavcan_get_message_topic(instance->uavcan_idx, &uavcan_protocol_dynamic_node_id_Allocation_descriptor);
+            worker_thread_add_listener_task(&WT, &instance->allocation_listener_task, allocation_topic, allocation_message_handler, instance);
+            allocation_start_request_timer(instance);
+        }
     }
 }
 
