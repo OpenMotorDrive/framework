@@ -128,15 +128,17 @@ include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/hal/osal/rt/osal.mk
 include $(CHIBIOS)/os/rt/rt.mk
 include $(CHIBIOS)/os/hal/lib/streams/streams.mk
+include $(CHIBIOS)/os/various/shell/shell.mk
 
 INCDIR += $(CHIBIOS)/os/license \
           $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
-          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC)$(STREAMSINC) \
+          $(HALINC) $(PLATFORMINC) $(BOARD_INC) $(TESTINC) $(STREAMSINC) \
           $(CHIBIOS)/community/os/various \
           $(CHIBIOS)/os/various \
           $(COMMON_INC) \
           $(BUILDDIR)/modules
 
+INCDIR += $(SHELLINC)
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
 CSRC += $(STARTUPSRC) \
@@ -150,6 +152,8 @@ CSRC += $(STARTUPSRC) \
         $(COMMON_CSRC) \
         $(MODULES_CSRC) \
         $(STREAMSSRC)
+
+CSRC += $(SHELLSRC)
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.

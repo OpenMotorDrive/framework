@@ -3,14 +3,26 @@
 #include <ch.h>
 #include <hal.h>
 #ifdef STM32F3xx_MCUCONF
+#define STM32_FLASH_BASE    0x08000000
 
 
 #define FLASH_WORD_SIZE sizeof(flash_word_t)
 typedef uint16_t flash_word_t;
 
-uint32_t flash_getpageaddr(uint32_t page)
+void* flash_get_page_addr(uint32_t page)
 {
-    return (page*2048);
+    return (void*)(STM32_FLASH_BASE + (page*2048));
+}
+
+int16_t flash_get_page_num(void *address)
+{
+    uint32_t _addr = (uint32_t)address;
+    return (_addr-STM32_FLASH_BASE)/2048;
+}
+
+uint32_t flash_get_page_ofs(uint32_t page)
+{
+    return page*2048;
 }
 
 static void __attribute__((noinline)) flash_wait_until_ready(void) {

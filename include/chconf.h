@@ -79,9 +79,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#ifndef CH_CFG_USE_TM
-#define CH_CFG_USE_TM                       FALSE
-#endif
+#define CH_CFG_USE_TM                       TRUE
 
 /**
  * @brief   Threads registry APIs.
@@ -100,9 +98,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#ifndef CH_CFG_USE_WAITEXIT
-#define CH_CFG_USE_WAITEXIT                 FALSE
-#endif
+#define CH_CFG_USE_WAITEXIT                 TRUE
 
 /**
  * @brief   Semaphores APIs.
@@ -110,9 +106,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#ifndef CH_CFG_USE_SEMAPHORES
-#define CH_CFG_USE_SEMAPHORES               FALSE
-#endif
+#define CH_CFG_USE_SEMAPHORES               TRUE
 
 /**
  * @brief   Semaphores queuing mode.
@@ -157,9 +151,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_MUTEXES.
  */
-#ifndef CH_CFG_USE_CONDVARS
-#define CH_CFG_USE_CONDVARS                 FALSE
-#endif
+#define CH_CFG_USE_CONDVARS                 TRUE
 
 /**
  * @brief   Conditional Variables APIs with timeout.
@@ -169,9 +161,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_CONDVARS.
  */
-#ifndef CH_CFG_USE_CONDVARS_TIMEOUT
-#define CH_CFG_USE_CONDVARS_TIMEOUT         FALSE
-#endif
+#define CH_CFG_USE_CONDVARS_TIMEOUT         TRUE
 
 /**
  * @brief   Events Flags APIs.
@@ -179,9 +169,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#ifndef CH_CFG_USE_EVENTS
-#define CH_CFG_USE_EVENTS                   FALSE
-#endif
+#define CH_CFG_USE_EVENTS                   TRUE
 
 /**
  * @brief   Events Flags APIs with timeout.
@@ -191,9 +179,7 @@
  * @note    The default is @p TRUE.
  * @note    Requires @p CH_CFG_USE_EVENTS.
  */
-#ifndef CH_CFG_USE_EVENTS_TIMEOUT
-#define CH_CFG_USE_EVENTS_TIMEOUT           FALSE
-#endif
+#define CH_CFG_USE_EVENTS_TIMEOUT           TRUE
 
 /**
  * @brief   Synchronous Messages APIs.
@@ -202,9 +188,7 @@
  *
  * @note    The default is @p TRUE.
  */
-#ifndef CH_CFG_USE_MESSAGES
-#define CH_CFG_USE_MESSAGES                 FALSE
-#endif
+#define CH_CFG_USE_MESSAGES                 TRUE
 
 /**
  * @brief   Synchronous Messages queuing mode.
@@ -252,9 +236,7 @@
  *          @p CH_CFG_USE_SEMAPHORES.
  * @note    Mutexes are recommended.
  */
-#ifndef CH_CFG_USE_HEAP
-#define CH_CFG_USE_HEAP                     FALSE
-#endif
+#define CH_CFG_USE_HEAP                     TRUE
 
 /**
  * @brief   Memory Pools Allocator APIs.
@@ -292,9 +274,16 @@
  * @note    Requires @p CH_CFG_USE_WAITEXIT.
  * @note    Requires @p CH_CFG_USE_HEAP and/or @p CH_CFG_USE_MEMPOOLS.
  */
-#ifndef CH_CFG_USE_DYNAMIC
-#define CH_CFG_USE_DYNAMIC                  FALSE
-#endif
+#define CH_CFG_USE_DYNAMIC                  TRUE
+
+/** @} */
+
+/*===========================================================================*/
+/**
+ * @name Debug options
+ * @{
+ */
+/*===========================================================================*/
 
 /**
  * @brief   Debug option, kernel statistics.
