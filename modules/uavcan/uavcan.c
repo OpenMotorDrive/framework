@@ -161,6 +161,17 @@ fail:
     chSysHalt(NULL);
 }
 
+void uavcan_forget_nodeid(uint8_t uavcan_idx) {
+    struct uavcan_instance_s* uavcan_instance;
+    if (!(uavcan_instance = uavcan_get_instance(uavcan_idx))) { goto fail; }
+    CanardInstance* canard_instance= &uavcan_instance->canard;
+    canardForgetLocalNodeID(canard_instance);
+    return;
+
+fail:
+    chSysHalt(NULL);
+}
+
 static bool uavcan_iterate_instances(struct uavcan_instance_s** instance_ptr) {
     if (!instance_ptr) {
         return false;
